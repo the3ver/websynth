@@ -61,6 +61,11 @@
           <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.75">
           <span class="volume-value" id="masterVolumeDisplay">75%</span>
         </div>
+        <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
+          <span class="changelog-sparkle">✨</span>
+          <span>Was gibt's Neues?</span>
+          <span class="version-tag">v1.1.0</span>
+        </button>
         <button class="btn btn-outline" id="openRoadmapBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 20h9"></path>
@@ -903,6 +908,107 @@
     <!-- Studio Desk Bottom Surface -->
     <div class="studio-desk-edge">
       <div class="wood-grain-desk"></div>
+    </div>
+  </div>
+
+  <!-- Was gibt's Neues (What's New) Modal -->
+  <div class="modal-backdrop" id="changelogModal">
+    <div class="modal-dialog changelog-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="version-release-header">
+            <span class="badge-tag-release">NEUE VERSION</span>
+            <span class="release-version-number">v1.1.0</span>
+            <span class="release-date-tag">August 2026</span>
+          </div>
+          <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
+          <p class="modal-subtitle">Studio Audio Engine Update • Anti-Clicking, Master Limiter & Resonanz-Kompensation</p>
+        </div>
+        <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="changelog-grid">
+          
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🛡️</div>
+            <div class="card-content">
+              <div class="card-badge dsp-badge">AUDIO DSP</div>
+              <h3>Master Brickwall Limiter & Anti-Clipping</h3>
+              <p>Kristallklarer Sound ohne Verzerrungen:</p>
+              <ul>
+                <li><strong>DynamicsCompressor Limiter:</strong> Dedizierter Peak-Limiter vor dem Master-Ausgang fängt Pegelspitzen bei 0 dBFS zuverlässig ab.</li>
+                <li><strong>Gain Staging:</strong> Optimierte Voice- und Mixer-Pegel für sauberen Headroom bei 8-facher Polyphonie.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <div class="card-badge env-badge">HÜLLKURVEN</div>
+              <h3>Envelope De-Clicking & sanftes Voice-Release</h3>
+              <p>Keine störenden Klicks beim Tastenanschlag oder Loslassen:</p>
+              <ul>
+                <li><strong>Zero-Crossing Schutz:</strong> Mindest-Attackzeit mit exponentiellem Kurvenverlauf verhindert Abreiß-Knackser.</li>
+                <li><strong>Asymptotisches Ausklingen:</strong> Noten-Off nutzt unterbrechungsfreie Parameter-Automationen ohne Sprungstellen.</li>
+                <li><strong>Retrigger Crossfade:</strong> Schnelles wiederholtes Anschlagen blendet Stimmen weich über.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
+            <div class="card-icon">🎛️</div>
+            <div class="card-content">
+              <div class="card-badge vcf-badge">VCF FILTER</div>
+              <h3>24dB Filter Resonanz-Kompensation</h3>
+              <p>Perfekt ausbalancierter Moog-Ladder Filtersound:</p>
+              <ul>
+                <li><strong>Sicheres Q-Staging:</strong> Intelligente Aufteilung der Resonanz auf die Kaskadenstufen verhindert Selbstoszillations-Blowouts.</li>
+                <li><strong>Biting & Warm:</strong> Satt kreischende 303- und Moog-Leads ohne digitale Artefakte.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
+            <div class="card-icon">🎹</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">PERFORMANCE</div>
+              <h3>Arpeggiator, MIDI & Preset Library</h3>
+              <p>Vollständige Vintage-Synthesizer Suite:</p>
+              <ul>
+                <li><strong>16-Step Sequenzer:</strong> Lookahead-Clock mit Swing und interaktiven Step-Gates.</li>
+                <li><strong>Web MIDI API:</strong> Plug & Play USB-Masterkeyboard Unterstützung mit Pitch-Bend und Mod-Wheel.</li>
+                <li><strong>10 Factory Presets:</strong> Blade Runner Brass, Moog Bass, Juno Synthwave Pluck, TB-303 u.v.m. + User Presets.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Previous Versions Accordion / Archive Section -->
+        <div class="changelog-archive">
+          <details class="archive-details">
+            <summary class="archive-summary">
+              <span class="archive-title">📦 Frühere Versionen anzeigen</span>
+              <span class="archive-badge">v1.0.0</span>
+            </summary>
+            <div class="archive-content">
+              <h4>Version 1.0.0 – Initial Release</h4>
+              <p>Erstveröffentlichung des RETROVOX SUB-1 Synthesizers mit Dual-VCO, Sub-Oszillator, 24dB VCF, Dual-LFO, Vintage Stereo FX Rack (Juno Chorus, Tape Delay, Studio Reverb) und 3D-Keyboard.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="modal-footer changelog-footer">
+        <label class="dont-show-again-label">
+          <input type="checkbox" id="dontShowChangelogCheck" checked>
+          <span>Beim nächsten Start nicht mehr automatisch anzeigen</span>
+        </label>
+        <div class="footer-buttons">
+          <button class="btn btn-secondary" id="viewRoadmapFromChangelogBtn">Roadmap ansehen</button>
+          <button class="btn btn-primary" id="startWithNewVersionBtn">Alles klar – Loslegen!</button>
+        </div>
+      </div>
     </div>
   </div>
 

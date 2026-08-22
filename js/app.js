@@ -24,6 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedLeft = document.getElementById('speakerLedLeft');
   const speakerLedRight = document.getElementById('speakerLedRight');
 
+  // Version & Changelog State
+  const CURRENT_APP_VERSION = '1.1.0';
+  const STORAGE_KEY_VERSION = 'retrovox_synth_version';
+
+  // Changelog Modal Elements
+  const openChangelogBtn = document.getElementById('openChangelogBtn');
+  const closeChangelogBtn = document.getElementById('closeChangelogBtn');
+  const startWithNewVersionBtn = document.getElementById('startWithNewVersionBtn');
+  const viewRoadmapFromChangelogBtn = document.getElementById('viewRoadmapFromChangelogBtn');
+  const dontShowChangelogCheck = document.getElementById('dontShowChangelogCheck');
+  const changelogModal = document.getElementById('changelogModal');
+
   // Roadmap Modal Elements
   const openRoadmapBtn = document.getElementById('openRoadmapBtn');
   const closeRoadmapBtn = document.getElementById('closeRoadmapBtn');
@@ -87,23 +99,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Changelog Modal Handling
+  const openChangelog = () => {
+    if (changelogModal) {
+      changelogModal.classList.add('open');
+    }
+  };
+
+  const closeChangelog = () => {
+    if (changelogModal) {
+      changelogModal.classList.remove('open');
+      if (dontShowChangelogCheck && dontShowChangelogCheck.checked) {
+        try {
+          localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_APP_VERSION);
+        } catch (e) {}
+      }
+    }
+  };
+
+  if (openChangelogBtn) openChangelogBtn.addEventListener('click', openChangelog);
+  if (closeChangelogBtn) closeChangelogBtn.addEventListener('click', closeChangelog);
+  if (startWithNewVersionBtn) startWithNewVersionBtn.addEventListener('click', closeChangelog);
+
+  if (viewRoadmapFromChangelogBtn) {
+    viewRoadmapFromChangelogBtn.addEventListener('click', () => {
+      closeChangelog();
+      openRoadmap();
+    });
+  }
+
+  if (changelogModal) {
+    changelogModal.addEventListener('click', (e) => {
+      if (e.target === changelogModal) closeChangelog();
+    });
+  }
+
+  // Automatic Version Detection on Page Load
+  try {
+    const lastSeenVersion = localStorage.getItem(STORAGE_KEY_VERSION);
+    if (lastSeenVersion !== CURRENT_APP_VERSION) {
+      // Show "What's New" modal with a smooth slight delay
+      setTimeout(() => {
+        openChangelog();
+      }, 450);
+    }
+  } catch (e) {}
+
   // Roadmap Modal Handling
-  const openModal = () => roadmapModal.classList.add('open');
-  const closeModal = () => roadmapModal.classList.remove('open');
+  const openRoadmap = () => {
+    if (roadmapModal) roadmapModal.classList.add('open');
+  };
+  const closeRoadmap = () => {
+    if (roadmapModal) roadmapModal.classList.remove('open');
+  };
 
-  openRoadmapBtn.addEventListener('click', openModal);
-  closeRoadmapBtn.addEventListener('click', closeModal);
-  startExploringBtn.addEventListener('click', closeModal);
+  if (openRoadmapBtn) openRoadmapBtn.addEventListener('click', openRoadmap);
+  if (closeRoadmapBtn) closeRoadmapBtn.addEventListener('click', closeRoadmap);
+  if (startExploringBtn) startExploringBtn.addEventListener('click', closeRoadmap);
 
-  roadmapModal.addEventListener('click', (e) => {
-    if (e.target === roadmapModal) closeModal();
-  });
+  if (roadmapModal) {
+    roadmapModal.addEventListener('click', (e) => {
+      if (e.target === roadmapModal) closeRoadmap();
+    });
+  }
 
+  // Global Escape Key Listener for Modals
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && roadmapModal.classList.contains('open')) {
-      closeModal();
+    if (e.key === 'Escape') {
+      if (changelogModal && changelogModal.classList.contains('open')) {
+        closeChangelog();
+      } else if (roadmapModal && roadmapModal.classList.contains('open')) {
+        closeRoadmap();
+      }
     }
   });
 
-  console.log('⚡ RETROVOX SUB-1 Synthesizer Initialized Successfully.');
+  console.log(`⚡ RETROVOX SUB-1 Synthesizer v${CURRENT_APP_VERSION} Initialized Successfully.`);
 });

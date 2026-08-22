@@ -12,12 +12,13 @@
 class AudioEngine {
   constructor() {
     this.ctx = null;
+    this.limiter = null;
     this.masterGain = null;
     this.analyser = null;
     this.masterVoiceBus = null;
     this.activeVoices = new Map(); // noteNumber -> Voice
     this.isPowered = true;
-    this.masterVolume = 0.75;
+    this.masterVolume = 0.8;
     this.octaveShift = 0; // -2 to +2
     this.pitchBendFactor = 1.0; // 0.5 to 2.0
     this.modWheelValue = 0.0; // 0.0 to 1.0
@@ -41,10 +42,10 @@ class AudioEngine {
       hardSync: false
     };
 
-    // Mixer Parameters
+    // Mixer Parameters (Calibrated headroom for polyphony & dual-VCO summing)
     this.mixer = {
-      vco1Level: 0.8,
-      vco2Level: 0.6,
+      vco1Level: 0.75,
+      vco2Level: 0.55,
       subLevel: 0.35,
       subOctave: -1,    // -1 or -2
       noiseLevel: 0.0
@@ -62,18 +63,18 @@ class AudioEngine {
 
     // Filter Envelope (VCF ADSR)
     this.filterEnv = {
-      attack: 0.005,  // 0.001 to 4.0s (default fast 5ms)
+      attack: 0.006,  // 0.003 to 4.0s (safe de-clicked attack)
       decay: 0.35,    // 0.001 to 6.0s
       sustain: 0.35,  // 0.0 to 1.0
-      release: 0.4    // 0.005 to 8.0s
+      release: 0.35   // 0.005 to 8.0s
     };
 
     // Amp Envelope (VCA ADSR)
     this.ampEnv = {
-      attack: 0.003,  // 0.001 to 4.0s (default instant 3ms)
+      attack: 0.005,  // 0.003 to 4.0s (safe de-clicked attack)
       decay: 0.25,    // 0.001 to 6.0s
       sustain: 0.7,   // 0.0 to 1.0
-      release: 0.35   // 0.005 to 8.0s
+      release: 0.3    // 0.005 to 8.0s
     };
 
     // Dual-LFO Modulation Parameters (Independent LFO 1 & LFO 2)
@@ -174,8 +175,17 @@ class AudioEngine {
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(this.masterVolume, this.ctx.currentTime);
 
+      // Brickwall Peak Limiter / DynamicsCompressor to prevent digital clipping (0 dBFS ceiling)
+      this.limiter = this.ctx.createDynamicsCompressor();
+      this.limiter.threshold.setValueAtTime(-0.5, this.ctx.currentTime);
+      this.limiter.knee.setValueAtTime(0.0, this.ctx.currentTime);
+      this.limiter.ratio.setValueAtTime(20.0, this.ctx.currentTime);
+      this.limiter.attack.setValueAtTime(0.001, this.ctx.currentTime);
+      this.limiter.release.setValueAtTime(0.05, this.ctx.currentTime);
+
       this.analyser.connect(this.masterGain);
-      this.masterGain.connect(this.ctx.destination);
+      this.masterGain.connect(this.limiter);
+      this.limiter.connect(this.ctx.destination);
 
       // Build Dual LFO Engines
       this.initLfoEngines();
@@ -503,15 +513,31 @@ class AudioEngine {
       this.ctx.resume();
     }
 
+    const now = this.ctx.currentTime;
+
+    // Retrigger Protection: smoothly fade out previous voice on same note to prevent click
     if (this.activeVoices.has(midiNote)) {
-      this.noteOff(midiNote);
+      const oldVoice = this.activeVoices.get(midiNote);
+      this.activeVoices.delete(midiNote);
+      try {
+        if (oldVoice.vca && oldVoice.vca.gain) {
+          if (oldVoice.vca.gain.cancelAndHoldAtTime) {
+            oldVoice.vca.gain.cancelAndHoldAtTime(now);
+          } else {
+            oldVoice.vca.gain.cancelScheduledValues(now);
+          }
+          oldVoice.vca.gain.setTargetAtTime(0.0, now, 0.003);
+        }
+        setTimeout(() => {
+          this.disposeVoiceNodes(oldVoice);
+        }, 35);
+      } catch (e) {}
     }
 
     const baseFreq = this.midiNoteToFrequency(midiNote);
     const vco1Freq = this.getVCO1Frequency(baseFreq);
     const vco2Freq = this.getVCO2Frequency(baseFreq);
     const voiceCutoff = this.getVoiceCutoffFrequency(midiNote);
-    const now = this.ctx.currentTime;
 
     // --- 1. VCO 1 OSCILLATOR ---
     const osc1 = this.ctx.createOscillator();
@@ -594,33 +620,34 @@ class AudioEngine {
     const envPeakCutoff = Math.max(20, Math.min(20000, voiceCutoff * Math.pow(2, envOctaves)));
     const envSustainCutoff = Math.max(20, Math.min(20000, voiceCutoff + ((envPeakCutoff - voiceCutoff) * this.filterEnv.sustain)));
     
-    const faTime = Math.max(0.001, this.filterEnv.attack);
-    const fdTime = Math.max(0.001, this.filterEnv.decay);
+    // Minimum 4ms attack/decay to prevent filter popping
+    const faTime = Math.max(0.004, this.filterEnv.attack);
+    const fdTime = Math.max(0.004, this.filterEnv.decay);
 
     vcf1.frequency.cancelScheduledValues(now);
     vcf2.frequency.cancelScheduledValues(now);
-    vcf1.frequency.setValueAtTime(voiceCutoff, now);
-    vcf2.frequency.setValueAtTime(voiceCutoff, now);
+    vcf1.frequency.setValueAtTime(Math.max(20, voiceCutoff), now);
+    vcf2.frequency.setValueAtTime(Math.max(20, voiceCutoff), now);
 
     // Filter Attack & Decay
-    vcf1.frequency.linearRampToValueAtTime(envPeakCutoff, now + faTime);
-    vcf2.frequency.linearRampToValueAtTime(envPeakCutoff, now + faTime);
+    vcf1.frequency.exponentialRampToValueAtTime(envPeakCutoff, now + faTime);
+    vcf2.frequency.exponentialRampToValueAtTime(envPeakCutoff, now + faTime);
     vcf1.frequency.exponentialRampToValueAtTime(envSustainCutoff, now + faTime + fdTime);
     vcf2.frequency.exponentialRampToValueAtTime(envSustainCutoff, now + faTime + fdTime);
 
     driveShaper.connect(vcf1);
     vcf1.connect(vcf2);
 
-    // --- VCA (Amp Envelope ADSR) ---
+    // --- VCA (Amp Envelope ADSR with Calibrated Headroom & De-Clicking) ---
     const vca = this.ctx.createGain();
-    const peakGain = Math.max(0.0001, 0.75 * velocity);
+    const peakGain = Math.max(0.0001, 0.40 * velocity); // Calibrated for polyphony headroom
     const sustainGain = Math.max(0.0001, peakGain * this.ampEnv.sustain);
-    const aaTime = Math.max(0.001, this.ampEnv.attack);
-    const adTime = Math.max(0.001, this.ampEnv.decay);
+    const aaTime = Math.max(0.004, this.ampEnv.attack); // De-clicked minimum 4ms attack
+    const adTime = Math.max(0.004, this.ampEnv.decay);
 
     vca.gain.cancelScheduledValues(now);
-    vca.gain.setValueAtTime(0.0, now);
-    vca.gain.linearRampToValueAtTime(peakGain, now + aaTime);
+    vca.gain.setValueAtTime(0.00001, now);
+    vca.gain.exponentialRampToValueAtTime(peakGain, now + aaTime);
     vca.gain.exponentialRampToValueAtTime(sustainGain, now + aaTime + adTime);
 
     // --- LFO 1 MODULATION (Pitch, VCF, Amp Tremolo with Fade-In) ---
@@ -770,103 +797,127 @@ class AudioEngine {
 
   /**
    * Configures BiquadFilter types and resonance Q factors based on selected Filter Mode.
+   * Includes safe Q-scaling and resonance gain balancing to prevent self-oscillation blowouts.
    */
   configureFilterNodes(vcf1, vcf2, cutoff, resonance, mode) {
     const now = this.ctx ? this.ctx.currentTime : 0;
+    const safeCutoff = Math.max(20, Math.min(20000, cutoff));
     
     switch (mode) {
       case 'lowpass24':
         vcf1.type = 'lowpass';
         vcf2.type = 'lowpass';
-        vcf1.frequency.setValueAtTime(cutoff, now);
-        vcf2.frequency.setValueAtTime(cutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.7, resonance * 0.75), now);
-        vcf2.Q.setValueAtTime(Math.max(0.7, resonance * 0.75), now);
+        vcf1.frequency.setValueAtTime(safeCutoff, now);
+        vcf2.frequency.setValueAtTime(safeCutoff, now);
+        // Distribute resonance across cascaded 2-pole filters safely (max Q ~ 7.5 per stage)
+        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(7.5, resonance * 0.38)), now);
+        vcf2.Q.setValueAtTime(Math.max(0.5, Math.min(9.0, resonance * 0.48)), now);
         break;
 
       case 'lowpass12':
         vcf1.type = 'lowpass';
         vcf2.type = 'allpass';
-        vcf1.frequency.setValueAtTime(cutoff, now);
-        vcf2.frequency.setValueAtTime(cutoff, now);
-        vcf1.Q.setValueAtTime(resonance, now);
+        vcf1.frequency.setValueAtTime(safeCutoff, now);
+        vcf2.frequency.setValueAtTime(safeCutoff, now);
+        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(14.0, resonance * 0.7)), now);
         vcf2.Q.setValueAtTime(0.1, now);
         break;
 
       case 'bandpass':
         vcf1.type = 'bandpass';
         vcf2.type = 'bandpass';
-        vcf1.frequency.setValueAtTime(cutoff, now);
-        vcf2.frequency.setValueAtTime(cutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.8, resonance * 0.8), now);
-        vcf2.Q.setValueAtTime(Math.max(0.8, resonance * 0.8), now);
+        vcf1.frequency.setValueAtTime(safeCutoff, now);
+        vcf2.frequency.setValueAtTime(safeCutoff, now);
+        vcf1.Q.setValueAtTime(Math.max(0.6, Math.min(8.0, resonance * 0.42)), now);
+        vcf2.Q.setValueAtTime(Math.max(0.6, Math.min(8.0, resonance * 0.42)), now);
         break;
 
       case 'highpass':
         vcf1.type = 'highpass';
         vcf2.type = 'highpass';
-        vcf1.frequency.setValueAtTime(cutoff, now);
-        vcf2.frequency.setValueAtTime(cutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.7, resonance * 0.7), now);
-        vcf2.Q.setValueAtTime(Math.max(0.7, resonance * 0.7), now);
+        vcf1.frequency.setValueAtTime(safeCutoff, now);
+        vcf2.frequency.setValueAtTime(safeCutoff, now);
+        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(7.5, resonance * 0.38)), now);
+        vcf2.Q.setValueAtTime(Math.max(0.5, Math.min(9.0, resonance * 0.48)), now);
         break;
     }
   }
 
   /**
-   * Triggers Note Off (Release phase for both VCA and VCF Envelopes)
+   * Disposes voice audio nodes safely after envelope decay reaches silence
+   */
+  disposeVoiceNodes(voice) {
+    if (!voice) return;
+    try {
+      if (voice.osc1) { voice.osc1.stop(); voice.osc1.disconnect(); }
+      if (voice.osc2) { voice.osc2.stop(); voice.osc2.disconnect(); }
+      if (voice.subOsc) { voice.subOsc.stop(); voice.subOsc.disconnect(); }
+      if (voice.noiseSource) { voice.noiseSource.stop(); voice.noiseSource.disconnect(); }
+      if (voice.osc1Gain) voice.osc1Gain.disconnect();
+      if (voice.osc2Gain) voice.osc2Gain.disconnect();
+      if (voice.subGain) voice.subGain.disconnect();
+      if (voice.noiseGain) voice.noiseGain.disconnect();
+      if (voice.driveShaper) voice.driveShaper.disconnect();
+      if (voice.vcf1) voice.vcf1.disconnect();
+      if (voice.vcf2) voice.vcf2.disconnect();
+      if (voice.vca) voice.vca.disconnect();
+      if (voice.lfo1PitchGain) voice.lfo1PitchGain.disconnect();
+      if (voice.lfo1VcfGain) voice.lfo1VcfGain.disconnect();
+      if (voice.lfo1AmpGain) voice.lfo1AmpGain.disconnect();
+      if (voice.lfo2PitchGain) voice.lfo2PitchGain.disconnect();
+      if (voice.lfo2VcfGain) voice.lfo2VcfGain.disconnect();
+      if (voice.lfo2AmpGain) voice.lfo2AmpGain.disconnect();
+    } catch (e) {}
+  }
+
+  /**
+   * Triggers Note Off (Release phase for both VCA and VCF Envelopes with smooth de-clicking)
    */
   noteOff(midiNote) {
     if (!this.ctx) return;
     const voice = this.activeVoices.get(midiNote);
     if (!voice) return;
 
+    this.activeVoices.delete(midiNote);
+
     const now = this.ctx.currentTime;
-    const ampRelTime = Math.max(0.006, this.ampEnv.release);
-    const vcfRelTime = Math.max(0.006, this.filterEnv.release);
+    const ampRelTime = Math.max(0.008, this.ampEnv.release);
+    const vcfRelTime = Math.max(0.008, this.filterEnv.release);
     const maxRelTime = Math.max(ampRelTime, vcfRelTime);
 
-    // 1. VCA Volume Release
-    voice.vca.gain.cancelScheduledValues(now);
-    voice.vca.gain.setValueAtTime(Math.max(voice.vca.gain.value, 0.0001), now);
-    voice.vca.gain.exponentialRampToValueAtTime(0.00001, now + ampRelTime);
+    // 1. VCA Volume Release (Smooth exponential decay without abrupt step discontinuity)
+    try {
+      if (voice.vca && voice.vca.gain) {
+        if (voice.vca.gain.cancelAndHoldAtTime) {
+          voice.vca.gain.cancelAndHoldAtTime(now);
+        } else {
+          voice.vca.gain.cancelScheduledValues(now);
+        }
+        // Smooth asymptotic fade to zero using setTargetAtTime
+        voice.vca.gain.setTargetAtTime(0.0, now, Math.max(0.003, ampRelTime / 3.0));
+      }
+    } catch (e) {}
 
     // 2. VCF Filter Cutoff Release
-    voice.vcf1.frequency.cancelScheduledValues(now);
-    voice.vcf2.frequency.cancelScheduledValues(now);
-    voice.vcf1.frequency.setValueAtTime(voice.vcf1.frequency.value, now);
-    voice.vcf2.frequency.setValueAtTime(voice.vcf2.frequency.value, now);
-    voice.vcf1.frequency.exponentialRampToValueAtTime(voice.voiceCutoff, now + vcfRelTime);
-    voice.vcf2.frequency.exponentialRampToValueAtTime(voice.voiceCutoff, now + vcfRelTime);
+    try {
+      if (voice.vcf1 && voice.vcf2) {
+        if (voice.vcf1.frequency.cancelAndHoldAtTime) {
+          voice.vcf1.frequency.cancelAndHoldAtTime(now);
+          voice.vcf2.frequency.cancelAndHoldAtTime(now);
+        } else {
+          voice.vcf1.frequency.cancelScheduledValues(now);
+          voice.vcf2.frequency.cancelScheduledValues(now);
+        }
+        voice.vcf1.frequency.setTargetAtTime(voice.voiceCutoff, now, Math.max(0.003, vcfRelTime / 3.0));
+        voice.vcf2.frequency.setTargetAtTime(voice.voiceCutoff, now, Math.max(0.003, vcfRelTime / 3.0));
+      }
+    } catch (e) {}
 
+    // Cleanup after voice has reached absolute silence (3.5 * timeConstant + safe buffer)
+    const cleanupDelayMs = (maxRelTime * 1.5 + 0.1) * 1000;
     setTimeout(() => {
-      try {
-        voice.osc1.stop();
-        voice.osc2.stop();
-        voice.subOsc.stop();
-        if (voice.noiseSource) voice.noiseSource.stop();
-        voice.osc1.disconnect();
-        voice.osc2.disconnect();
-        voice.subOsc.disconnect();
-        if (voice.noiseSource) voice.noiseSource.disconnect();
-        voice.osc1Gain.disconnect();
-        voice.osc2Gain.disconnect();
-        voice.subGain.disconnect();
-        voice.noiseGain.disconnect();
-        voice.driveShaper.disconnect();
-        voice.vcf1.disconnect();
-        voice.vcf2.disconnect();
-        voice.vca.disconnect();
-        if (voice.lfo1PitchGain) voice.lfo1PitchGain.disconnect();
-        if (voice.lfo1VcfGain) voice.lfo1VcfGain.disconnect();
-        if (voice.lfo1AmpGain) voice.lfo1AmpGain.disconnect();
-        if (voice.lfo2PitchGain) voice.lfo2PitchGain.disconnect();
-        if (voice.lfo2VcfGain) voice.lfo2VcfGain.disconnect();
-        if (voice.lfo2AmpGain) voice.lfo2AmpGain.disconnect();
-      } catch (e) {}
-    }, maxRelTime * 1000 + 60);
-
-    this.activeVoices.delete(midiNote);
+      this.disposeVoiceNodes(voice);
+    }, cleanupDelayMs);
 
     if (this.onVoiceChange) {
       this.onVoiceChange(this.activeVoices.size, this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null);
