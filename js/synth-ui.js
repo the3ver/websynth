@@ -769,6 +769,24 @@ class SynthUI {
       });
     }
 
+    // 3b. Master Clock Sync Switch (INT / DRUM SYNC)
+    const arpSyncIndicator = document.getElementById('arpSyncIndicator');
+    if (arpSyncIndicator) {
+      arpSyncIndicator.addEventListener('click', (e) => {
+        const nextMode = this.arp.syncMode === 'external' ? 'internal' : 'external';
+        this.arp.setSyncMode(nextMode);
+        arpSyncIndicator.classList.toggle('active', nextMode === 'external');
+        arpSyncIndicator.textContent = nextMode === 'external' ? 'DRUM SYNC' : 'INT CLK';
+
+        const drumSyncToggleBtn = document.getElementById('drumSyncToggleBtn');
+        if (drumSyncToggleBtn) {
+          drumSyncToggleBtn.classList.toggle('active', nextMode === 'external');
+          drumSyncToggleBtn.textContent = nextMode === 'external' ? 'SYNC: MASTER' : 'SYNC: OFF';
+        }
+        if (e.target && e.target.blur) e.target.blur();
+      });
+    }
+
     // 4. Pattern Mode Selector
     if (this.arpModeSelect) {
       this.arpModeSelect.addEventListener('change', (e) => {

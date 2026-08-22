@@ -61,10 +61,14 @@
           <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.75">
           <span class="volume-value" id="masterVolumeDisplay">75%</span>
         </div>
+        <button class="btn btn-outline drum-rack-header-btn" id="openDrumDrawerBtn" title="Drum & Bass Machine ein-/ausfahren (Shift+D)">
+          <span class="btn-icon">🥁</span>
+          <span>DRUM RACK</span>
+        </button>
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.2.0</span>
+          <span class="version-tag">v1.3.0</span>
         </button>
         <button class="power-switch-btn" id="mainPowerBtn" title="Synthesizer Ein-/Ausschalten">
           <span class="power-indicator"></span>
@@ -706,10 +710,11 @@
 
             <!-- Arpeggiator & 16-Step Sequencer Strip -->
             <div class="arp-sequencer-strip">
-              <!-- Left Controls: Power, Latch, Mode, Octave -->
+              <!-- Left Controls: Power, Latch, Mode, Octave, Sync -->
               <div class="arp-ctrl-cluster">
                 <button class="arp-toggle-btn" id="arpPowerBtn" title="Arpeggiator aktivieren/deaktivieren">ARP OFF</button>
                 <button class="arp-toggle-btn" id="arpLatchBtn" title="Latch/Hold: Noten nach dem Loslassen weiterspielen">HOLD</button>
+                <button class="arp-toggle-btn arp-sync-btn" id="arpSyncIndicator" title="Clock Synchronisation (INT = Intern / DRUM = Drum Machine Master)">INT CLK</button>
 
                 <div class="arp-selector-unit">
                   <span class="arp-tiny-label">PATTERN</span>
@@ -904,6 +909,143 @@
     </div>
   </div>
 
+  <!-- Floating Right Slide-In Tab for Drum & Bass Machine -->
+  <div class="drum-drawer-tab" id="drumDrawerTab" title="Drum & Bass Machine ein-/ausfahren (Shift+D)">
+    <span class="tab-pulse-led"></span>
+    <span class="tab-title">RETROBEAT D-909</span>
+    <span class="tab-arrow">◀</span>
+  </div>
+
+  <!-- RETROBEAT D-909 Drum & Bass Machine Slide-In Drawer Unit -->
+  <aside class="drum-machine-drawer" id="drumDrawer" aria-label="RETROBEAT D-909 Drum & Bass Machine">
+    <div class="drum-drawer-inner">
+      
+      <!-- Top Metal Rack Ear & Header -->
+      <div class="drum-drawer-header">
+        <div class="rack-mount-screw top-left"></div>
+        <div class="rack-mount-screw top-right"></div>
+
+        <div class="drum-brand-plate">
+          <div class="drum-logo-group">
+            <span class="drum-logo-title">RETROBEAT D-909</span>
+            <span class="drum-logo-sub">ANALOG DRUM COMPUTER & 303 ACID BASS SEQUENCER</span>
+          </div>
+          <div class="drum-status-cluster">
+            <button class="btn-mini drum-sync-btn" id="drumSyncToggleBtn" title="Master Clock Sync an/aus">SYNC: MASTER</button>
+            <button class="drawer-close-icon-btn" id="closeDrumDrawerBtn" title="Rack einfahren (Esc)">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Transport & Pattern Control Bar -->
+      <div class="drum-master-bar">
+        <!-- Transport Start / Stop -->
+        <button class="drum-transport-btn" id="drumPlayBtn" title="Sequenzer Start/Stopp (Leertaste)">
+          <span class="btn-icon">▶</span>
+          <span class="btn-text">START</span>
+        </button>
+
+        <!-- Tempo / BPM Cluster -->
+        <div class="drum-tempo-unit">
+          <span class="drum-mini-label">TEMPO</span>
+          <div class="drum-bpm-box">
+            <button class="bpm-step-btn" id="drumBpmDownBtn">-</button>
+            <input type="number" class="drum-bpm-input" id="drumBpmInput" min="40" max="300" value="132">
+            <button class="bpm-step-btn" id="drumBpmUpBtn">+</button>
+          </div>
+          <button class="btn-mini drum-tap-btn" id="drumTapBtn" title="Tap Tempo">TAP</button>
+        </div>
+
+        <!-- Swing -->
+        <div class="drum-control-pod">
+          <div class="pod-label-row">
+            <span class="drum-mini-label">SWING</span>
+            <span class="drum-mini-val" id="drumSwingReadout">0%</span>
+          </div>
+          <input type="range" id="drumSwingKnob" min="0" max="0.65" step="0.01" value="0" class="drum-mini-slider">
+        </div>
+
+        <!-- Kit / Pattern Preset Selector -->
+        <div class="drum-preset-unit">
+          <span class="drum-mini-label">KIT & PATTERN</span>
+          <select class="drum-styled-select" id="drumKitSelect" title="Drumkit & Groove auswählen"></select>
+        </div>
+
+        <!-- Pattern Clear -->
+        <button class="btn-mini drum-clear-btn" id="drumClearBtn" title="Aktuelles Pattern löschen">CLR</button>
+
+        <!-- Master Drum Volume -->
+        <div class="drum-control-pod drum-vol-pod">
+          <span class="drum-mini-label">LEVEL</span>
+          <input type="range" id="drumVolumeSlider" min="0" max="1" step="0.01" value="0.85" class="drum-mini-slider">
+        </div>
+      </div>
+
+      <!-- Sound Tweak Strip (Analog Voice Dials) -->
+      <div class="drum-sound-tweak-strip">
+        <div class="tweak-group">
+          <span class="tweak-label">BD DECAY</span>
+          <input type="range" id="drumBdDecay" min="0.1" max="0.8" step="0.01" value="0.38" class="tweak-slider">
+        </div>
+        <div class="tweak-group">
+          <span class="tweak-label">BD DRIVE</span>
+          <input type="range" id="drumBdDrive" min="0.0" max="1.0" step="0.01" value="0.4" class="tweak-slider">
+        </div>
+        <div class="tweak-group">
+          <span class="tweak-label">SD SNAPPY</span>
+          <input type="range" id="drumSdSnappy" min="0.1" max="1.0" step="0.01" value="0.75" class="tweak-slider">
+        </div>
+        <div class="tweak-group">
+          <span class="tweak-label">SD TUNE</span>
+          <input type="range" id="drumSdTune" min="120" max="280" step="1" value="195" class="tweak-slider">
+        </div>
+        <div class="tweak-group">
+          <span class="tweak-label">HH DECAY</span>
+          <input type="range" id="drumHhDecay" min="0.1" max="0.7" step="0.01" value="0.35" class="tweak-slider">
+        </div>
+
+        <!-- 303 Acid Bass Controls -->
+        <div class="tweak-group bass-tweak">
+          <span class="tweak-label">303 CUTOFF</span>
+          <input type="range" id="drumBassCutoff" min="200" max="4000" step="10" value="1600" class="tweak-slider">
+        </div>
+        <div class="tweak-group bass-tweak">
+          <span class="tweak-label">303 RESO</span>
+          <input type="range" id="drumBassReso" min="1" max="24" step="0.5" value="14" class="tweak-slider">
+        </div>
+        <div class="tweak-group bass-tweak">
+          <span class="tweak-label">303 ENV</span>
+          <input type="range" id="drumBassEnvMod" min="0" max="1" step="0.05" value="0.75" class="tweak-slider">
+        </div>
+        <div class="tweak-group bass-tweak">
+          <span class="tweak-label">WAVE</span>
+          <button class="btn-mini wave-toggle-btn" id="drumBassWaveBtn">SAW</button>
+        </div>
+      </div>
+
+      <!-- 16-Step LED Running Tracker -->
+      <div class="drum-led-tracker-bar">
+        <div class="tracker-spacer"></div>
+        <div class="drum-step-leds-container" id="drumStepLeds">
+          <!-- 16 step indicator LEDs rendered dynamically in DrumUI -->
+        </div>
+      </div>
+
+      <!-- 6-Track 16-Step Sequencer Matrix Grid -->
+      <div class="drum-step-matrix" id="drumStepMatrix">
+        <!-- 6 rows (BD, SD, CH, OH, CP, 303 BASS) rendered dynamically in DrumUI -->
+      </div>
+
+      <!-- Bottom Rack Chassis Edge & Instructions -->
+      <div class="drum-drawer-footer">
+        <div class="rack-mount-screw bottom-left"></div>
+        <div class="rack-mount-screw bottom-right"></div>
+        <span class="rack-hint">TIPP: Klick = Step On • 2. Klick = Accent (heller) • 3. Klick = Off • Shift+D zum Ein-/Ausfahren</span>
+      </div>
+
+    </div>
+  </aside>
+
   <!-- Was gibt's Neues (What's New) Modal -->
   <div class="modal-backdrop" id="changelogModal">
     <div class="modal-dialog changelog-dialog">
@@ -911,11 +1053,11 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.2.0</span>
+            <span class="release-version-number">v1.3.0</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Studio High-Performance Release • Voice-Pooling, Worker-Clock, Master Limiter & Tanh Filter Drive</p>
+          <p class="modal-subtitle">Studio Expansion • RETROBEAT D-909 Drum & 303 Bass Machine Sidekick Rack</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -923,14 +1065,28 @@
         <div class="changelog-grid">
           
           <div class="changelog-card highlight-card">
-            <div class="card-icon">🚀</div>
+            <div class="card-icon">🥁</div>
             <div class="card-content">
-              <div class="card-badge perf-badge">PERFORMANCE ENGINE</div>
-              <h3>12-Stimmen Voice-Pooling (Zero GC Churn)</h3>
-              <p>Volle Polyphonie ohne Knackser und Garbage-Collection-Ruckler:</p>
+              <div class="card-badge perf-badge">STUDIO SIDEKICK</div>
+              <h3>RETROBEAT D-909 Drum & Bass Machine</h3>
+              <p>Von rechts einfahrbares analoges Hardware-Rack-Gerät:</p>
               <ul>
-                <li><strong>Vorinitialisierter Stimmenpool:</strong> 12 persistente Stimmen bleiben permanent verdrahtet. Keine Node-Allokationen beim Spielen.</li>
-                <li><strong>LRU Voice Stealing:</strong> Sanftes 2ms-Crossfading stiehlt bei Akkordüberlastung unhörbar die älteste Stimme.</li>
+                <li><strong>5 DSP Drum Voices:</strong> Kick (BD), Snare (SD), Closed Hat (CH), Open Hat (OH mit Choke) und Clap (CP).</li>
+                <li><strong>303 Acid Bass Sequenzer:</strong> Monophoner Bass-Synth mit 24dB Moog-Ladder Filter, Accent & Slide.</li>
+                <li><strong>Factory Kits & Grooves:</strong> 909 Techno, 303 Acid, 80s Synthwave, D&B Roller & Electro.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
+            <div class="card-icon">🔗</div>
+            <div class="card-content">
+              <div class="card-badge env-badge">MASTER CLOCK SYNC</div>
+              <h3>Bi-Direktionale Clock-Synchronisation</h3>
+              <p>Felsenfestes Zusammenspiel von Synthesizer & Drum Machine:</p>
+              <ul>
+                <li><strong>Master Clock:</strong> Drum Machine fungiert als Master-Taktgeber via Web Worker.</li>
+                <li><strong>Arp Clock Sync:</strong> Schalte am Synthesizer auf <code>DRUM SYNC</code> um – Tempo, Swing und Takte laufen absolut phasenstarr.</li>
               </ul>
             </div>
           </div>
@@ -1046,6 +1202,8 @@
   <script src="js/presets.js"></script>
   <script src="js/arp-engine.js"></script>
   <script src="js/audio-engine.js"></script>
+  <script src="js/drum-engine.js"></script>
+  <script src="js/drum-ui.js"></script>
   <script src="js/synth-ui.js"></script>
   <script src="js/app.js"></script>
 </body>

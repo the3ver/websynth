@@ -1,19 +1,43 @@
-# ⚡ RETROVOX SUB-1 • Analog Web Synthesizer
+# ⚡ RETROVOX SUB-1 • Analog Web Synthesizer & RETROBEAT D-909 Studio
 
-[![Version](https://img.shields.io/badge/Version-1.2.0-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.3.0-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio_API-DSP_Engine-00E5FF?style=flat-square&logo=w3c&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI_API-Supported-FF3366?style=flat-square&logo=midi&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-JavaScript_%26_CSS-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-brightgreen?style=flat-square)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-> **RETROVOX SUB-1** ist ein vollwertiger, subtraktiver analoger Synthesizer und 16-Step Sequenzer direkt im Webbrowser. Entwickelt mit nativer **Web Audio API**, **Web MIDI API** und **Vanilla JavaScript/CSS** – kompromisslose Performance ohne externe Frameworks oder Build-Schritte.
+> **RETROVOX SUB-1** ist ein vollwertiger, subtraktiver analoger Synthesizer und **RETROBEAT D-909** eine vollwertige Drum & Bass Machine direkt im Webbrowser. Entwickelt mit nativer **Web Audio API**, **Web MIDI API** und **Vanilla JavaScript/CSS** – kompromisslose Studio-Performance ohne externe Frameworks oder Build-Schritte.
 
 ---
 
 ## 🌟 Features & Highlights
 
-### 🛡️ DSP Audio Engine & Voice Architecture (v1.2.0)
+### 🥁 NEU in v1.3.0: RETROBEAT D-909 Drum & Bass Machine (Sidekick Unit)
+- **Einfahrbares Studio-Rack-Gerät**: Auf Knopfdruck (`Shift+D` oder rechter Seitenreiter) fährt von rechts ein vollwertiger analoger Drumcomputer mit Metall-Rack-Design ein.
+- **5 Synthetisierte DSP Drum-Spuren (Zero Samples)**:
+  - **BD (Bass Drum / Kick)**: Wuchtiger 909/808 Sub-Drop mit Klick-Transiente & Tanh-Sättigung.
+  - **SD (Snare Drum)**: Dual-Tone Resonator + gefiltertes Rauschen (Snappy).
+  - **CH / OH (Closed & Open Hi-Hat)**: 6-Oscillator Metallic-Cluster mit echter **Choke-Gruppe** (Closed schneidet Open ab).
+  - **CP (Hand Clap)**: 3-fach Mikro-Impuls-Burst mit Auskling-Fahne.
+- **Monophoner 303-Style Acid & Sub-Bass Synthesizer**:
+  - Wählbare Sägezahn-/Rechteck-Wellenform, 24dB resonantes Tiefpassfilter, stufenloser Envelope-Mod, **Accent** und **Portamento / Slide**-Gleiten.
+- **16-Step Matrix Sequenzer**:
+  - 16 illuminierte Step-Tasten im legendären 808/909-Farbdesign (Rot, Orange, Gelb, Weiß).
+  - 3-Stufen-Trigger: *Off* ➔ *Normal* ➔ *Accent* (erhöhte Dynamik & Filter-Punch).
+  - Mute (M) und Solo (S) pro Spur sowie individuelle Lautstärkeregler.
+- **Factory Kits & Pattern-Bänke**:
+  - *909 Techno Club* (132 BPM)
+  - *303 Acid Warehouse* (138 BPM)
+  - *80s Synthwave Disco* (118 BPM)
+  - *Drum & Bass Roller* (174 BPM)
+
+### 🔗 Bi-Direktionale Master-Clock-Synchronisation
+- **Master Precision Clock**: Die Drum Machine agiert als Master-Taktgeber mit isoliertem Web Worker Lookahead-Scheduler (20ms).
+- **Arp Clock Sync**: Am Synthesizer kann per Knopfdruck auf `DRUM SYNC` umgeschaltet werden. Beide Geräte starten, stoppen und laufen absolut phasenstarr und ohne Tempo-Drift synchron im selben Takt!
+- **Summierter Audio-Bus**: Die Drum Machine ist direkt an den Master-Analyser geroutet, sodass die dynamischen **KRK-X5 Nahfeldmonitore** und das CRT-Oszilloskop druckvoll mit den Beats und Basslines mitschwingen.
+
+### 🛡️ DSP Audio Engine & Voice Architecture (RETROVOX SUB-1)
 - **12-Stimmen Voice-Pooling (Zero GC Churn)**: Fester Pool aus 12 persistent verdrahteten Stimmen eliminiert Garbage-Collection-Ruckler und AudioNode-Allokationen während des Spielens vollständig.
 - **LRU Voice Stealing**: Bei Auslastung aller 12 Stimmen wird die am längsten klingende Stimme mit einem 2ms-Anti-Click-Fadeout nahtlos übernommen.
 - **Master Brickwall Limiter & Anti-Clipping**: Dedizierter Peak-Limiter fängt Pegelspitzen bei 0 dBFS zuverlässig ab.
@@ -27,77 +51,53 @@
 - **Duale ADSR-Hüllkurven**: Getrennte, ultraschnelle Kurven für Filter (VCF) und Lautstärke (VCA).
 - **Duales LFO Modulationsnetzwerk**: 2 unabhängige LFOs mit Multi-Wellenformen, echter **Sample & Hold**-Schaltung, Delay/Fade-In und flexiblem Routing auf Pitch, VCF, PWM und Amp.
 
-### ⏱️ Präzisions-Sequenzer & Studio FX
-- **Web Worker Precision Clock**: Jitterfreier Arpeggiator-Taktgeber läuft in einem separaten Web Worker Hintergrund-Thread – felsenfestes Timing unabhängig von UI-Rendern oder Tab-Hintergrundbetrieb.
-- **16-Step Arpeggiator & Pattern Sequenzer**: Modi: *Up*, *Down*, *Up/Down*, *Random*, *As Played* mit Gate-Steuerung, Latch/Hold und Oktav-Range.
+### ⏱️ Studio FX & Konnektivität
 - **Vintage Stereo FX Rack**:
   - **Roland Juno-Style BBD Stereo Chorus** (Modi: *Off*, *I*, *II*, *I+II*)
   - **Stereo Tape Delay / Echo** mit BPM-Sync, Spatial Stereo-Spread und High-Cut Dämpfung
   - **Studio Space Reverb** mit stufenlosem Raum-Decay und Mix
-
-### 🔊 Studio-Visuals & Konnektivität
-- **Interaktive KRK-X5 Nahfeldmonitore**: Realistische Bassmembran-Auslenkung in Echtzeit.
-- **CRT-Oszilloskop**: Echtzeit-Wellenformanalyse mit intelligentem **Idle-Pausing** zur CPU-Entlastung bei Stille.
 - **Web MIDI API**: Automatische Erkennung von Hardware-MIDI-Keyboards inkl. Pitch-Bend, Mod-Wheel, Velocity und Sustain-Pedal.
 - **Preset-Verwaltung**: 10 handgefertigte Werks-Presets, lokale Speicherfunktion für eigene User-Presets und JSON Export/Import.
-- **"Was gibt's Neues?" Release-Screen**: Integriertes Versions-Update-Modal mit Changelog-Archiv.
 
 ---
 
-## 🎧 Sound-Architektur
+## 🎧 Studio-Signalfluss & Architektur
 
 ```mermaid
-graph LR
-    subgraph Oscillators["OSZILLATOREN & MIXER"]
-        VCO1["VCO 1 (Saw/Square/Tri/Sin + PWM)"]
-        VCO2["VCO 2 (Sync + Detune + Pitch)"]
-        SUB["Sub-Oszillator (-1 / -2 Oct)"]
-        NOISE["Noise Generator (White Noise)"]
-        MIX["Voice Mixer Bus"]
-        VCO1 --> MIX
-        VCO2 --> MIX
-        SUB --> MIX
-        NOISE --> MIX
+graph TD
+    subgraph DrumMachine["RETROBEAT D-909 (SIDEKICK RACK)"]
+        DRUM_CLOCK["Web Worker Master Clock (BPM / Swing)"]
+        BD["Kick (BD)"]
+        SD["Snare (SD)"]
+        HH["Hi-Hats (CH / OH Choke)"]
+        CP["Clap (CP)"]
+        BASS303["303 Acid Bass (VCF + Slide)"]
+        DRUM_MIX["Drum Mixer Bus"]
+        DRUM_CLOCK --> BD & SD & HH & CP & BASS303
+        BD & SD & HH & CP & BASS303 --> DRUM_MIX
     end
 
-    subgraph Modulation["MODULATION"]
-        LFO1["LFO 1 (Multi-Wave / Fade-In)"]
-        LFO2["LFO 2 (Multi-Wave / S&H)"]
-        ENV_F["Filter Envelope (ADSR)"]
-        ENV_A["Amp Envelope (ADSR)"]
+    subgraph Synthesizer["RETROVOX SUB-1 SYNTHESIZER"]
+        VCO["Dual-VCO + Sub + Noise"]
+        VCF["24dB Moog Ladder VCF (Tanh Drive)"]
+        VCA["12-Voice Poly Pool (Zero GC)"]
+        ARP["16-Step Arpeggiator / Sequencer"]
+        FX["Stereo FX (Juno Chorus -> Tape Delay -> Reverb)"]
+        VCO --> VCF --> VCA --> FX
     end
 
-    subgraph FilterAmp["12-VOICE POOL (ZERO GC)"]
-        SHAPER["Tanh Drive Saturation"]
-        VCF["24dB Moog Ladder VCF (Q-Staged)"]
-        VCA["VCA Stage"]
-        MIX --> SHAPER
-        SHAPER --> VCF
-        VCF --> VCA
-        LFO1 -.-> VCF
-        LFO2 -.-> VCO1
-        ENV_F -.-> VCF
-        ENV_A -.-> VCA
-    end
+    DRUM_CLOCK -.->|Clock Pulse Sync| ARP
 
-    subgraph FX["STEREO FX RACK"]
-        CHORUS["Juno Stereo Chorus (I / II / I+II)"]
-        DELAY["Stereo Tape Echo (Ping-Pong + Damp)"]
-        REVERB["Studio Space Reverb"]
-        VCA --> CHORUS
-        CHORUS --> DELAY
-        DELAY --> REVERB
-    end
-
-    subgraph Output["MASTER & VISUALS"]
+    subgraph MasterOut["STUDIO MASTER BUS"]
+        ANALYSER["FFT Analyser & Oscilloscope"]
         LIMITER["DSP Brickwall Peak Limiter"]
-        ANALYSER["Oscilloscope & FFT Analyser"]
-        VU["Dual LED VU Meters"]
         SPEAKERS["KRK-X5 Dynamic Monitors"]
-        REVERB --> LIMITER
-        LIMITER --> ANALYSER
-        ANALYSER --> VU
-        ANALYSER --> SPEAKERS
+        VU["Dual Stereo LED VU Meters"]
+        DEST["AudioContext Destination (Speakers / Headphones)"]
+        FX --> ANALYSER
+        DRUM_MIX --> ANALYSER
+        ANALYSER --> LIMITER --> DEST
+        ANALYSER --> SPEAKERS & VU
     end
 ```
 
@@ -124,23 +124,13 @@ npx serve .
 
 ---
 
-## 🎹 Tastatur-Steuerung (Computer Keyboard)
+## 🎹 Tastatur-Steuerung (Computer Keyboard & Shortcuts)
 
-Du kannst den Synthesizer direkt über deine Computertastatur spielen:
-
-| Taste | Note | Taste | Note |
-| :--- | :--- | :--- | :--- |
-| <kbd>A</kbd> | C3 | <kbd>W</kbd> | C#3 |
-| <kbd>S</kbd> | D3 | <kbd>E</kbd> | D#3 |
-| <kbd>D</kbd> | E3 | <kbd>T</kbd> | F#3 |
-| <kbd>F</kbd> | F3 | <kbd>Z</kbd> / <kbd>Y</kbd> | G#3 |
-| <kbd>G</kbd> | G3 | <kbd>U</kbd> | A#3 |
-| <kbd>H</kbd> | A3 | <kbd>O</kbd> | C#4 |
-| <kbd>J</kbd> | B3 | <kbd>P</kbd> | D#4 |
-| <kbd>K</kbd> | C4 | <kbd>Ö</kbd> | D4 |
-
+- **Synthesizer Klaviatur spielen**:
+  - Weiße Tasten: <kbd>A</kbd> (C3), <kbd>S</kbd> (D3), <kbd>D</kbd> (E3), <kbd>F</kbd> (F3), <kbd>G</kbd> (G3), <kbd>H</kbd> (A3), <kbd>J</kbd> (B3), <kbd>K</kbd> (C4), <kbd>Ö</kbd> (D4)
+  - Schwarze Tasten: <kbd>W</kbd> (C#3), <kbd>E</kbd> (D#3), <kbd>T</kbd> (F#3), <kbd>Z</kbd> / <kbd>Y</kbd> (G#3), <kbd>U</kbd> (A#3), <kbd>O</kbd> (C#4), <kbd>P</kbd> (D#4)
 - **Oktaven umschalten**: <kbd>X</kbd> (Oktave höher), <kbd>Z</kbd> (Oktave tiefer)
-- **Sustain / Latch**: Halte Noten mit der Maus oder aktiviere den Arpeggiator-Latch.
+- **Drum & Bass Machine**: <kbd>Shift</kbd> + <kbd>D</kbd> (Rack ein-/ausfahren)
 
 ---
 
@@ -158,23 +148,6 @@ Du kannst den Synthesizer direkt über deine Computertastatur spielen:
 
 ---
 
-## 💾 Factory Presets
-
-| Nr. | Preset-Name | Kategorie | Beschreibung |
-| :--- | :--- | :--- | :--- |
-| **01** | `BLADE RUNNER BRASS` | Brass | Epische Vangelis CS-80 Brass mit Filter-Sweep, Juno-Chorus und Space Reverb. |
-| **02** | `MOOG MINIMOOG BASS` | Bass | Fetter, druckvoller Moog Ladder Bass mit 24dB Sättigung und Sub-Oktave. |
-| **03** | `JUNO-106 SYNTHWAVE PLUCK` | Pluck | Klassischer 80s Roland Arp-Sound mit PWM, BBD Chorus II und Tape Echo. |
-| **04** | `TB-303 ACID RESO` | Acid / Lead | Resonante Acid-Bassline mit steilem Filter-Envelope und Glide/Portamento. |
-| **05** | `80s JUMP POLY BRASS` | Brass | Ikonischer Oberheim OB-Xa Style Synthesizer-Sound mit detunten Saw-Waves. |
-| **06** | `CYBERPUNK DARK BASSLINE` | Bass | Aggressiver, gesättigter Darksynth-Bass mit Noise-Layer und Filter-Drive. |
-| **07** | `SCI-FI SAMPLE & HOLD` | FX | Zufallsmodulierter Sample & Hold Soundeffekt aus alten Modular-Synthesizern. |
-| **08** | `LUSH ETHEREAL DREAM PAD` | Pad | Schwebende, warme Ambient-Klanglandschaft mit langen Hüllkurven und Hall. |
-| **09** | `STRANGER 80s SYNTH THEME` | Arp | Arpeggierter Synthwave-Klassiker mit analogem Drift und Stereo-Delay. |
-| **10** | `CRYSTAL DIGITAL CHIMES` | Lead | Brillanter Glockenklang mit hoher Resonanz und subtilem Pitch-Vibrato. |
-
----
-
 ## 📁 Projektstruktur
 
 ```
@@ -183,18 +156,20 @@ websynth/
 │   └── workflows/
 │       └── deploy.yml      # Automatische GitHub Pages CI/CD Pipeline
 ├── css/
-│   └── style.css           # Vollständiges High-End Analog-Studio UI & Styling
+│   └── style.css           # Vollständiges High-End Analog-Studio UI & Rack-Styling
 ├── js/
 │   ├── app.js              # Initialisierung, Master Controls & Version State
-│   ├── arp-engine.js       # 16-Step Arpeggiator & Web Worker Precision Clock
+│   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
 │   ├── audio-engine.js     # Web Audio API Synthese-Engine (Voice-Pool, VCF, LFO, FX)
+│   ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
+│   ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
 │   ├── presets.js          # Factory Preset Library & State Serializer
 │   └── synth-ui.js         # Interaktives UI (Knobs, Slider, Canvas, MIDI)
 ├── .gitignore              # Git Ignore Konfiguration
 ├── AGENTS.md               # Entwickler- & Agent-Architekturleitfaden
 ├── index.html              # Synthesizer Studio HTML5 Markup
 ├── LICENSE                 # MIT Lizenz
-├── package.json            # Projekt-Metadaten & Hilfsskripte
+├── package.json            # Projekt-Metadaten & Hilfsskripte (v1.3.0)
 └── README.md               # Dokumentation
 ```
 
@@ -203,7 +178,7 @@ websynth/
 ## 🛠️ Technologien
 
 - **Web Audio API** (`AudioContext`, `OscillatorNode`, `BiquadFilterNode`, `GainNode`, `WaveShaperNode`, `DelayNode`, `ConvolverNode`, `AnalyserNode`, `DynamicsCompressorNode`)
-- **Web Workers** (Inline Worker via Blob URL für hochpräzise Sequenzer-Clock)
+- **Web Workers** (Inline Worker via Blob URL für hochpräzise Master-Clock)
 - **Web MIDI API** (`navigator.requestMIDIAccess`)
 - **Vanilla JavaScript (ES6+)**
 - **Modern CSS3** (Custom Properties, Flexbox, Grid, Glassmorphism, CSS Transitions & Keyframes)

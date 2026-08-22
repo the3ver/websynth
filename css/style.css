@@ -2924,3 +2924,646 @@ body {
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   RETROBEAT D-909 DRUM & BASS MACHINE • SLIDE-IN HARDWARE DRAWER
+   ========================================================================== */
+
+/* Header Trigger Button */
+.drum-rack-header-btn {
+  border-color: rgba(255, 157, 0, 0.4);
+  color: #ffb84d;
+}
+
+.drum-rack-header-btn:hover,
+.drum-rack-header-btn.active {
+  background: rgba(255, 157, 0, 0.15);
+  border-color: var(--led-amber);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
+}
+
+/* Arp Clock Sync Switch Button */
+.arp-sync-btn {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: #8c95a8;
+  background: #191c26;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.arp-sync-btn.active {
+  background: rgba(0, 229, 255, 0.18);
+  border-color: var(--led-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+/* Right Edge Floating Slide-In Tab */
+.drum-drawer-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, #1f2330 0%, #12141c 100%);
+  border: 1px solid rgba(255, 157, 0, 0.4);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  z-index: 90;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 157, 0, 0.15);
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.drum-drawer-tab:hover {
+  background: linear-gradient(180deg, #282d3d 0%, #171a24 100%);
+  border-color: var(--led-amber);
+  box-shadow: -6px 0 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 157, 0, 0.35);
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.drum-drawer-tab.active {
+  border-color: var(--led-cyan);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 229, 255, 0.4);
+}
+
+.tab-pulse-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333d52;
+  transition: all 0.1s ease;
+}
+
+.tab-pulse-led.running {
+  background: var(--led-amber);
+  box-shadow: 0 0 6px var(--led-amber);
+}
+
+.tab-pulse-led.flash {
+  background: #ffffff;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+.tab-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffb84d;
+}
+
+.tab-arrow {
+  font-size: 0.7rem;
+  color: #8c95a8;
+  transition: transform 0.25s ease;
+}
+
+.drum-drawer-tab.active .tab-arrow {
+  transform: rotate(180deg);
+}
+
+/* Slide-In Rack Drawer Chassis */
+.drum-machine-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 720px;
+  max-width: 96vw;
+  background: #11131a;
+  border-left: 2px solid #2e3444;
+  z-index: 95;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -15px 0 60px rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+}
+
+.drum-machine-drawer.open {
+  transform: translateX(0);
+  box-shadow: -20px 0 80px rgba(0, 0, 0, 0.95), 0 0 40px rgba(0, 229, 255, 0.1);
+}
+
+.drum-drawer-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 16px 20px;
+  gap: 14px;
+  background: radial-gradient(circle at 80% 20%, #1a1e2b 0%, #101218 100%);
+}
+
+/* Rack Header & Screws */
+.drum-drawer-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #242938;
+  padding-bottom: 12px;
+}
+
+.rack-mount-screw {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #7a8294 30%, #303542 90%);
+  border: 1px solid #141720;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.drum-brand-plate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.drum-logo-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.drum-logo-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ff9900;
+  text-shadow: 0 0 12px rgba(255, 153, 0, 0.35);
+}
+
+.drum-logo-sub {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #8c95a8;
+  letter-spacing: 1px;
+}
+
+.drum-status-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drum-sync-btn {
+  background: #1c202d;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--led-cyan);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.drum-sync-btn.active {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--led-cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.drawer-close-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a0a6b5;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.drawer-close-icon-btn:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: #ff3366;
+  color: #ffffff;
+}
+
+/* Master Bar */
+.drum-master-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #151822;
+  border: 1px solid #282e3f;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.drum-transport-btn {
+  background: linear-gradient(180deg, #242938 0%, #171a24 100%);
+  border: 1px solid rgba(255, 157, 0, 0.5);
+  color: #ffb84d;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.15s;
+}
+
+.drum-transport-btn:hover {
+  background: linear-gradient(180deg, #2d3345 0%, #1e2230 100%);
+  border-color: var(--led-amber);
+  box-shadow: 0 0 12px rgba(255, 157, 0, 0.4);
+}
+
+.drum-transport-btn.active {
+  background: linear-gradient(180deg, #39ff14 0%, #1e800a 100%);
+  border-color: #39ff14;
+  color: #000000;
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+}
+
+.drum-tempo-unit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.drum-mini-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #8c95a8;
+  letter-spacing: 0.5px;
+}
+
+.drum-bpm-box {
+  display: flex;
+  align-items: center;
+  background: #0a0b10;
+  border: 1px solid #333d52;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bpm-step-btn {
+  background: #1c202d;
+  border: none;
+  color: #cbd3e6;
+  padding: 3px 7px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.bpm-step-btn:hover {
+  background: #2b3245;
+  color: #ffffff;
+}
+
+.drum-bpm-input {
+  width: 44px;
+  background: transparent;
+  border: none;
+  color: var(--led-amber);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.drum-tap-btn {
+  background: #1c202d;
+  border: 1px solid #333d52;
+  color: #cbd3e6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.drum-tap-btn:active {
+  background: var(--led-amber);
+  color: #000000;
+}
+
+.drum-control-pod {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pod-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drum-mini-val {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--led-amber);
+}
+
+.drum-mini-slider {
+  width: 70px;
+  height: 4px;
+  accent-color: var(--led-amber);
+  cursor: pointer;
+}
+
+.drum-preset-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.drum-styled-select {
+  background: #0e1017;
+  border: 1px solid #333d52;
+  color: #cbd3e6;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.drum-clear-btn {
+  background: rgba(255, 51, 102, 0.1);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  color: #ff3366;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.drum-clear-btn:hover {
+  background: #ff3366;
+  color: #ffffff;
+}
+
+.drum-vol-pod .drum-mini-slider {
+  width: 60px;
+  accent-color: var(--led-cyan);
+}
+
+/* Sound Tweak Strip */
+.drum-sound-tweak-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+  gap: 8px;
+  background: #141720;
+  border: 1px solid #242938;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.tweak-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tweak-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #8c95a8;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.tweak-slider {
+  width: 100%;
+  height: 3px;
+  accent-color: #ff9900;
+  cursor: pointer;
+}
+
+.bass-tweak .tweak-label {
+  color: #39ff14;
+}
+
+.bass-tweak .tweak-slider {
+  accent-color: #39ff14;
+}
+
+.wave-toggle-btn {
+  background: #1c202d;
+  border: 1px solid #39ff14;
+  color: #39ff14;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.wave-toggle-btn.active {
+  background: #39ff14;
+  color: #000000;
+}
+
+/* 16-Step LED Running Tracker */
+.drum-led-tracker-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.tracker-spacer {
+  width: 110px; /* Aligns with track row headers */
+  flex-shrink: 0;
+}
+
+.drum-step-leds-container {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+  flex: 1;
+}
+
+.drum-step-led {
+  height: 16px;
+  border-radius: 3px;
+  background: #141720;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: #60687a;
+}
+
+.drum-step-led.group-red { border-top: 2px solid #ff3366; }
+.drum-step-led.group-orange { border-top: 2px solid #ff9900; }
+.drum-step-led.group-yellow { border-top: 2px solid #ffea00; }
+.drum-step-led.group-white { border-top: 2px solid #ffffff; }
+
+.drum-step-led.active {
+  background: var(--led-amber);
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 0 8px var(--led-amber);
+}
+
+/* Step Matrix Grid */
+.drum-step-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.drum-track-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.track-row-header {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #141720;
+  border: 1px solid #242938;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.track-tag {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  padding-left: 6px;
+}
+
+.track-toggles {
+  display: flex;
+  gap: 4px;
+}
+
+.track-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background: #1c202d;
+  border: 1px solid #333d52;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #8c95a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.track-btn.mute-btn.active {
+  background: #ff3366;
+  border-color: #ff3366;
+  color: #ffffff;
+  box-shadow: 0 0 6px #ff3366;
+}
+
+.track-btn.solo-btn.active {
+  background: #ffea00;
+  border-color: #ffea00;
+  color: #000000;
+  box-shadow: 0 0 6px #ffea00;
+}
+
+.track-step-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+  flex: 1;
+}
+
+.step-btn {
+  height: 32px;
+  border-radius: 4px;
+  background: #1a1e2b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  position: relative;
+  padding: 0;
+}
+
+.step-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 808/909 Authentic Color Strip Grouping */
+.step-btn.group-red { border-bottom: 2px solid #ff3366; }
+.step-btn.group-orange { border-bottom: 2px solid #ff9900; }
+.step-btn.group-yellow { border-bottom: 2px solid #ffea00; }
+.step-btn.group-white { border-bottom: 2px solid #e0e4f0; }
+
+.step-btn.active {
+  background: var(--led-amber);
+  border-color: var(--led-amber);
+  box-shadow: 0 0 10px rgba(255, 157, 0, 0.5);
+}
+
+.step-btn.accent {
+  background: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 14px #ffffff, 0 0 20px var(--led-amber);
+}
+
+/* Footer Edge & Hint */
+.drum-drawer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #242938;
+  padding-top: 8px;
+  position: relative;
+}
+
+.rack-hint {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #798296;
+  text-align: center;
+  width: 100%;
+}
+

@@ -6,11 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const AudioEngine = window.AudioEngine;
   const ArpEngine = window.ArpEngine;
   const SynthUI = window.SynthUI;
+  const DrumEngine = window.DrumEngine;
+  const DrumUI = window.DrumUI;
 
   // Initialize Core Engines
   const audioEngine = new AudioEngine();
   const arpEngine = new ArpEngine(audioEngine);
   const synthUI = new SynthUI(audioEngine, arpEngine);
+  const drumEngine = new DrumEngine(audioEngine);
+  const drumUI = new DrumUI(drumEngine, arpEngine, audioEngine);
 
   // Top Bar UI Elements
   const mainPowerBtn = document.getElementById('mainPowerBtn');
@@ -25,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.2.0';
+  const CURRENT_APP_VERSION = '1.3.0';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -66,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       speakerLedLeft.classList.remove('active');
       speakerLedRight.classList.remove('active');
       audioStatusBadge.querySelector('.status-label').textContent = 'AUDIO ENGINE: OFF';
+      drumEngine.stop();
     }
   });
 

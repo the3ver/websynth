@@ -1,6 +1,6 @@
-# 🤖 AGENTS.MD • RETROVOX SUB-1 Developer & Architecture Guide
+# 🤖 AGENTS.MD • RETROVOX SUB-1 & RETROBEAT D-909 Developer Guide
 
-Welcome to the **RETROVOX SUB-1** codebase. This document serves as the primary technical specification, architecture reference, and maintenance guide for AI agents and human contributors working on this project.
+Welcome to the **RETROVOX SUB-1** and **RETROBEAT D-909** codebase. This document serves as the primary technical specification, architecture reference, and maintenance guide for AI agents and human contributors working on this project.
 
 ---
 
@@ -11,11 +11,11 @@ Welcome to the **RETROVOX SUB-1** codebase. This document serves as the primary 
    - Zero external styling libraries (No Tailwind, Bootstrap). Everything is hand-crafted Vanilla CSS with CSS custom properties.
    - Zero bundlers/build steps (No Vite, Webpack, Babel). Pure ES6+ JavaScript running directly in any modern browser.
 2. **Deterministic High-Performance Web Audio DSP**:
-   - **Zero GC Churn in Audio Loop**: Audio nodes are never allocated or garbage-collected during active playback.
-   - **Worker-Isolated Precision Clock**: Scheduling timers for arpeggiator/sequencer operate on background Web Workers.
+   - **Zero GC Churn in Audio Loop**: Audio nodes are never allocated or garbage-collected during active synthesizer voice playback.
+   - **Worker-Isolated Precision Master Clock**: Scheduling timers for Drum Machine and Arpeggiator operate on background Web Workers.
    - **Click & Clip Elimination**: All parameter updates use exponential or linear ramping with zero-crossing protection. Peak limiter protects the master output bus.
 3. **Hardware Analog Aesthetic & Ergonomics**:
-   - Visual styling mimics legendary 1980s analog synthesizers (Roland Juno-106, Moog Minimoog, Sequential Prophet-5).
+   - Visual styling mimics legendary 1980s analog synthesizers (Roland Juno-106, Moog Minimoog, Sequential Prophet-5, Roland TR-909, TB-303).
    - Non-blocking mouse/touch and keyboard event separation to allow seamless live playing while tweaking rotary dials and sliders.
 
 ---
@@ -25,22 +25,39 @@ Welcome to the **RETROVOX SUB-1** codebase. This document serves as the primary 
 ```
 websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
-├── package.json            # Versioning (v1.2.0), scripts & metadata
+├── package.json            # Versioning (v1.3.0), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── css/
-│   └── style.css           # Analog-hardware styling, CRT shaders & animated monitors
+│   └── style.css           # Analog-hardware styling, CRT shaders, monitors & drum rack drawer
 └── js/
     ├── app.js              # Application entry, master power, volume & version manager
-    ├── arp-engine.js       # 16-Step Arpeggiator & Web Worker precision clock
+    ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
     ├── audio-engine.js     # Web Audio API Engine, 12-Voice Pool, VCF, LFO, FX Rack
+    ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
+    ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
     ├── presets.js          # Factory Presets library & Patch state serialisation
     └── synth-ui.js         # Rotary knobs, ADSR faders, CRT oscilloscope & MIDI handlers
 ```
 
 ---
 
-## 🎧 Audio Engine Architecture (`js/audio-engine.js`)
+## 🥁 Drum & Bass Machine Architecture (`js/drum-engine.js`)
+
+### 1. Pure DSP Synthesized Voices (Zero External Samples)
+- **Kick (BD)**: Sub-sine drop ($160\,\text{Hz} \to 38\,\text{Hz}$) + transient pop click + level-normalized $\tanh$ overdrive.
+- **Snare (SD)**: Dual body resonators ($185\,\text{Hz}$ and $330\,\text{Hz}$) + high-pass filtered white noise burst.
+- **Hi-Hats (CH / OH)**: 6 inharmonic square waves through high-pass filter. Closed Hat chokes active Open Hat voice instantly.
+- **Clap (CP)**: 3 successive noise impulse bursts ($11\,\text{ms}$ spacing) + decaying reverb tail.
+- **303 Acid Bassline**: Monophonic VCO (Sawtooth/Square) through 24dB resonant lowpass filter with exponential decay, accent boost, and slide portamento (`setTargetAtTime`).
+
+### 2. Master Clock & Slave Synchronization
+- Drum Engine hosts the master Web Worker clock ticking every 20ms.
+- Registered slave engines (like `ArpEngine`) receive `handleExternalClockTick(stepIndex, time, beatSec)` and `handleExternalTransport(isPlaying)` for 100% phase-locked tempo sync with zero drift.
+
+---
+
+## 🎧 Synthesizer Audio Engine Architecture (`js/audio-engine.js`)
 
 ### 1. 12-Voice Persistent Polyphonic Pool
 - **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances initialized on `AudioContext` startup.
@@ -79,23 +96,12 @@ makeDistortionCurve(amount) {
 
 ### 3. Master FX Rack & Limiter
 - **Signal Flow**:
-  $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Master Gain} \longrightarrow \text{Destination}$$
+  $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{Master Analyser} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Master Gain} \longrightarrow \text{Destination}$$
 - **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.002s`, release `0.05s`.
 
 ---
 
-## ⏱️ Arpeggiator & Sequencer Engine (`js/arp-engine.js`)
-
-- **Web Worker Precision Clock**:
-  - Ticking is offloaded to an inline Web Worker generated via `Blob([workerCode], { type: 'application/javascript' })`.
-  - Sends a `tick` message every 20ms to trigger the Lookahead Scheduler on the main thread.
-  - Guarantees zero tempo drift during canvas rendering, background tab throttling, or heavy DOM updates.
-- **Modes**: `UP`, `DOWN`, `UP_DOWN`, `RANDOM`, `AS_PLAYED`, `PATTERN`.
-- **Note Memory**: Manages held notes array, latching mechanism, and gate timing.
-
----
-
-## 🎨 UI & Event Interaction Rules (`js/synth-ui.js`)
+## 🎨 UI & Event Interaction Rules (`js/synth-ui.js` & `js/drum-ui.js`)
 
 1. **Keyboard vs Mouse Note Separation**:
    - `this.keyboardHeldKeys`: Tracks physical computer keyboard notes.
@@ -116,7 +122,7 @@ makeDistortionCurve(amount) {
 Before committing any modifications:
 1. Run syntax verification:
    ```bash
-   node -c js/app.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js
+   node -c js/app.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js js/drum-engine.js js/drum-ui.js
    ```
 2. Check for zero console warnings / uncaught exceptions.
 3. Ensure no memory leaks or unmanaged event listeners on `window`.

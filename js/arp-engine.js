@@ -30,6 +30,10 @@ class ArpEngine {
     this.sequenceIndex = 0;
     this.currentStep = 0; // 0 to 15 (sequencer tracker)
 
+    // Master Clock Synchronization
+    this.syncMode = 'internal'; // 'internal' or 'external' (Drum Master Sync)
+    this.drumEngine = null;
+
     // Web Audio Lookahead Clock Timer (Web Worker + Main Thread Fallback)
     this.worker = null;
     this.isRunning = false;
@@ -96,9 +100,11 @@ class ArpEngine {
   setEnabled(on) {
     this.enabled = !!on;
     if (this.enabled) {
-      if (this.heldKeys.length > 0 || (this.latch && this.latchedKeys.length > 0)) {
-        this.rebuildSequence();
-        this.startClock();
+      this.rebuildSequence();
+      if (this.syncMode === 'internal') {
+        if (this.heldKeys.length > 0 || (this.latch && this.latchedKeys.length > 0)) {
+          this.startClock();
+        }
       }
     } else {
       this.stopClock();
@@ -119,6 +125,52 @@ class ArpEngine {
         this.audio.allNotesOff();
         if (this.onStep) this.onStep(-1);
       }
+    } else {
+      if (this.heldKeys.length > 0) {
+        this.latchedKeys = this.heldKeys.map(k => k.midiNote);
+      }
+    }
+  }
+
+  /**
+   * Switches Clock Sync Mode ('internal' standalone vs 'external' drum slave)
+   */
+  setSyncMode(mode) {
+    this.syncMode = mode === 'external' ? 'external' : 'internal';
+    if (this.syncMode === 'external') {
+      if (this.isRunning) this.stopClock();
+    } else {
+      if (this.enabled && (this.heldKeys.length > 0 || (this.latch && this.latchedKeys.length > 0))) {
+        this.startClock();
+      }
+    }
+  }
+
+  handleExternalTransport(isPlaying) {
+    if (this.syncMode !== 'external') return;
+    if (isPlaying) {
+      this.currentStep = 0;
+      this.sequenceIndex = 0;
+      this.rebuildSequence();
+    } else {
+      this.audio.allNotesOff();
+      if (this.onStep) this.onStep(-1);
+    }
+  }
+
+  handleExternalClockTick(stepIndex, time, beatSec) {
+    if (this.syncMode !== 'external' || !this.enabled) return;
+    if (this.heldKeys.length === 0 && (!this.latch || this.latchedKeys.length === 0)) return;
+
+    let shouldTrigger = true;
+    if (this.division === '1/8') {
+      shouldTrigger = (stepIndex % 2 === 0);
+    } else if (this.division === '1/4') {
+      shouldTrigger = (stepIndex % 4 === 0);
+    }
+
+    if (shouldTrigger) {
+      this.scheduleNote(time, stepIndex);
     }
   }
 
