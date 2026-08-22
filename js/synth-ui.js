@@ -26,6 +26,10 @@ class SynthUI {
     
     this.vuMeterL = document.getElementById('vuMeterL');
     this.vuMeterR = document.getElementById('vuMeterR');
+    this.ledsL = this.vuMeterL ? Array.from(this.vuMeterL.querySelectorAll('.led')) : [];
+    this.ledsR = this.vuMeterR ? Array.from(this.vuMeterR.querySelectorAll('.led')) : [];
+    this.lastActiveVuCount = -1;
+    this.lastWooferScale = 1.0;
     this.activeVoiceInfo = document.getElementById('activeVoiceInfo');
     this.activeFreqInfo = document.getElementById('activeFreqInfo');
     
@@ -73,7 +77,8 @@ class SynthUI {
 
     // State
     this.isMouseDown = false;
-    this.currentlyHeldKeys = new Set();
+    this.mouseHeldKeys = new Set();
+    this.keyboardHeldKeys = new Set();
     this.activeKeyElements = new Map();
     
     // PC Keyboard to MIDI note map (Base: C3 = 48)
@@ -151,9 +156,10 @@ class SynthUI {
       this.attachKeyEvents(keyEl, midiNote);
     }
 
+    // Global mouseup only releases keys triggered via on-screen mouse interaction
     window.addEventListener('mouseup', () => {
       this.isMouseDown = false;
-      this.releaseAllHeldKeys();
+      this.releaseAllMouseNotes();
     });
 
     this.keyboardContainer.addEventListener('dragstart', (e) => e.preventDefault());
@@ -161,25 +167,29 @@ class SynthUI {
 
   attachKeyEvents(keyEl, midiNote) {
     const triggerNote = () => {
-      if (!this.currentlyHeldKeys.has(midiNote)) {
-        this.currentlyHeldKeys.add(midiNote);
+      if (!this.mouseHeldKeys.has(midiNote)) {
+        this.mouseHeldKeys.add(midiNote);
         keyEl.classList.add('active');
-        if (this.arp && this.arp.enabled) {
-          this.arp.handleKeyDown(midiNote);
-        } else {
-          this.engine.noteOn(midiNote);
+        if (!this.keyboardHeldKeys.has(midiNote)) {
+          if (this.arp && this.arp.enabled) {
+            this.arp.handleKeyDown(midiNote);
+          } else {
+            this.engine.noteOn(midiNote);
+          }
         }
       }
     };
 
     const releaseNote = () => {
-      if (this.currentlyHeldKeys.has(midiNote)) {
-        this.currentlyHeldKeys.delete(midiNote);
-        keyEl.classList.remove('active');
-        if (this.arp && this.arp.enabled) {
-          this.arp.handleKeyUp(midiNote);
-        } else {
-          this.engine.noteOff(midiNote);
+      if (this.mouseHeldKeys.has(midiNote)) {
+        this.mouseHeldKeys.delete(midiNote);
+        if (!this.keyboardHeldKeys.has(midiNote)) {
+          keyEl.classList.remove('active');
+          if (this.arp && this.arp.enabled) {
+            this.arp.handleKeyUp(midiNote);
+          } else {
+            this.engine.noteOff(midiNote);
+          }
         }
       }
     };
@@ -214,17 +224,19 @@ class SynthUI {
     });
   }
 
-  releaseAllHeldKeys() {
-    for (const note of Array.from(this.currentlyHeldKeys)) {
-      const keyEl = this.activeKeyElements.get(note);
-      if (keyEl) keyEl.classList.remove('active');
-      if (this.arp && this.arp.enabled) {
-        this.arp.handleKeyUp(note);
-      } else {
-        this.engine.noteOff(note);
+  releaseAllMouseNotes() {
+    for (const note of Array.from(this.mouseHeldKeys)) {
+      this.mouseHeldKeys.delete(note);
+      if (!this.keyboardHeldKeys.has(note)) {
+        const keyEl = this.activeKeyElements.get(note);
+        if (keyEl) keyEl.classList.remove('active');
+        if (this.arp && this.arp.enabled) {
+          this.arp.handleKeyUp(note);
+        } else {
+          this.engine.noteOff(note);
+        }
       }
     }
-    this.currentlyHeldKeys.clear();
   }
 
   // =========================================================================
@@ -761,6 +773,7 @@ class SynthUI {
     if (this.arpModeSelect) {
       this.arpModeSelect.addEventListener('change', (e) => {
         this.arp.setMode(e.target.value);
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
@@ -768,6 +781,7 @@ class SynthUI {
     if (this.arpOctaveSelect) {
       this.arpOctaveSelect.addEventListener('change', (e) => {
         this.arp.setOctaves(parseInt(e.target.value, 10));
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
@@ -775,6 +789,7 @@ class SynthUI {
     if (this.arpDivisionSelect) {
       this.arpDivisionSelect.addEventListener('change', (e) => {
         this.arp.setDivision(e.target.value);
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
@@ -795,7 +810,7 @@ class SynthUI {
       if (keyEl) {
         keyEl.classList.add('active');
         setTimeout(() => {
-          if (!this.currentlyHeldKeys.has(midiNote)) {
+          if (!this.keyboardHeldKeys.has(midiNote) && !this.mouseHeldKeys.has(midiNote)) {
             keyEl.classList.remove('active');
           }
         }, 120);
@@ -821,30 +836,34 @@ class SynthUI {
         if (preset) {
           this.applyPreset(preset);
         }
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
     if (this.prevPresetBtn) {
-      this.prevPresetBtn.addEventListener('click', () => {
+      this.prevPresetBtn.addEventListener('click', (e) => {
         if (this.presetsList.length === 0) return;
         this.currentPresetIndex = (this.currentPresetIndex - 1 + this.presetsList.length) % this.presetsList.length;
         this.applyPreset(this.presetsList[this.currentPresetIndex]);
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
     if (this.nextPresetBtn) {
-      this.nextPresetBtn.addEventListener('click', () => {
+      this.nextPresetBtn.addEventListener('click', (e) => {
         if (this.presetsList.length === 0) return;
         this.currentPresetIndex = (this.currentPresetIndex + 1) % this.presetsList.length;
         this.applyPreset(this.presetsList[this.currentPresetIndex]);
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
     if (this.initPatchBtn) {
-      this.initPatchBtn.addEventListener('click', () => {
+      this.initPatchBtn.addEventListener('click', (e) => {
         if (window.SYNTH_INIT_PRESET) {
           this.applyPreset(window.SYNTH_INIT_PRESET);
         }
+        if (e.target && e.target.blur) e.target.blur();
       });
     }
 
@@ -1151,8 +1170,19 @@ class SynthUI {
   }
 
   initKeyboardHotkeys() {
+    const isTextInput = (target) => {
+      if (!target) return false;
+      const tag = target.tagName;
+      if (tag === 'TEXTAREA') return true;
+      if (tag === 'INPUT') {
+        const type = (target.type || '').toLowerCase();
+        return type === 'text' || type === 'password' || type === 'search' || type === 'email';
+      }
+      return false;
+    };
+
     window.addEventListener('keydown', (e) => {
-      if (e.repeat || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      if (e.repeat || isTextInput(e.target)) return;
 
       if (e.code === 'KeyZ' && !this.keyMap[e.code]) {
         this.shiftOctave(-1);
@@ -1165,38 +1195,58 @@ class SynthUI {
 
       const midiNote = this.keyMap[e.code];
       if (midiNote !== undefined) {
-        if (!this.currentlyHeldKeys.has(midiNote)) {
-          this.currentlyHeldKeys.add(midiNote);
+        if (!this.keyboardHeldKeys.has(midiNote)) {
+          this.keyboardHeldKeys.add(midiNote);
           const keyEl = this.activeKeyElements.get(midiNote);
           if (keyEl) keyEl.classList.add('active');
-          if (this.arp && this.arp.enabled) {
-            this.arp.handleKeyDown(midiNote);
-          } else {
-            this.engine.noteOn(midiNote);
+          if (!this.mouseHeldKeys.has(midiNote)) {
+            if (this.arp && this.arp.enabled) {
+              this.arp.handleKeyDown(midiNote);
+            } else {
+              this.engine.noteOn(midiNote);
+            }
           }
         }
       }
     });
 
     window.addEventListener('keyup', (e) => {
+      if (isTextInput(e.target)) return;
+
       const midiNote = this.keyMap[e.code];
       if (midiNote !== undefined) {
-        if (this.currentlyHeldKeys.has(midiNote)) {
-          this.currentlyHeldKeys.delete(midiNote);
-          const keyEl = this.activeKeyElements.get(midiNote);
-          if (keyEl) keyEl.classList.remove('active');
-          if (this.arp && this.arp.enabled) {
-            this.arp.handleKeyUp(midiNote);
-          } else {
-            this.engine.noteOff(midiNote);
+        if (this.keyboardHeldKeys.has(midiNote)) {
+          this.keyboardHeldKeys.delete(midiNote);
+          if (!this.mouseHeldKeys.has(midiNote)) {
+            const keyEl = this.activeKeyElements.get(midiNote);
+            if (keyEl) keyEl.classList.remove('active');
+            if (this.arp && this.arp.enabled) {
+              this.arp.handleKeyUp(midiNote);
+            } else {
+              this.engine.noteOff(midiNote);
+            }
           }
+        }
+      }
+    });
+
+    // Window / tab blur safety: release held keyboard notes when user switches tabs/windows
+    window.addEventListener('blur', () => {
+      for (const note of Array.from(this.keyboardHeldKeys)) {
+        this.keyboardHeldKeys.delete(note);
+        const keyEl = this.activeKeyElements.get(note);
+        if (keyEl && !this.mouseHeldKeys.has(note)) keyEl.classList.remove('active');
+        if (this.arp && this.arp.enabled) {
+          this.arp.handleKeyUp(note);
+        } else {
+          this.engine.noteOff(note);
         }
       }
     });
   }
 
   /**
-   * CRT Oscilloscope Canvas & Reactive Speaker Animation Loop
+   * CRT Oscilloscope Canvas & Reactive Speaker Animation Loop (Optimized Performance)
    */
   startVisualizer() {
     if (!this.scopeCanvas) return;
@@ -1205,26 +1255,13 @@ class SynthUI {
     const width = canvas.width;
     const height = canvas.height;
 
-    const bufferLength = 512;
+    const bufferLength = 256;
     const timeData = new Uint8Array(bufferLength);
 
-    const updateVisuals = () => {
-      requestAnimationFrame(updateVisuals);
+    let idleFrames = 0;
+    let isIdle = false;
 
-      // Pulse active LFO LED
-      if (this.lfoRateLed && this.engine.lfo1 && this.engine.lfo2) {
-        const timeSec = performance.now() * 0.001;
-        const activeLfoRate = this.currentLfoTarget === 2 ? this.engine.lfo2.rate : this.engine.lfo1.rate;
-        const phase = (timeSec * activeLfoRate * Math.PI * 2) % (Math.PI * 2);
-        const intensity = Math.sin(phase) > 0 ? 1 : 0.15;
-        this.lfoRateLed.style.opacity = intensity;
-        if (intensity > 0.5) {
-          this.lfoRateLed.classList.add('pulsing');
-        } else {
-          this.lfoRateLed.classList.remove('pulsing');
-        }
-      }
-
+    const drawGrid = () => {
       ctx.fillStyle = 'rgba(4, 8, 6, 0.35)';
       ctx.fillRect(0, 0, width, height);
 
@@ -1239,12 +1276,74 @@ class SynthUI {
         ctx.lineTo(x, height);
       }
       ctx.stroke();
+    };
+
+    const updateVisuals = () => {
+      requestAnimationFrame(updateVisuals);
+
+      // 1. Pulse active LFO LED
+      if (this.lfoRateLed && this.engine.lfo1 && this.engine.lfo2) {
+        const timeSec = performance.now() * 0.001;
+        const activeLfoRate = this.currentLfoTarget === 2 ? this.engine.lfo2.rate : this.engine.lfo1.rate;
+        const phase = (timeSec * activeLfoRate * Math.PI * 2) % (Math.PI * 2);
+        const intensity = Math.sin(phase) > 0 ? 1 : 0.15;
+        this.lfoRateLed.style.opacity = intensity;
+        if (intensity > 0.5) {
+          this.lfoRateLed.classList.add('pulsing');
+        } else {
+          this.lfoRateLed.classList.remove('pulsing');
+        }
+      }
+
+      // Check if synth has active voices
+      const hasActiveVoices = this.engine.activeVoices && this.engine.activeVoices.size > 0;
 
       let rms = 0;
 
       if (this.engine.analyser && this.engine.isPowered) {
         this.engine.analyser.getByteTimeDomainData(timeData);
 
+        for (let i = 0; i < bufferLength; i++) {
+          const diff = Math.abs(timeData[i] - 128);
+          rms += diff * diff;
+        }
+        rms = Math.sqrt(rms / bufferLength);
+      }
+
+      const isSounding = rms > 1.2 || hasActiveVoices;
+
+      // 2. Idle Pausing / Silence Throttling to save CPU cycles
+      if (!isSounding) {
+        idleFrames++;
+        if (idleFrames > 15) {
+          if (!isIdle) {
+            isIdle = true;
+            drawGrid();
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = '#00ff8844';
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+
+            if (this.lastWooferScale !== 1.0) {
+              this.wooferLeft.style.transform = 'scale(1)';
+              this.wooferRight.style.transform = 'scale(1)';
+              this.lastWooferScale = 1.0;
+            }
+            this.updateVuMeter(0);
+          }
+          return;
+        }
+      } else {
+        idleFrames = 0;
+        isIdle = false;
+      }
+
+      // 3. Active Waveform Draw Loop
+      drawGrid();
+
+      if (this.engine.analyser && this.engine.isPowered) {
         ctx.lineWidth = 1.6;
         ctx.strokeStyle = '#00ff88';
         ctx.shadowBlur = 4;
@@ -1258,9 +1357,6 @@ class SynthUI {
           const v = timeData[i] / 128.0;
           const y = (v * height) / 2;
 
-          const diff = Math.abs(timeData[i] - 128);
-          rms += diff * diff;
-
           if (i === 0) {
             ctx.moveTo(x, y);
           } else {
@@ -1272,8 +1368,6 @@ class SynthUI {
 
         ctx.stroke();
         ctx.shadowBlur = 0;
-
-        rms = Math.sqrt(rms / bufferLength);
       } else {
         ctx.lineWidth = 1.2;
         ctx.strokeStyle = '#00ff8844';
@@ -1283,15 +1377,12 @@ class SynthUI {
         ctx.stroke();
       }
 
-      // Speaker Woofer Vibration
-      const isSounding = rms > 2;
-      if (isSounding) {
-        const pulseFactor = 1 + Math.min(0.08, rms * 0.002);
-        this.wooferLeft.style.transform = `scale(${pulseFactor})`;
-        this.wooferRight.style.transform = `scale(${pulseFactor})`;
-      } else {
-        this.wooferLeft.style.transform = 'scale(1)';
-        this.wooferRight.style.transform = 'scale(1)';
+      // 4. Speaker Woofer Vibration (Dirty-checked to avoid DOM layout thrashing)
+      const targetScale = isSounding && rms > 2 ? 1 + Math.min(0.08, rms * 0.002) : 1.0;
+      if (Math.abs(targetScale - this.lastWooferScale) > 0.003) {
+        this.wooferLeft.style.transform = `scale(${targetScale})`;
+        this.wooferRight.style.transform = `scale(${targetScale})`;
+        this.lastWooferScale = targetScale;
       }
 
       this.updateVuMeter(rms);
@@ -1301,19 +1392,20 @@ class SynthUI {
   }
 
   updateVuMeter(rms) {
-    const ledsL = this.vuMeterL.querySelectorAll('.led');
-    const ledsR = this.vuMeterR.querySelectorAll('.led');
-    const numLeds = ledsL.length;
-
+    if (!this.ledsL || !this.ledsR) return;
+    const numLeds = this.ledsL.length;
     const activeCount = Math.min(numLeds, Math.floor((rms / 28) * numLeds));
+
+    if (activeCount === this.lastActiveVuCount) return; // Prevent DOM layout thrashing
+    this.lastActiveVuCount = activeCount;
 
     for (let i = 0; i < numLeds; i++) {
       if (i < activeCount && this.engine.isPowered) {
-        ledsL[i].classList.add('lit');
-        ledsR[i].classList.add('lit');
+        this.ledsL[i].classList.add('lit');
+        this.ledsR[i].classList.add('lit');
       } else {
-        ledsL[i].classList.remove('lit');
-        ledsR[i].classList.remove('lit');
+        this.ledsL[i].classList.remove('lit');
+        this.ledsR[i].classList.remove('lit');
       }
     }
   }

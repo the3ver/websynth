@@ -64,14 +64,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.1.0</span>
-        </button>
-        <button class="btn btn-outline" id="openRoadmapBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-          </svg>
-          Vorschläge & Roadmap
+          <span class="version-tag">v1.2.0</span>
         </button>
         <button class="power-switch-btn" id="mainPowerBtn" title="Synthesizer Ein-/Ausschalten">
           <span class="power-indicator"></span>
@@ -918,11 +911,11 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.1.0</span>
+            <span class="release-version-number">v1.2.0</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Studio Audio Engine Update • Anti-Clicking, Master Limiter & Resonanz-Kompensation</p>
+          <p class="modal-subtitle">Studio High-Performance Release • Voice-Pooling, Worker-Clock, Master Limiter & Tanh Filter Drive</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -930,28 +923,40 @@
         <div class="changelog-grid">
           
           <div class="changelog-card highlight-card">
-            <div class="card-icon">🛡️</div>
+            <div class="card-icon">🚀</div>
             <div class="card-content">
-              <div class="card-badge dsp-badge">AUDIO DSP</div>
-              <h3>Master Brickwall Limiter & Anti-Clipping</h3>
-              <p>Kristallklarer Sound ohne Verzerrungen:</p>
+              <div class="card-badge perf-badge">PERFORMANCE ENGINE</div>
+              <h3>12-Stimmen Voice-Pooling (Zero GC Churn)</h3>
+              <p>Volle Polyphonie ohne Knackser und Garbage-Collection-Ruckler:</p>
               <ul>
-                <li><strong>DynamicsCompressor Limiter:</strong> Dedizierter Peak-Limiter vor dem Master-Ausgang fängt Pegelspitzen bei 0 dBFS zuverlässig ab.</li>
-                <li><strong>Gain Staging:</strong> Optimierte Voice- und Mixer-Pegel für sauberen Headroom bei 8-facher Polyphonie.</li>
+                <li><strong>Vorinitialisierter Stimmenpool:</strong> 12 persistente Stimmen bleiben permanent verdrahtet. Keine Node-Allokationen beim Spielen.</li>
+                <li><strong>LRU Voice Stealing:</strong> Sanftes 2ms-Crossfading stiehlt bei Akkordüberlastung unhörbar die älteste Stimme.</li>
               </ul>
             </div>
           </div>
 
           <div class="changelog-card">
-            <div class="card-icon">⚡</div>
+            <div class="card-icon">⏱️</div>
             <div class="card-content">
-              <div class="card-badge env-badge">HÜLLKURVEN</div>
-              <h3>Envelope De-Clicking & sanftes Voice-Release</h3>
-              <p>Keine störenden Klicks beim Tastenanschlag oder Loslassen:</p>
+              <div class="card-badge env-badge">ARPEGGIATOR CLOCK</div>
+              <h3>Web Worker Precision Sequenzer Clock</h3>
+              <p>Absolut stabiles Timing ohne UI-Latenz:</p>
               <ul>
-                <li><strong>Zero-Crossing Schutz:</strong> Mindest-Attackzeit mit exponentiellem Kurvenverlauf verhindert Abreiß-Knackser.</li>
-                <li><strong>Asymptotisches Ausklingen:</strong> Noten-Off nutzt unterbrechungsfreie Parameter-Automationen ohne Sprungstellen.</li>
-                <li><strong>Retrigger Crossfade:</strong> Schnelles wiederholtes Anschlagen blendet Stimmen weich über.</li>
+                <li><strong>Hintergrund-Thread Worker:</strong> Taktgeber läuft isoliert vom DOM- und Render-Thread.</li>
+                <li><strong>Kein Jitter:</strong> Felsenfestes Arpeggio-Tempo, selbst bei Tab-Wechseln und schweren UI-Animationen.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
+            <div class="card-icon">🛡️</div>
+            <div class="card-content">
+              <div class="card-badge dsp-badge">AUDIO DSP</div>
+              <h3>Master Brickwall Limiter & Anti-Clipping</h3>
+              <p>Kristallklarer Sound ohne digitale Übersteuerung:</p>
+              <ul>
+                <li><strong>DynamicsCompressor Limiter:</strong> Fängt Pegelspitzen vor dem Master-Ausgang bei 0 dBFS zuverlässig ab.</li>
+                <li><strong>Calibrated Headroom:</strong> Optimiertes Gain-Staging für duale Oszillatoren und Sub-Bässe.</li>
               </ul>
             </div>
           </div>
@@ -959,26 +964,12 @@
           <div class="changelog-card">
             <div class="card-icon">🎛️</div>
             <div class="card-content">
-              <div class="card-badge vcf-badge">VCF FILTER</div>
-              <h3>24dB Filter Resonanz-Kompensation</h3>
-              <p>Perfekt ausbalancierter Moog-Ladder Filtersound:</p>
+              <div class="card-badge vcf-badge">VCF & UI WORKFLOW</div>
+              <h3>Tanh Filter-Drive & Fokus-Optimierung</h3>
+              <p>Feinste analoge Klangformung und flüssige Bedienung:</p>
               <ul>
-                <li><strong>Sicheres Q-Staging:</strong> Intelligente Aufteilung der Resonanz auf die Kaskadenstufen verhindert Selbstoszillations-Blowouts.</li>
-                <li><strong>Biting & Warm:</strong> Satt kreischende 303- und Moog-Leads ohne digitale Artefakte.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="changelog-card">
-            <div class="card-icon">🎹</div>
-            <div class="card-content">
-              <div class="card-badge perf-badge">PERFORMANCE</div>
-              <h3>Arpeggiator, MIDI & Preset Library</h3>
-              <p>Vollständige Vintage-Synthesizer Suite:</p>
-              <ul>
-                <li><strong>16-Step Sequenzer:</strong> Lookahead-Clock mit Swing und interaktiven Step-Gates.</li>
-                <li><strong>Web MIDI API:</strong> Plug & Play USB-Masterkeyboard Unterstützung mit Pitch-Bend und Mod-Wheel.</li>
-                <li><strong>10 Factory Presets:</strong> Blade Runner Brass, Moog Bass, Juno Synthwave Pluck, TB-303 u.v.m. + User Presets.</li>
+                <li><strong>Hyperbeltangens-Sättigung:</strong> Stufenloser Übergang von linearem Clean-Sound bis zu warmer Bandsättigung ohne Pegelsprung.</li>
+                <li><strong>Unterbrechungsfreier Workflow:</strong> Preset-Auswahl und Regler-Bewegungen unterbrechen gehaltene Tastatur-Noten nicht mehr.</li>
               </ul>
             </div>
           </div>
@@ -990,11 +981,17 @@
           <details class="archive-details">
             <summary class="archive-summary">
               <span class="archive-title">📦 Frühere Versionen anzeigen</span>
-              <span class="archive-badge">v1.0.0</span>
+              <span class="archive-badge">v1.1.0 & v1.0.0</span>
             </summary>
             <div class="archive-content">
-              <h4>Version 1.0.0 – Initial Release</h4>
-              <p>Erstveröffentlichung des RETROVOX SUB-1 Synthesizers mit Dual-VCO, Sub-Oszillator, 24dB VCF, Dual-LFO, Vintage Stereo FX Rack (Juno Chorus, Tape Delay, Studio Reverb) und 3D-Keyboard.</p>
+              <div class="archive-entry">
+                <h4>Version 1.1.0 – DSP Limiter & De-Clicking</h4>
+                <p>Master Brickwall Limiter, asynchrones Envelope De-Clicking, 24dB Moog-Ladder Resonanz-Kompensation und "Was gibt's Neues"-Screen.</p>
+              </div>
+              <div class="archive-entry" style="margin-top: 10px;">
+                <h4>Version 1.0.0 – Initial Release</h4>
+                <p>Erstveröffentlichung des RETROVOX SUB-1 Synthesizers mit Dual-VCO, Sub-Oszillator, 24dB VCF, Dual-LFO, Vintage Stereo FX Rack (Juno Chorus, Tape Delay, Studio Reverb), Web MIDI API und 10 Factory Presets.</p>
+              </div>
             </div>
           </details>
         </div>
@@ -1005,97 +1002,8 @@
           <span>Beim nächsten Start nicht mehr automatisch anzeigen</span>
         </label>
         <div class="footer-buttons">
-          <button class="btn btn-secondary" id="viewRoadmapFromChangelogBtn">Roadmap ansehen</button>
           <button class="btn btn-primary" id="startWithNewVersionBtn">Alles klar – Loslegen!</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Roadmap & Vorschläge Modal / Drawer -->
-  <div class="modal-backdrop" id="roadmapModal">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <h2>Synthesizer Architektur & Roadmap</h2>
-          <p class="modal-subtitle">Subtraktive Synthese mit der Web Audio API – Konzept & nächste Ausbaustufen</p>
-        </div>
-        <button class="modal-close-btn" id="closeRoadmapBtn" aria-label="Schließen">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="roadmap-grid">
-          
-          <div class="roadmap-card">
-            <div class="card-icon">🌊</div>
-            <h3>1. Oszillatoren (Dual-VCO + Noise)</h3>
-            <p>Klassische analoge Rohklänge als Fundament:</p>
-            <ul>
-              <li><strong>Wellenformen:</strong> Sägezahn (Sawtooth), Rechteck (Square/Pulse mit PWM), Dreieck (Triangle) & Sinus.</li>
-              <li><strong>Detune & Fat-Stack:</strong> Feinstimmung (Cents) für saftige analoge Schwebungen.</li>
-              <li><strong>Hard-Sync & FM:</strong> Oszillator 1 moduliert Oszillator 2 für aggressive Leads.</li>
-              <li><strong>Rauschgenerator:</strong> White/Pink Noise für Percussions & Wind-Effekte.</li>
-            </ul>
-          </div>
-
-          <div class="roadmap-card highlight-card">
-            <div class="card-icon">🎛️</div>
-            <h3>2. Filter-Sektion (VCF - Das Herzstück)</h3>
-            <p>Formung des Spektrums durch Subtraktion von Obertönen:</p>
-            <ul>
-              <li><strong>24 dB/Oct Moog-Ladder Filter:</strong> Warmer Tiefpassfilter mit typischer analoger Sättigung.</li>
-              <li><strong>Resonanz & Self-Oscillation:</strong> Bis zur reinen Sinus-Eigenschwingung.</li>
-              <li><strong>Keyboard Tracking:</strong> Filter-Cutoff folgt der gespielten Tonhöhe.</li>
-              <li><strong>Filter-Modi:</strong> Tiefpass (LPF), Bandpass (BPF) & Hochpass (HPF).</li>
-            </ul>
-          </div>
-
-          <div class="roadmap-card">
-            <div class="card-icon">📈</div>
-            <h3>3. Hüllkurven & Modulation (ADSR + LFO)</h3>
-            <p>Zeitlicher Verlauf und dynamische Modulation:</p>
-            <ul>
-              <li><strong>2x ADSR-Hüllkurven:</strong> Dedizierte Kurven für Filter-Cutoff und VCA (Lautstärke).</li>
-              <li><strong>LFO (Low Frequency Oscillator):</strong> Wellenformen zur Modulation von Pitch (Vibrato), Filter (Auto-Wah) und Pulsbreite.</li>
-              <li><strong>Modulationsmatrix:</strong> Schnelle Zuweisung von Quellen auf Ziele.</li>
-            </ul>
-          </div>
-
-          <div class="roadmap-card">
-            <div class="card-icon">🎹</div>
-            <h3>4. Spielmodi & Sequenzer</h3>
-            <p>Vielfältige Performance-Möglichkeiten:</p>
-            <ul>
-              <li><strong>Polyphonie & Monophon-Legato:</strong> Bis zu 8 Stimmen oder flüssiges Monophon mit Glissando/Portamento.</li>
-              <li><strong>16-Step Arpeggiator:</strong> Muster (Up, Down, Random, As-Played) mit Swing und Tempo-Sync.</li>
-              <li><strong>Pitch-Bend & Mod-Wheel:</strong> Volle Unterstützung für Nuancen beim Spielen.</li>
-            </ul>
-          </div>
-
-          <div class="roadmap-card">
-            <div class="card-icon">✨</div>
-            <h3>5. Vintage Stereo-Effektkette</h3>
-            <p>Räumlichkeit und 80er-Jahre Klangcharakter:</p>
-            <ul>
-              <li><strong>Stereo BBD Chorus:</strong> Legendärer Roland Juno-60/106 Ensemble-Chorus.</li>
-              <li><strong>Tape Delay:</strong> Analoges Echo mit Stereo-Ping-Pong und Feedback.</li>
-              <li><strong>Studio Reverb:</strong> Warmes Hall-Modul für weite Flächen (Pads).</li>
-            </ul>
-          </div>
-
-          <div class="roadmap-card">
-            <div class="card-icon">🔌</div>
-            <h3>6. Konnektivität & Presets</h3>
-            <p>Integration mit echter Hardware:</p>
-            <ul>
-              <li><strong>Web MIDI API:</strong> Echtes USB-MIDI-Masterkeyboard anschließen und direkt mit Tasten & Reglern spielen.</li>
-              <li><strong>Preset-Browser:</strong> Fabrik-Presets (Bass, Lead, Pad, Pluck, FX) sowie Speichern & Exportieren eigener Sounds als JSON.</li>
-            </ul>
-          </div>
-
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" id="startExploringBtn">Verstanden – Loslegen!</button>
       </div>
     </div>
   </div>

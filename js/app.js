@@ -25,28 +25,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.1.0';
+  const CURRENT_APP_VERSION = '1.2.0';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
   const openChangelogBtn = document.getElementById('openChangelogBtn');
   const closeChangelogBtn = document.getElementById('closeChangelogBtn');
   const startWithNewVersionBtn = document.getElementById('startWithNewVersionBtn');
-  const viewRoadmapFromChangelogBtn = document.getElementById('viewRoadmapFromChangelogBtn');
   const dontShowChangelogCheck = document.getElementById('dontShowChangelogCheck');
   const changelogModal = document.getElementById('changelogModal');
-
-  // Roadmap Modal Elements
-  const openRoadmapBtn = document.getElementById('openRoadmapBtn');
-  const closeRoadmapBtn = document.getElementById('closeRoadmapBtn');
-  const startExploringBtn = document.getElementById('startExploringBtn');
-  const roadmapModal = document.getElementById('roadmapModal');
 
   // Master Volume Slider
   masterVolumeInput.addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
     masterVolumeDisplay.textContent = `${Math.round(val * 100)}%`;
     audioEngine.setMasterVolume(val);
+  });
+  masterVolumeInput.addEventListener('change', (e) => {
+    e.target.blur();
+  });
+  masterVolumeInput.addEventListener('pointerup', (e) => {
+    e.target.blur();
   });
 
   // Power Switch Toggle
@@ -121,13 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeChangelogBtn) closeChangelogBtn.addEventListener('click', closeChangelog);
   if (startWithNewVersionBtn) startWithNewVersionBtn.addEventListener('click', closeChangelog);
 
-  if (viewRoadmapFromChangelogBtn) {
-    viewRoadmapFromChangelogBtn.addEventListener('click', () => {
-      closeChangelog();
-      openRoadmap();
-    });
-  }
-
   if (changelogModal) {
     changelogModal.addEventListener('click', (e) => {
       if (e.target === changelogModal) closeChangelog();
@@ -145,31 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch (e) {}
 
-  // Roadmap Modal Handling
-  const openRoadmap = () => {
-    if (roadmapModal) roadmapModal.classList.add('open');
-  };
-  const closeRoadmap = () => {
-    if (roadmapModal) roadmapModal.classList.remove('open');
-  };
-
-  if (openRoadmapBtn) openRoadmapBtn.addEventListener('click', openRoadmap);
-  if (closeRoadmapBtn) closeRoadmapBtn.addEventListener('click', closeRoadmap);
-  if (startExploringBtn) startExploringBtn.addEventListener('click', closeRoadmap);
-
-  if (roadmapModal) {
-    roadmapModal.addEventListener('click', (e) => {
-      if (e.target === roadmapModal) closeRoadmap();
-    });
-  }
-
   // Global Escape Key Listener for Modals
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (changelogModal && changelogModal.classList.contains('open')) {
         closeChangelog();
-      } else if (roadmapModal && roadmapModal.classList.contains('open')) {
-        closeRoadmap();
       }
     }
   });

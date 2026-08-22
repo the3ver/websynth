@@ -253,6 +253,14 @@ body {
   padding: 4px 12px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+}
+
+.master-volume-control:focus,
+.master-volume-control:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .master-volume-control label {
@@ -268,6 +276,13 @@ body {
   height: 5px;
   accent-color: var(--led-amber);
   cursor: pointer;
+  outline: none;
+}
+
+.master-volume-control input[type="range"]:focus,
+.master-volume-control input[type="range"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .volume-value {

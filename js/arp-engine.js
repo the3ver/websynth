@@ -30,8 +30,9 @@ class ArpEngine {
     this.sequenceIndex = 0;
     this.currentStep = 0; // 0 to 15 (sequencer tracker)
 
-    // Web Audio Lookahead Clock Timer
-    this.timerWorker = null;
+    // Web Audio Lookahead Clock Timer (Web Worker + Main Thread Fallback)
+    this.worker = null;
+    this.isRunning = false;
     this.timerId = null;
     this.nextNoteTime = 0.0;
     this.lookahead = 20.0; // ms
@@ -42,6 +43,51 @@ class ArpEngine {
     this.onNoteTrigger = null; // (midiNote) => void
 
     this.updownDirection = 1; // 1 = up, -1 = down
+
+    this.initClockWorker();
+  }
+
+  /**
+   * Initializes background Web Worker for rock-solid zero-jitter timing
+   */
+  initClockWorker() {
+    try {
+      const workerBlobCode = `
+        let timerId = null;
+        let interval = 20;
+        self.onmessage = function(e) {
+          if (e.data === 'start') {
+            if (timerId) clearInterval(timerId);
+            timerId = setInterval(function() {
+              self.postMessage('tick');
+            }, interval);
+          } else if (e.data === 'stop') {
+            if (timerId) {
+              clearInterval(timerId);
+              timerId = null;
+            }
+          } else if (e.data && e.data.interval) {
+            interval = e.data.interval;
+            if (timerId) {
+              clearInterval(timerId);
+              timerId = setInterval(function() {
+                self.postMessage('tick');
+              }, interval);
+            }
+          }
+        };
+      `;
+      const blob = new Blob([workerBlobCode], { type: 'application/javascript' });
+      this.worker = new Worker(URL.createObjectURL(blob));
+      this.worker.onmessage = (e) => {
+        if (e.data === 'tick' && this.enabled && this.isRunning) {
+          this.scheduler();
+        }
+      };
+    } catch (err) {
+      console.warn('Web Worker Clock fallback to main thread timer:', err);
+      this.worker = null;
+    }
   }
 
   /**
@@ -237,25 +283,33 @@ class ArpEngine {
    * Starts the High-Precision Lookahead Clock Scheduler
    */
   startClock() {
-    if (this.timerId) return;
+    if (this.isRunning) return;
     if (!this.audio.ctx) {
       this.audio.initAudio();
     }
 
+    this.isRunning = true;
     this.nextNoteTime = this.audio.ctx.currentTime + 0.01;
     this.currentStep = 0;
     this.sequenceIndex = 0;
 
-    const tick = () => {
-      if (!this.enabled) return;
-      this.scheduler();
-      this.timerId = setTimeout(tick, this.lookahead);
-    };
-
-    this.timerId = setTimeout(tick, 0);
+    if (this.worker) {
+      this.worker.postMessage('start');
+    } else {
+      const tick = () => {
+        if (!this.enabled || !this.isRunning) return;
+        this.scheduler();
+        this.timerId = setTimeout(tick, this.lookahead);
+      };
+      this.timerId = setTimeout(tick, 0);
+    }
   }
 
   stopClock() {
+    this.isRunning = false;
+    if (this.worker) {
+      this.worker.postMessage('stop');
+    }
     if (this.timerId) {
       clearTimeout(this.timerId);
       this.timerId = null;
