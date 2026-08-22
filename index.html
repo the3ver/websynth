@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtractive WebSynth • Analoger Web-Audio Synthesizer</title>
+  <meta name="description" content="Klassischer analoger Synthesizer mit subtraktiver Synthese im Browser, angetrieben von der Web Audio API.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="studio-ambient-glow"></div>
+  
+  <div class="studio-container">
+    <!-- Top Studio Toolbar -->
+    <header class="studio-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <span class="brand-icon">⚡</span>
+          <div class="brand-text">
+            <span class="brand-name">RETROVOX</span>
+            <span class="brand-model">SUB-1 • ANALOG LAB</span>
+          </div>
+        </div>
+        <div class="status-pill" id="audioStatusBadge">
+          <span class="status-dot"></span>
+          <span class="status-label">AUDIO ENGINE: READY</span>
+        </div>
+        <div class="status-pill midi-status" id="midiStatusBadge">
+          <span class="status-dot midi-dot"></span>
+          <span class="status-label" id="midiLabel">MIDI: STANDBY</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="vu-meter-cluster">
+          <div class="vu-channel">
+            <span class="vu-label">L</span>
+            <div class="vu-led-bar" id="vuMeterL">
+              <span class="led green"></span><span class="led green"></span><span class="led green"></span>
+              <span class="led green"></span><span class="led green"></span><span class="led yellow"></span>
+              <span class="led yellow"></span><span class="led red"></span>
+            </div>
+          </div>
+          <div class="vu-channel">
+            <span class="vu-label">R</span>
+            <div class="vu-led-bar" id="vuMeterR">
+              <span class="led green"></span><span class="led green"></span><span class="led green"></span>
+              <span class="led green"></span><span class="led green"></span><span class="led yellow"></span>
+              <span class="led yellow"></span><span class="led red"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="master-volume-control">
+          <label for="masterVolume">MASTER</label>
+          <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.75">
+          <span class="volume-value" id="masterVolumeDisplay">75%</span>
+        </div>
+        <button class="btn btn-outline" id="openRoadmapBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          Vorschläge & Roadmap
+        </button>
+        <button class="power-switch-btn" id="mainPowerBtn" title="Synthesizer Ein-/Ausschalten">
+          <span class="power-indicator"></span>
+          <span class="power-text">POWER</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Studio Desk Layout (Speakers + Synthesizer) -->
+    <main class="studio-desk">
+      
+      <!-- Left Studio Monitor -->
+      <aside class="studio-monitor left-monitor" aria-label="Linker Studio-Lautsprecher">
+        <div class="speaker-cabinet">
+          <div class="speaker-screw top-left"></div>
+          <div class="speaker-screw top-right"></div>
+          
+          <div class="speaker-brand">KRK-X5 <span class="sub-label">ACTIVE NEARFIELD</span></div>
+          
+          <!-- Tweeter -->
+          <div class="speaker-driver tweeter-housing">
+            <div class="silk-dome"></div>
+            <div class="tweeter-grille"></div>
+          </div>
+
+          <!-- Woofer with dynamic vibration -->
+          <div class="speaker-driver woofer-housing">
+            <div class="woofer-rim">
+              <div class="woofer-cone" id="wooferLeft">
+                <div class="dust-cap"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bass Reflex Port & LED -->
+          <div class="speaker-bottom-bay">
+            <div class="bass-port"></div>
+            <div class="speaker-led active" id="speakerLedLeft"></div>
+          </div>
+
+          <div class="speaker-screw bottom-left"></div>
+          <div class="speaker-screw bottom-right"></div>
+        </div>
+        <div class="speaker-stand-shadow"></div>
+      </aside>
+
+      <!-- Center Analog Synthesizer Unit -->
+      <section class="synth-unit" aria-label="Analoger Synthesizer">
+        <!-- Wood Cheek Left -->
+        <div class="wood-side-cheek cheek-left">
+          <div class="wood-grain"></div>
+          <div class="brass-screw top"></div>
+          <div class="brass-screw bottom"></div>
+        </div>
+
+        <!-- Main Metal Chassis -->
+        <div class="synth-chassis">
+          
+          <!-- Top Section: Modular Control Surface (Bereich für Knöpfe & Regler) -->
+          <div class="synth-top-panel">
+            <div class="panel-header-strip">
+              <div class="synth-logo-badge">
+                <span class="badge-title">RETROVOX SUB-1</span>
+                <span class="badge-tech">DUAL-VCO • 24dB VCF • DUAL-LFO • STEREO FX</span>
+              </div>
+
+              <!-- Center: Hardware LCD Preset Manager Bay -->
+              <div class="preset-manager-bay">
+                <div class="preset-nav-wrapper">
+                  <button class="preset-nav-btn" id="prevPresetBtn" title="Vorheriges Preset (◀)">◀</button>
+                  <div class="preset-lcd-display">
+                    <span class="preset-cat-tag" id="presetCatTag">BRASS</span>
+                    <select class="preset-dropdown" id="presetSelectDropdown" title="Preset auswählen"></select>
+                  </div>
+                  <button class="preset-nav-btn" id="nextPresetBtn" title="Nächstes Preset (▶)">▶</button>
+                </div>
+                <div class="preset-action-group">
+                  <button class="preset-btn-action" id="savePresetBtn" title="Aktuellen Sound als User Preset speichern">SAVE</button>
+                  <button class="preset-btn-action" id="initPatchBtn" title="Neutralen Grundzustand laden (Init Patch)">INIT</button>
+                </div>
+              </div>
+
+              <!-- Compact HUD Oscilloscope Screen in Top Header -->
+              <div class="oled-screen-housing hud-scope">
+                <canvas id="scopeCanvas" width="140" height="28"></canvas>
+                <div class="screen-overlay-info">
+                  <span class="screen-voice-info" id="activeVoiceInfo">POLY: 0</span>
+                  <span class="screen-freq-info" id="activeFreqInfo">READY</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Free Control Surface with Structured Module Grids for Future Controls -->
+            <div class="modular-control-surface">
+              
+              <!-- Module 1: Dual-VCO (Oscillators) -->
+              <div class="module-bay vco-module active-module">
+                <div class="module-title">
+                  <span>01 // DUAL-VCO OSCILLATORS</span>
+                  <span class="module-led cyan"></span>
+                </div>
+                
+                <div class="vco-subgrid">
+                  <!-- VCO 1 Section -->
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>VCO 1 (MAIN)</span>
+                      <span class="tag">PRIMARY</span>
+                    </div>
+
+                    <!-- Waveform Selector -->
+                    <div class="wave-btn-row" data-vco="1">
+                      <button class="wave-btn active" data-wave="sawtooth" title="Sägezahn (Sawtooth)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18L18 6v12"/></svg>
+                      </button>
+                      <button class="wave-btn" data-wave="square" title="Rechteck / Puls (Square/Pulse)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18V6h8v12h8V6"/></svg>
+                      </button>
+                      <button class="wave-btn" data-wave="triangle" title="Dreieck (Triangle)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18l8-12 8 12"/></svg>
+                      </button>
+                      <button class="wave-btn" data-wave="sine" title="Sinus (Sine)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 12c4-8 4 8 8 0s4-8 8 0"/></svg>
+                      </button>
+                    </div>
+
+                    <!-- Knobs Row -->
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco1-octave" data-min="-2" data-max="2" data-step="1" data-default="0" data-type="octave">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">OCTAVE</span>
+                        <span class="knob-readout-badge" id="vco1-octave-readout">8'</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco1-pw" data-min="0.1" data-max="0.9" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">PULSE W.</span>
+                        <span class="knob-readout-badge" id="vco1-pw-readout">50%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- VCO 2 Section -->
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>VCO 2 (DETUNE)</span>
+                      <button class="sync-toggle-btn" id="vco2SyncBtn" title="Hard Sync VCO 2 auf VCO 1">SYNC</button>
+                    </div>
+
+                    <!-- Waveform Selector -->
+                    <div class="wave-btn-row" data-vco="2">
+                      <button class="wave-btn" data-wave="sawtooth" title="Sägezahn (Sawtooth)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18L18 6v12"/></svg>
+                      </button>
+                      <button class="wave-btn active" data-wave="square" title="Rechteck / Puls (Square/Pulse)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18V6h8v12h8V6"/></svg>
+                      </button>
+                      <button class="wave-btn" data-wave="triangle" title="Dreieck (Triangle)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18l8-12 8 12"/></svg>
+                      </button>
+                      <button class="wave-btn" data-wave="sine" title="Sinus (Sine)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 12c4-8 4 8 8 0s4-8 8 0"/></svg>
+                      </button>
+                    </div>
+
+                    <!-- Knobs Row -->
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco2-octave" data-min="-2" data-max="2" data-step="1" data-default="0" data-type="octave">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">OCTAVE</span>
+                        <span class="knob-readout-badge" id="vco2-octave-readout">8'</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco2-semitone" data-min="-24" data-max="24" data-step="1" data-default="0" data-type="semitone">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">SEMI</span>
+                        <span class="knob-readout-badge" id="vco2-semitone-readout">0 ST</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco2-detune" data-min="-50" data-max="50" data-step="1" data-default="8" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="vco2-detune-readout">+8 CT</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Module 2: Mixer & Noise -->
+              <div class="module-bay mixer-module active-module">
+                <div class="module-title">
+                  <span>02 // MIXER & NOISE</span>
+                  <span class="module-led green"></span>
+                </div>
+
+                <div class="vco-subgrid">
+                  <!-- Mixer Knobs Top Row: VCO1, VCO2 -->
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OSC LEVELS</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="mixer-vco1" data-min="0" data-max="1" data-step="0.01" data-default="0.8" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">VCO 1</span>
+                        <span class="knob-readout-badge" id="mixer-vco1-readout">80%</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="mixer-vco2" data-min="0" data-max="1" data-step="0.01" data-default="0.6" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">VCO 2</span>
+                        <span class="knob-readout-badge" id="mixer-vco2-readout">60%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mixer Knobs Bottom Row: Sub Osc & White Noise -->
+                  <div class="vco-section-block">
+                    <div class="mini-switch-group">
+                      <span class="mini-switch-label">SUB OCT</span>
+                      <div class="sub-oct-selector" id="subOctSelector">
+                        <button class="sub-oct-btn active" data-suboct="-1">-1</button>
+                        <button class="sub-oct-btn" data-suboct="-2">-2</button>
+                      </div>
+                    </div>
+
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="mixer-sub" data-min="0" data-max="1" data-step="0.01" data-default="0.35" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">SUB BASS</span>
+                        <span class="knob-readout-badge" id="mixer-sub-readout">35%</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="mixer-noise" data-min="0" data-max="1" data-step="0.01" data-default="0" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">NOISE</span>
+                        <span class="knob-readout-badge" id="mixer-noise-readout">0%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Module 3: 24dB Ladder VCF Filter (Centerpiece) -->
+              <div class="module-bay vcf-module active-module highlight-module">
+                <div class="module-title">
+                  <span>03 // 24dB LADDER FILTER (VCF)</span>
+                  <span class="module-led amber"></span>
+                </div>
+
+                <div class="vco-subgrid">
+                  <!-- Filter Mode Selector -->
+                  <div class="filter-mode-row" id="filterModeRow">
+                    <button class="filter-mode-btn active" data-filter="lowpass24" title="4-Pol 24dB Moog-Ladder Tiefpass">LPF 24</button>
+                    <button class="filter-mode-btn" data-filter="lowpass12" title="2-Pol 12dB Bissiger Tiefpass">LPF 12</button>
+                    <button class="filter-mode-btn" data-filter="bandpass" title="Bandpass (Formanten & Wah)">BPF</button>
+                    <button class="filter-mode-btn" data-filter="highpass" title="Hochpass (Schneidend)">HPF</button>
+                  </div>
+
+                  <!-- Primary Large Knobs: Cutoff & Resonance -->
+                  <div class="vco-section-block">
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing large" data-param="vcf-cutoff" data-min="20" data-max="20000" data-step="1" data-default="2800" data-type="hz">
+                          <div class="synth-knob-dial large-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text highlight">CUTOFF</span>
+                        <span class="knob-readout-badge large" id="vcf-cutoff-readout">2.8 kHz</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing large" data-param="vcf-resonance" data-min="0.1" data-max="22" data-step="0.1" data-default="3.5" data-type="res">
+                          <div class="synth-knob-dial large-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text highlight">RESONANCE</span>
+                        <span class="knob-readout-badge large" id="vcf-resonance-readout">3.5 Q</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Secondary Knobs: Drive, Key Track, Env Mod -->
+                  <div class="vco-section-block">
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vcf-drive" data-min="0" data-max="1" data-step="0.01" data-default="0.15" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DRIVE</span>
+                        <span class="knob-readout-badge" id="vcf-drive-readout">15%</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vcf-keytrack" data-min="0" data-max="1" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">KEY TRK</span>
+                        <span class="knob-readout-badge" id="vcf-keytrack-readout">50%</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vcf-envmod" data-min="-1" data-max="1" data-step="0.01" data-default="0.6" data-type="bipolar-percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">ENV MOD</span>
+                        <span class="knob-readout-badge" id="vcf-envmod-readout">+60%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Module 4: Dual LFO & Modulation Matrix -->
+              <div class="module-bay lfo-module active-module" id="lfoModuleBay">
+                <div class="module-title">
+                  <span>04 // DUAL LFO & MOD</span>
+                  <span class="module-led amber"></span>
+                </div>
+
+                <div class="vco-subgrid">
+                  
+                  <!-- LFO Selector Tabs (LFO 1 vs LFO 2) -->
+                  <div class="env-tab-group" id="lfoTabGroup">
+                    <button class="env-tab-btn active" data-target="1" title="LFO 1 (Haupt-Modulator)">LFO 1 (MAIN)</button>
+                    <button class="env-tab-btn" data-target="2" title="LFO 2 (Performance & Fade-In)">LFO 2 (PERF / FADE)</button>
+                  </div>
+
+                  <!-- LFO Waveform Selector -->
+                  <div class="lfo-wave-row" id="lfoWaveRow">
+                    <button class="lfo-wave-btn" data-wave="sine" title="Sinus (Sine)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 12c4-8 4 8 8 0s4-8 8 0"/></svg>
+                    </button>
+                    <button class="lfo-wave-btn active" data-wave="triangle" title="Dreieck (Triangle)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18l8-12 8 12"/></svg>
+                    </button>
+                    <button class="lfo-wave-btn" data-wave="sawtooth" title="Sägezahn (Sawtooth)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18L18 6v12"/></svg>
+                    </button>
+                    <button class="lfo-wave-btn" data-wave="square" title="Rechteck (Square)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18V6h8v12h8V6"/></svg>
+                    </button>
+                    <button class="lfo-wave-btn" data-wave="samplehold" title="Sample & Hold / Random Voltage">
+                      <span style="font-size: 0.46rem; font-weight: 800;">S&H</span>
+                    </button>
+                  </div>
+
+                  <!-- Rates Row: LFO Rate + Pulse LED & Fade-In Delay -->
+                  <div style="display: flex; gap: 4px; align-items: center; justify-content: space-around; margin-bottom: 4px;">
+                    <!-- LFO Rate -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-rate" data-min="0.05" data-max="30.0" data-step="0.05" data-default="2.5" data-type="hz">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">RATE <span class="lfo-rate-led" id="lfoRateLed"></span></span>
+                      <span class="knob-readout-badge" id="lfo-rate-readout">2.5 Hz</span>
+                    </div>
+
+                    <!-- LFO Fade-In Delay -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-fade" data-min="0.0" data-max="4.0" data-step="0.05" data-default="0.0" data-type="time">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">FADE-IN</span>
+                      <span class="knob-readout-badge" id="lfo-fade-readout">0 ms</span>
+                    </div>
+                  </div>
+
+                  <!-- Destination Matrix Grid: Pitch, VCF, PWM, Amp -->
+                  <div class="lfo-matrix-grid">
+                    <!-- PITCH -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-pitch" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">PITCH</span>
+                      <span class="knob-readout-badge" id="lfo-pitch-readout">0%</span>
+                    </div>
+
+                    <!-- VCF -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-vcf" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">VCF</span>
+                      <span class="knob-readout-badge" id="lfo-vcf-readout">0%</span>
+                    </div>
+
+                    <!-- PWM -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-pwm" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">PWM</span>
+                      <span class="knob-readout-badge" id="lfo-pwm-readout">0%</span>
+                    </div>
+
+                    <!-- AMP -->
+                    <div class="synth-knob-wrapper">
+                      <div class="synth-knob-housing" data-param="lfo-amp" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="knob-label-text">AMP</span>
+                      <span class="knob-readout-badge" id="lfo-amp-readout">0%</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Module 5: Dual ADSR Envelopes (VCA & VCF) -->
+              <div class="module-bay env-module active-module" id="adsrModuleBay">
+                <div class="module-title">
+                  <span>05 // DUAL ADSR ENVELOPES</span>
+                  <span class="module-led cyan"></span>
+                </div>
+
+                <div class="vco-subgrid">
+                  <!-- Envelope Target Selector Tabs -->
+                  <div class="env-tab-group" id="envTabGroup">
+                    <button class="env-tab-btn active" data-target="amp" title="VCA Lautstärke-Hüllkurve">VCA (AMP)</button>
+                    <button class="env-tab-btn" data-target="filter" title="VCF Filter Cutoff-Hüllkurve">VCF (FILTER)</button>
+                  </div>
+
+                  <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
+                  <div class="synth-fader-bank" id="adsrFaderBank">
+                    
+                    <!-- ATTACK FADER -->
+                    <div class="synth-fader-wrapper">
+                      <div class="synth-fader-track-housing" data-fader="attack" data-min="0.001" data-max="4.0" data-type="time">
+                        <div class="synth-fader-groove"></div>
+                        <div class="synth-fader-thumb" id="fader-thumb-attack">
+                          <div class="fader-led-notch"></div>
+                        </div>
+                      </div>
+                      <span class="fader-label-text">A</span>
+                      <span class="fader-readout-badge" id="fader-readout-attack">15 ms</span>
+                    </div>
+
+                    <!-- DECAY FADER -->
+                    <div class="synth-fader-wrapper">
+                      <div class="synth-fader-track-housing" data-fader="decay" data-min="0.001" data-max="6.0" data-type="time">
+                        <div class="synth-fader-groove"></div>
+                        <div class="synth-fader-thumb" id="fader-thumb-decay">
+                          <div class="fader-led-notch"></div>
+                        </div>
+                      </div>
+                      <span class="fader-label-text">D</span>
+                      <span class="fader-readout-badge" id="fader-readout-decay">250 ms</span>
+                    </div>
+
+                    <!-- SUSTAIN FADER -->
+                    <div class="synth-fader-wrapper">
+                      <div class="synth-fader-track-housing" data-fader="sustain" data-min="0.0" data-max="1.0" data-type="percent">
+                        <div class="synth-fader-groove"></div>
+                        <div class="synth-fader-thumb" id="fader-thumb-sustain">
+                          <div class="fader-led-notch"></div>
+                        </div>
+                      </div>
+                      <span class="fader-label-text">S</span>
+                      <span class="fader-readout-badge" id="fader-readout-sustain">70%</span>
+                    </div>
+
+                    <!-- RELEASE FADER -->
+                    <div class="synth-fader-wrapper">
+                      <div class="synth-fader-track-housing" data-fader="release" data-min="0.005" data-max="8.0" data-type="time">
+                        <div class="synth-fader-groove"></div>
+                        <div class="synth-fader-thumb" id="fader-thumb-release">
+                          <div class="fader-led-notch"></div>
+                        </div>
+                      </div>
+                      <span class="fader-label-text">R</span>
+                      <span class="fader-readout-badge" id="fader-readout-release">350 ms</span>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Module 6: Vintage Stereo FX Rack -->
+              <div class="module-bay fx-module active-module" id="stereoFxModuleBay">
+                <div class="module-title">
+                  <span>06 // VINTAGE STEREO FX</span>
+                  <span class="module-led green"></span>
+                </div>
+
+                <div class="vco-subgrid">
+                  
+                  <!-- 1. JUNO STEREO BBD CHORUS -->
+                  <div class="fx-subpanel">
+                    <div class="fx-subpanel-title">
+                      <span>BBD STEREO CHORUS</span>
+                      <span class="fx-tag">JUNO ENSEMBLE</span>
+                    </div>
+
+                    <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+                      <!-- Chorus Mode Buttons (OFF, I, II, I+II) -->
+                      <div class="chorus-mode-row" id="chorusModeRow" style="flex: 2;">
+                        <button class="chorus-mode-btn active" data-mode="off" title="Chorus deaktiviert">OFF</button>
+                        <button class="chorus-mode-btn" data-mode="I" title="Chorus I: Langsamer, warmer Swirl (0.45 Hz)">I</button>
+                        <button class="chorus-mode-btn" data-mode="II" title="Chorus II: Schnellerer Schimmer (0.85 Hz)">II</button>
+                        <button class="chorus-mode-btn" data-mode="I+II" title="Chorus I+II: Vibrato-Wobble (1.35 Hz)">I+II</button>
+                      </div>
+
+                      <!-- Chorus Wet/Dry Mix Knob -->
+                      <div class="synth-knob-wrapper" style="flex: 1;">
+                        <div class="synth-knob-housing" data-param="fx-chorus-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.65" data-type="percent">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">C-MIX</span>
+                        <span class="knob-readout-badge" id="fx-chorus-mix-readout">65%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 2. STEREO TAPE DELAY & REVERB -->
+                  <div class="fx-subpanel">
+                    <div class="fx-subpanel-title">
+                      <span>TAPE DELAY & STUDIO REVERB</span>
+                      <span class="fx-tag">PING-PONG & SPACE</span>
+                    </div>
+
+                    <div class="fx-knobs-row">
+                      <!-- Delay Time -->
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-delay-time" data-min="0.02" data-max="1.0" data-step="0.01" data-default="0.32" data-type="time">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">TIME</span>
+                        <span class="knob-readout-badge" id="fx-delay-time-readout">320 ms</span>
+                      </div>
+
+                      <!-- Delay Feedback -->
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-delay-feedback" data-min="0.0" data-max="0.85" data-step="0.01" data-default="0.45" data-type="percent">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">F-BACK</span>
+                        <span class="knob-readout-badge" id="fx-delay-feedback-readout">45%</span>
+                      </div>
+
+                      <!-- Delay Mix -->
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-delay-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">D-MIX</span>
+                        <span class="knob-readout-badge" id="fx-delay-mix-readout">0%</span>
+                      </div>
+
+                      <!-- Reverb Decay -->
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-reverb-decay" data-min="0.5" data-max="8.0" data-step="0.1" data-default="3.2" data-type="time">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">DECAY</span>
+                        <span class="knob-readout-badge" id="fx-reverb-decay-readout">3.20 s</span>
+                      </div>
+
+                      <!-- Reverb Mix -->
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-reverb-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">R-MIX</span>
+                        <span class="knob-readout-badge" id="fx-reverb-mix-readout">0%</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottom Section: Performance Controls & 3D Keybed -->
+          <div class="synth-bottom-panel">
+
+            <!-- Arpeggiator & 16-Step Sequencer Strip -->
+            <div class="arp-sequencer-strip">
+              <!-- Left Controls: Power, Latch, Mode, Octave -->
+              <div class="arp-ctrl-cluster">
+                <button class="arp-toggle-btn" id="arpPowerBtn" title="Arpeggiator aktivieren/deaktivieren">ARP OFF</button>
+                <button class="arp-toggle-btn" id="arpLatchBtn" title="Latch/Hold: Noten nach dem Loslassen weiterspielen">HOLD</button>
+
+                <div class="arp-selector-unit">
+                  <span class="arp-tiny-label">PATTERN</span>
+                  <select class="arp-styled-select" id="arpModeSelect">
+                    <option value="up" selected>UP</option>
+                    <option value="down">DOWN</option>
+                    <option value="updown">UP/DN</option>
+                    <option value="random">RAND</option>
+                    <option value="asplayed">PLAYED</option>
+                    <option value="seq">SEQ</option>
+                  </select>
+                </div>
+
+                <div class="arp-selector-unit">
+                  <span class="arp-tiny-label">OCT</span>
+                  <select class="arp-styled-select" id="arpOctaveSelect">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Center Timing Controls: BPM, Rate Division, Gate, Swing -->
+              <div class="arp-timing-cluster">
+                <!-- BPM -->
+                <div class="arp-micro-knob">
+                  <div class="synth-knob-housing" data-param="arp-bpm" data-min="40" data-max="260" data-step="1" data-default="120" data-type="bpm">
+                    <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                  </div>
+                  <div class="arp-knob-labels">
+                    <span class="arp-tiny-label">BPM</span>
+                    <span class="arp-badge" id="arp-bpm-readout">120</span>
+                  </div>
+                </div>
+
+                <!-- Division -->
+                <div class="arp-selector-unit">
+                  <span class="arp-tiny-label">DIV</span>
+                  <select class="arp-styled-select" id="arpDivisionSelect">
+                    <option value="1/4">1/4</option>
+                    <option value="1/8">1/8</option>
+                    <option value="1/8t">1/8T</option>
+                    <option value="1/16" selected>1/16</option>
+                    <option value="1/16t">1/16T</option>
+                    <option value="1/32">1/32</option>
+                  </select>
+                </div>
+
+                <!-- Gate -->
+                <div class="arp-micro-knob">
+                  <div class="synth-knob-housing" data-param="arp-gate" data-min="0.1" data-max="1.0" data-step="0.05" data-default="0.75" data-type="percent">
+                    <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                  </div>
+                  <div class="arp-knob-labels">
+                    <span class="arp-tiny-label">GATE</span>
+                    <span class="arp-badge" id="arp-gate-readout">75%</span>
+                  </div>
+                </div>
+
+                <!-- Swing -->
+                <div class="arp-micro-knob">
+                  <div class="synth-knob-housing" data-param="arp-swing" data-min="0.0" data-max="0.7" data-step="0.05" data-default="0.0" data-type="percent">
+                    <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                  </div>
+                  <div class="arp-knob-labels">
+                    <span class="arp-tiny-label">SWING</span>
+                    <span class="arp-badge" id="arp-swing-readout">0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: 16-Step Interactive LED Buttons -->
+              <div class="arp-step-grid" id="arpStepGrid">
+                <!-- 16 steps generated dynamically in SynthUI -->
+              </div>
+            </div>
+            
+            <!-- Performance Wheels & Keyboard Row -->
+            <div class="keyboard-performance-row">
+              <!-- Left Wheel & Performance Bay -->
+              <div class="performance-bay">
+                <div class="wheel-section">
+                  <div class="wheel-box">
+                    <div class="wheel-housing">
+                      <div class="wheel pitch-wheel" id="pitchWheel" data-value="0">
+                        <div class="wheel-center-notch"></div>
+                      </div>
+                    </div>
+                    <span class="wheel-label">PITCH</span>
+                  </div>
+                  <div class="wheel-box">
+                    <div class="wheel-housing">
+                      <div class="wheel mod-wheel" id="modWheel" data-value="0">
+                        <div class="wheel-notch"></div>
+                      </div>
+                    </div>
+                    <span class="wheel-label">MOD</span>
+                  </div>
+                </div>
+
+                <!-- Octave & Glide Controls -->
+                <div class="octave-controls">
+                  <span class="control-sublabel">OCTAVE</span>
+                  <div class="octave-button-group">
+                    <button class="octave-btn" id="octaveDownBtn" title="Oktave tiefer (Z)">-1</button>
+                    <div class="octave-display" id="octaveValueDisplay">0</div>
+                    <button class="octave-btn" id="octaveUpBtn" title="Oktave höher (X)">+1</button>
+                  </div>
+                </div>
+
+                <div class="glide-control">
+                  <span class="control-sublabel">GLIDE / PORTA</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="glideToggle">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Full Interactive Analog Keyboard -->
+              <div class="keyboard-wrapper">
+                <div class="keyboard-felt-strip"></div>
+                <div class="synth-keyboard" id="keyboardContainer" aria-label="Klaviatur">
+                  <!-- Keys will be dynamically rendered or static for 2 full octaves (C3 to C5, 25 Keys) -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chassis-bottom-bezel">
+            <div class="bezel-left">RETROVOX SUBTRACTIVE CORE • V1.0</div>
+            <div class="keyboard-guide">
+              <span class="guide-badge">💡 PC-Tastatur:</span>
+              <span class="guide-keys"><strong>A S D F G H J K</strong> (Weiße Tasten) &bull; <strong>W E T Y U</strong> (Schwarze Tasten) &bull; <strong>Z / X</strong> (Oktave)</span>
+            </div>
+            <div class="bezel-right">24-BIT WEB AUDIO SYNTHESIZER</div>
+          </div>
+
+        </div>
+
+        <!-- Wood Cheek Right -->
+        <div class="wood-side-cheek cheek-right">
+          <div class="wood-grain"></div>
+          <div class="brass-screw top"></div>
+          <div class="brass-screw bottom"></div>
+        </div>
+      </section>
+
+      <!-- Right Studio Monitor -->
+      <aside class="studio-monitor right-monitor" aria-label="Rechter Studio-Lautsprecher">
+        <div class="speaker-cabinet">
+          <div class="speaker-screw top-left"></div>
+          <div class="speaker-screw top-right"></div>
+          
+          <div class="speaker-brand">KRK-X5 <span class="sub-label">ACTIVE NEARFIELD</span></div>
+          
+          <!-- Tweeter -->
+          <div class="speaker-driver tweeter-housing">
+            <div class="silk-dome"></div>
+            <div class="tweeter-grille"></div>
+          </div>
+
+          <!-- Woofer with dynamic vibration -->
+          <div class="speaker-driver woofer-housing">
+            <div class="woofer-rim">
+              <div class="woofer-cone" id="wooferRight">
+                <div class="dust-cap"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bass Reflex Port & LED -->
+          <div class="speaker-bottom-bay">
+            <div class="bass-port"></div>
+            <div class="speaker-led active" id="speakerLedRight"></div>
+          </div>
+
+          <div class="speaker-screw bottom-left"></div>
+          <div class="speaker-screw bottom-right"></div>
+        </div>
+        <div class="speaker-stand-shadow"></div>
+      </aside>
+
+    </main>
+
+    <!-- Studio Desk Bottom Surface -->
+    <div class="studio-desk-edge">
+      <div class="wood-grain-desk"></div>
+    </div>
+  </div>
+
+  <!-- Roadmap & Vorschläge Modal / Drawer -->
+  <div class="modal-backdrop" id="roadmapModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h2>Synthesizer Architektur & Roadmap</h2>
+          <p class="modal-subtitle">Subtraktive Synthese mit der Web Audio API – Konzept & nächste Ausbaustufen</p>
+        </div>
+        <button class="modal-close-btn" id="closeRoadmapBtn" aria-label="Schließen">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="roadmap-grid">
+          
+          <div class="roadmap-card">
+            <div class="card-icon">🌊</div>
+            <h3>1. Oszillatoren (Dual-VCO + Noise)</h3>
+            <p>Klassische analoge Rohklänge als Fundament:</p>
+            <ul>
+              <li><strong>Wellenformen:</strong> Sägezahn (Sawtooth), Rechteck (Square/Pulse mit PWM), Dreieck (Triangle) & Sinus.</li>
+              <li><strong>Detune & Fat-Stack:</strong> Feinstimmung (Cents) für saftige analoge Schwebungen.</li>
+              <li><strong>Hard-Sync & FM:</strong> Oszillator 1 moduliert Oszillator 2 für aggressive Leads.</li>
+              <li><strong>Rauschgenerator:</strong> White/Pink Noise für Percussions & Wind-Effekte.</li>
+            </ul>
+          </div>
+
+          <div class="roadmap-card highlight-card">
+            <div class="card-icon">🎛️</div>
+            <h3>2. Filter-Sektion (VCF - Das Herzstück)</h3>
+            <p>Formung des Spektrums durch Subtraktion von Obertönen:</p>
+            <ul>
+              <li><strong>24 dB/Oct Moog-Ladder Filter:</strong> Warmer Tiefpassfilter mit typischer analoger Sättigung.</li>
+              <li><strong>Resonanz & Self-Oscillation:</strong> Bis zur reinen Sinus-Eigenschwingung.</li>
+              <li><strong>Keyboard Tracking:</strong> Filter-Cutoff folgt der gespielten Tonhöhe.</li>
+              <li><strong>Filter-Modi:</strong> Tiefpass (LPF), Bandpass (BPF) & Hochpass (HPF).</li>
+            </ul>
+          </div>
+
+          <div class="roadmap-card">
+            <div class="card-icon">📈</div>
+            <h3>3. Hüllkurven & Modulation (ADSR + LFO)</h3>
+            <p>Zeitlicher Verlauf und dynamische Modulation:</p>
+            <ul>
+              <li><strong>2x ADSR-Hüllkurven:</strong> Dedizierte Kurven für Filter-Cutoff und VCA (Lautstärke).</li>
+              <li><strong>LFO (Low Frequency Oscillator):</strong> Wellenformen zur Modulation von Pitch (Vibrato), Filter (Auto-Wah) und Pulsbreite.</li>
+              <li><strong>Modulationsmatrix:</strong> Schnelle Zuweisung von Quellen auf Ziele.</li>
+            </ul>
+          </div>
+
+          <div class="roadmap-card">
+            <div class="card-icon">🎹</div>
+            <h3>4. Spielmodi & Sequenzer</h3>
+            <p>Vielfältige Performance-Möglichkeiten:</p>
+            <ul>
+              <li><strong>Polyphonie & Monophon-Legato:</strong> Bis zu 8 Stimmen oder flüssiges Monophon mit Glissando/Portamento.</li>
+              <li><strong>16-Step Arpeggiator:</strong> Muster (Up, Down, Random, As-Played) mit Swing und Tempo-Sync.</li>
+              <li><strong>Pitch-Bend & Mod-Wheel:</strong> Volle Unterstützung für Nuancen beim Spielen.</li>
+            </ul>
+          </div>
+
+          <div class="roadmap-card">
+            <div class="card-icon">✨</div>
+            <h3>5. Vintage Stereo-Effektkette</h3>
+            <p>Räumlichkeit und 80er-Jahre Klangcharakter:</p>
+            <ul>
+              <li><strong>Stereo BBD Chorus:</strong> Legendärer Roland Juno-60/106 Ensemble-Chorus.</li>
+              <li><strong>Tape Delay:</strong> Analoges Echo mit Stereo-Ping-Pong und Feedback.</li>
+              <li><strong>Studio Reverb:</strong> Warmes Hall-Modul für weite Flächen (Pads).</li>
+            </ul>
+          </div>
+
+          <div class="roadmap-card">
+            <div class="card-icon">🔌</div>
+            <h3>6. Konnektivität & Presets</h3>
+            <p>Integration mit echter Hardware:</p>
+            <ul>
+              <li><strong>Web MIDI API:</strong> Echtes USB-MIDI-Masterkeyboard anschließen und direkt mit Tasten & Reglern spielen.</li>
+              <li><strong>Preset-Browser:</strong> Fabrik-Presets (Bass, Lead, Pad, Pluck, FX) sowie Speichern & Exportieren eigener Sounds als JSON.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="startExploringBtn">Verstanden – Loslegen!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Preset Modal -->
+  <div class="modal-overlay" id="savePresetModal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2>SOUND SPEICHERN</h2>
+        <button class="modal-close" id="closeSaveModalBtn">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <p style="margin-bottom: 12px; color: var(--text-dim); font-size: 0.85rem;">
+          Gib deinem Custom-Preset einen Namen. Der Sound wird dauerhaft in deinem Browser gespeichert.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--led-cyan); font-weight: 700;">PRESET NAME</label>
+          <input type="text" id="userPresetNameInput" placeholder="z.B. Mein Super Bass" style="background: #090b10; border: 1px solid var(--led-cyan); border-radius: 4px; padding: 8px 12px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;" maxlength="30" />
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <select id="userPresetCategorySelect" style="background: #141720; border: 1px solid #333d52; color: #cbd3e6; padding: 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; width: 100%;">
+              <option value="USER" selected>KATEGORIE: USER</option>
+              <option value="LEAD">KATEGORIE: LEAD</option>
+              <option value="BASS">KATEGORIE: BASS</option>
+              <option value="PAD">KATEGORIE: PAD</option>
+              <option value="PLUCK">KATEGORIE: PLUCK</option>
+              <option value="BRASS">KATEGORIE: BRASS</option>
+              <option value="FX">KATEGORIE: FX</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-secondary" id="cancelSavePresetBtn">Abbrechen</button>
+        <button class="btn btn-primary" id="confirmSavePresetBtn">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Scripts -->
+  <script src="js/presets.js"></script>
+  <script src="js/arp-engine.js"></script>
+  <script src="js/audio-engine.js"></script>
+  <script src="js/synth-ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

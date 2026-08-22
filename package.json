@@ -1,0 +1,33 @@
+{
+  "name": "retrovox-sub1-websynth",
+  "version": "1.0.0",
+  "description": "Analog Subtractive Synthesizer built with HTML5, Vanilla CSS, and Web Audio / Web MIDI API.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve .",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "synthesizer",
+    "web-audio-api",
+    "web-midi-api",
+    "subtractive-synth",
+    "analog-synth",
+    "arpeggiator",
+    "audio-dsp",
+    "music-production",
+    "javascript",
+    "html5-audio"
+  ],
+  "author": "the3ver <the3ver@pm.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the3ver/websynth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/the3ver/websynth/issues"
+  },
+  "homepage": "https://the3ver.github.io/websynth"
+}
