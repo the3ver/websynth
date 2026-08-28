@@ -131,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.5.0</span>
+          <span class="version-tag">v1.6.0</span>
         </button>
         <button class="power-switch-btn" id="mainPowerBtn" title="Synthesizer Ein-/Ausschalten">
           <span class="power-indicator"></span>
@@ -1102,17 +1102,19 @@ window.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
 
-      <!-- 16-Step LED Running Tracker -->
-      <div class="drum-led-tracker-bar">
-        <div class="tracker-spacer"></div>
-        <div class="drum-step-leds-container" id="drumStepLeds">
-          <!-- 16 step indicator LEDs rendered dynamically in DrumUI -->
+      <!-- 16-Step LED Running Tracker & 6-Track Sequencer Area -->
+      <div class="drum-sequencer-area">
+        <div class="drum-led-tracker-bar">
+          <div class="tracker-spacer"></div>
+          <div class="drum-step-leds-container" id="drumStepLeds">
+            <!-- 16 step indicator LEDs rendered dynamically in DrumUI -->
+          </div>
         </div>
-      </div>
 
-      <!-- 6-Track 16-Step Sequencer Matrix Grid -->
-      <div class="drum-step-matrix" id="drumStepMatrix">
-        <!-- 6 rows (BD, SD, CH, OH, CP, 303 BASS) rendered dynamically in DrumUI -->
+        <!-- 6-Track 16-Step Sequencer Matrix Grid -->
+        <div class="drum-step-matrix" id="drumStepMatrix">
+          <!-- 6 rows (BD, SD, CH, OH, CP, 303 BASS) rendered dynamically in DrumUI -->
+        </div>
       </div>
 
       <!-- Bottom Rack Chassis Edge & Instructions -->
@@ -1219,11 +1221,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.5.0</span>
+            <span class="release-version-number">v1.6.0</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Mobile Responsive Sektionen • Touch-Klaviatur & Sound Engine Polish</p>
+          <p class="modal-subtitle">Beatbox Matrix Precision • Swing Alignment & Mobile Header Polish</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
