@@ -64,9 +64,9 @@ class PWAManager {
    */
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
+      const registerSW = async () => {
         try {
-          const registration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+          const registration = await navigator.serviceWorker.register('sw.js', { scope: './' });
           console.log('[PWA] Service Worker registered with scope:', registration.scope);
 
           // Listen for new worker installation
@@ -83,7 +83,13 @@ class PWAManager {
         } catch (err) {
           console.warn('[PWA] Service Worker registration failed:', err);
         }
-      });
+      };
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        registerSW();
+      } else {
+        window.addEventListener('load', registerSW);
+      }
 
       // Reload window when new service worker takes control
       let refreshing = false;
