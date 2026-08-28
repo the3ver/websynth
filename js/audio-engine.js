@@ -288,11 +288,15 @@ class AudioEngine {
       driveShaper.connect(vcf1);
       vcf1.connect(vcf2);
 
-      // 4. VCA (Volume Amp Envelope)
+      // 4. VCA (Volume Amp Envelope) & Post-VCA Tremolo Modulation Stage
       const vca = this.ctx.createGain();
       vca.gain.setValueAtTime(0.0, now);
       vcf2.connect(vca);
-      vca.connect(this.masterVoiceBus);
+
+      const tremoloGain = this.ctx.createGain();
+      tremoloGain.gain.setValueAtTime(1.0, now);
+      vca.connect(tremoloGain);
+      tremoloGain.connect(this.masterVoiceBus);
 
       // 5. Dual-LFO Modulation Destinations
       const lfo1PitchGain = this.ctx.createGain();
@@ -311,7 +315,7 @@ class AudioEngine {
       lfo1PitchGain.connect(osc2.detune);
       lfo1VcfGain.connect(vcf1.detune);
       lfo1VcfGain.connect(vcf2.detune);
-      lfo1AmpGain.connect(vca.gain);
+      lfo1AmpGain.connect(tremoloGain.gain);
 
       const lfo2PitchGain = this.ctx.createGain();
       const lfo2VcfGain = this.ctx.createGain();
@@ -329,7 +333,7 @@ class AudioEngine {
       lfo2PitchGain.connect(osc2.detune);
       lfo2VcfGain.connect(vcf1.detune);
       lfo2VcfGain.connect(vcf2.detune);
-      lfo2AmpGain.connect(vca.gain);
+      lfo2AmpGain.connect(tremoloGain.gain);
 
       // Start continuous oscillators
       osc1.start(0);
@@ -346,7 +350,7 @@ class AudioEngine {
         voiceCutoff: this.vcf.cutoff,
         osc1, osc2, subOsc,
         osc1Gain, osc2Gain, subGain, noiseGain,
-        voiceMixerBus, driveShaper, vcf1, vcf2, vca,
+        voiceMixerBus, driveShaper, vcf1, vcf2, vca, tremoloGain,
         lfo1PitchGain, lfo1VcfGain, lfo1AmpGain,
         lfo2PitchGain, lfo2VcfGain, lfo2AmpGain,
         cleanupTimer: null

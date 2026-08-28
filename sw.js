@@ -1,10 +1,10 @@
 /**
- * RETROVOX SUB-1 & RETROBEAT D-909 • Progressive Web App Service Worker
- * Version: 1.4.0
- * Architecture: High-Performance Zero-Latency Offline Audio App Shell & Dynamic Font Cache
+ * RETROVOX SUB-1 • Service Worker (App Shell & Offline Precache)
+ * Version: 1.5.0
+ * Pure Native Standards (Zero Bundlers / Zero Build Steps)
  */
 
-const CACHE_VERSION = 'v1.4.0';
+const CACHE_VERSION = 'v1.5.0';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 

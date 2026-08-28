@@ -1103,6 +1103,9 @@ class SynthUI {
 
   applyPreset(preset) {
     if (!preset || !preset.state) return;
+    if (this.engine && this.engine.allNotesOff) {
+      this.engine.allNotesOff();
+    }
     this.engine.loadPresetState(preset.state);
     this.applyPresetUI(preset.state);
 

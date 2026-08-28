@@ -1,14 +1,19 @@
-# ⚡ RETROVOX SUB-1 • Analog Synthesizer & RETROBEAT D-909 Studio (PWA)
+# 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.4.0-00E5FF?style=flat-square)](#)
-[![PWA Ready](https://img.shields.io/badge/PWA-Installable_%26_Offline-00ff88?style=flat-square&logo=pwa&logoColor=white)](#)
-[![Web Audio API](https://img.shields.io/badge/Web_Audio_API-DSP_Engine-00E5FF?style=flat-square&logo=w3c&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
-[![Web MIDI API](https://img.shields.io/badge/Web_MIDI_API-Supported-FF3366?style=flat-square&logo=midi&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API)
-[![Vanilla JS](https://img.shields.io/badge/Vanilla-JavaScript_%26_CSS-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-brightgreen?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.5.0-00E5FF?style=flat-square)](#)
+[![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
+[![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
+[![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-> **RETROVOX SUB-1** ist ein vollwertiger, subtraktiver analoger Synthesizer und **RETROBEAT D-909** eine vollwertige Drum & Bass Machine als **installierbare Progressive Web App (PWA)**. Entwickelt mit nativer **Web Audio API**, **Web MIDI API** und **Vanilla JavaScript/CSS** – kompromisslose Studio-Performance, 100% Offline-Fähigkeit ohne externe Frameworks oder Build-Schritte.
+Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
+
+---
+
+### ⚡ NEU in v1.5.0: Mobile Responsive Sektionen, Touch-Ergonomie & Audio Polish
+- **📱 Responsive Modul-Tabs:** Nahtloses Umschalten zwischen Klangmodulen (`OSC & MIX`, `VCF & LFO`, `ENV & FX`) auf Smartphones und schmalen Bildschirmen.
+- **🎹 Multi-Touch Glissando & Scrollbare Klaviatur:** Präzise Daumen- und Fingersteuerung für 25 Tasten auf Touchscreens ohne Notenhänger.
+- **🔇 Preset Audio Polish:** Vollständig entkoppelte Idle-VCA-Stufen für absolute Stille beim Preset-Wechsel – Noten erklingen erst bei echtem Tastenanschlag.
 
 ---
 
