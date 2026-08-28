@@ -25,13 +25,23 @@ Welcome to the **RETROVOX SUB-1** and **RETROBEAT D-909** codebase. This documen
 ```
 websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
-├── package.json            # Versioning (v1.3.0), scripts & metadata
+├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
+├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
+├── package.json            # Versioning (v1.4.0), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
+├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
+│   ├── icon.svg
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   ├── icon-maskable-192.png
+│   ├── icon-maskable-512.png
+│   └── apple-touch-icon.png
 ├── css/
-│   └── style.css           # Analog-hardware styling, CRT shaders, monitors & drum rack drawer
+│   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
 └── js/
     ├── app.js              # Application entry, master power, volume & version manager
+    ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
     ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
     ├── audio-engine.js     # Web Audio API Engine, 12-Voice Pool, VCF, LFO, FX Rack
     ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
@@ -122,7 +132,7 @@ makeDistortionCurve(amount) {
 Before committing any modifications:
 1. Run syntax verification:
    ```bash
-   node -c js/app.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js js/drum-engine.js js/drum-ui.js
+   node -c js/app.js js/pwa-manager.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js js/drum-engine.js js/drum-ui.js sw.js
    ```
 2. Check for zero console warnings / uncaught exceptions.
 3. Ensure no memory leaks or unmanaged event listeners on `window`.

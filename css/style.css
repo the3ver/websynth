@@ -3567,3 +3567,257 @@ body {
   width: 100%;
 }
 
+/* ==========================================================================
+   PROGRESSIVE WEB APP (PWA) & STANDALONE STYLES
+   ========================================================================== */
+
+/* PWA Install Button in Header */
+.pwa-install-header-btn {
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.15) 0%, rgba(0, 229, 255, 0.05) 100%);
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--led-cyan);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.pwa-install-header-btn:hover {
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.25) 0%, rgba(0, 229, 255, 0.12) 100%);
+  border-color: var(--led-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.pwa-install-header-btn.pulse-glow {
+  animation: pwaPulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes pwaPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(0, 229, 255, 0.2);
+    border-color: rgba(0, 229, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.6), inset 0 0 8px rgba(0, 229, 255, 0.2);
+    border-color: var(--led-cyan);
+  }
+}
+
+/* Network / Offline Status Pill */
+.status-pill.network-status .status-dot.online {
+  background: #00ff88;
+  box-shadow: 0 0 6px #00ff88;
+}
+
+.status-pill.network-status .status-dot.offline {
+  background: #ff3366;
+  box-shadow: 0 0 8px #ff3366;
+  animation: blinkOffline 1.2s infinite ease-in-out;
+}
+
+@keyframes blinkOffline {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Floating PWA Update Notification Toast */
+.pwa-update-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #161b26 0%, #0d1017 100%);
+  border: 1px solid var(--led-cyan);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 229, 255, 0.3);
+  color: #ffffff;
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pwa-update-toast.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pwa-update-toast .toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pwa-update-toast .toast-icon {
+  font-size: 1.5rem;
+  color: var(--led-amber);
+  filter: drop-shadow(0 0 6px var(--led-amber));
+}
+
+.pwa-update-toast .toast-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pwa-update-toast .toast-text strong {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.pwa-update-toast .toast-text span {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+
+/* PWA Install Modal Dialog */
+.pwa-install-dialog {
+  max-width: 600px;
+}
+
+.pwa-hero-box {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(255, 51, 102, 0.05) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.pwa-hero-icon img {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 229, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pwa-hero-desc h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.pwa-hero-desc p {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.pwa-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .pwa-benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pwa-benefit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #11141c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+}
+
+.pwa-benefit-card .benefit-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.pwa-benefit-card strong {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.pwa-benefit-card p {
+  font-size: 0.72rem;
+  color: #798296;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.pwa-install-guide {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.pwa-install-guide .guide-title {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--led-cyan);
+  margin-bottom: 8px;
+}
+
+.pwa-install-guide ul {
+  list-style: none;
+  font-size: 0.74rem;
+  color: #cbd3e6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pwa-install-guide li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.35;
+}
+
+.pwa-install-guide li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--led-amber);
+}
+
+.pwa-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Safe-Area-Insets for PWA Standalone Mode (iOS/Android Notches) */
+body.is-pwa-standalone {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.is-pwa-standalone .studio-container {
+  height: 100vh;
+  height: 100dvh;
+}
+
+

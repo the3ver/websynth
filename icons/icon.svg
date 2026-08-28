@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Brushed Metal Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#161b26"/>
+      <stop offset="60%" stop-color="#0c0e14"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </radialGradient>
+
+    <!-- Bezel Inner & Outer Gradients -->
+    <linearGradient id="bezelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a3449"/>
+      <stop offset="50%" stop-color="#121620"/>
+      <stop offset="100%" stop-color="#080a0e"/>
+    </linearGradient>
+
+    <linearGradient id="cyanNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="100%" stop-color="#00B4D8"/>
+    </linearGradient>
+
+    <linearGradient id="magentaNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF3366"/>
+      <stop offset="100%" stop-color="#E01E5A"/>
+    </linearGradient>
+
+    <linearGradient id="amberNeon" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFB703"/>
+      <stop offset="100%" stop-color="#FB8500"/>
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glowMagenta" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Base Chassis / Housing with Beveled Rounded Rect -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bgGrad)" stroke="url(#bezelGrad)" stroke-width="12" filter="url(#softShadow)"/>
+  
+  <!-- Subtle CRT Scanline Grid in Background -->
+  <g opacity="0.08">
+    <line x1="48" y1="96" x2="464" y2="96" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="48" y1="160" x2="464" y2="160" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="48" y1="224" x2="464" y2="224" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="48" y1="288" x2="464" y2="288" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="48" y1="352" x2="464" y2="352" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="48" y1="416" x2="464" y2="416" stroke="#00E5FF" stroke-width="2"/>
+    
+    <line x1="96" y1="48" x2="96" y2="464" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="160" y1="48" x2="160" y2="464" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="224" y1="48" x2="224" y2="464" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="288" y1="48" x2="288" y2="464" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="352" y1="48" x2="352" y2="464" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="416" y1="48" x2="416" y2="464" stroke="#00E5FF" stroke-width="2"/>
+  </g>
+
+  <!-- Corner Screws -->
+  <g fill="#1a202c" stroke="#333d52" stroke-width="2">
+    <circle cx="56" cy="56" r="10"/>
+    <line x1="49" y1="56" x2="63" y2="56" stroke="#4a5568" stroke-width="2"/>
+    <circle cx="456" cy="56" r="10"/>
+    <line x1="449" y1="56" x2="463" y2="56" stroke="#4a5568" stroke-width="2"/>
+    <circle cx="56" cy="456" r="10"/>
+    <line x1="49" y1="456" x2="63" y2="456" stroke="#4a5568" stroke-width="2"/>
+    <circle cx="456" cy="456" r="10"/>
+    <line x1="449" y1="456" x2="463" y2="456" stroke="#4a5568" stroke-width="2"/>
+  </g>
+
+  <!-- Oscilloscope Dial Ring / Wave Center -->
+  <circle cx="256" cy="240" r="148" fill="#080a0f" stroke="#1f2737" stroke-width="6"/>
+  <circle cx="256" cy="240" r="140" fill="none" stroke="#00E5FF" stroke-opacity="0.15" stroke-dasharray="6 6" stroke-width="2"/>
+
+  <!-- Glowing Synth Waveform (Sawtooth + Sine Resonance Composite) -->
+  <path d="M 126 240 Q 158 170 190 240 T 254 240 L 320 155 L 320 325 L 386 240" 
+        fill="none" 
+        stroke="url(#cyanNeon)" 
+        stroke-width="12" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        filter="url(#glowCyan)"/>
+
+  <!-- High-Energy Lightning Bolt Overlay (RETROVOX Power) -->
+  <polygon points="275,105 220,230 265,230 235,340 310,205 265,205" 
+           fill="url(#amberNeon)" 
+           filter="url(#glowMagenta)" 
+           opacity="0.95"/>
+
+  <!-- 4 Step LED Indicators at the bottom (909 Matrix Style) -->
+  <g transform="translate(146, 395)">
+    <!-- Step 1 Red -->
+    <rect x="0" y="0" width="46" height="22" rx="4" fill="#FF3366" filter="url(#glowMagenta)"/>
+    <!-- Step 2 Orange -->
+    <rect x="60" y="0" width="46" height="22" rx="4" fill="#FB8500"/>
+    <!-- Step 3 Yellow -->
+    <rect x="120" y="0" width="46" height="22" rx="4" fill="#FFB703"/>
+    <!-- Step 4 Cyan -->
+    <rect x="180" y="0" width="46" height="22" rx="4" fill="#00E5FF" filter="url(#glowCyan)"/>
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="256" y="85" text-anchor="middle" font-family="'Chakra Petch', 'Arial Black', sans-serif" font-weight="700" font-size="28" fill="#E2E8F0" letter-spacing="6">
+    RETROVOX
+  </text>
+  <text x="256" y="450" text-anchor="middle" font-family="'JetBrains Mono', 'Courier New', monospace" font-weight="600" font-size="14" fill="#00E5FF" letter-spacing="4" opacity="0.9">
+    SUB-1 • D-909 PWA
+  </text>
+</svg>

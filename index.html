@@ -2,9 +2,25 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Subtractive WebSynth • Analoger Web-Audio Synthesizer</title>
   <meta name="description" content="Klassischer analoger Synthesizer mit subtraktiver Synthese im Browser, angetrieben von der Web Audio API.">
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0c0e14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RetroVox SUB-1">
+  <meta name="application-name" content="RetroVox SUB-1">
+  <meta name="msapplication-TileColor" content="#0c0e14">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -31,6 +47,10 @@
         <div class="status-pill midi-status" id="midiStatusBadge">
           <span class="status-dot midi-dot"></span>
           <span class="status-label" id="midiLabel">MIDI: STANDBY</span>
+        </div>
+        <div class="status-pill network-status" id="networkStatusBadge" title="Offline & Netzwerk Status">
+          <span class="status-dot online"></span>
+          <span class="status-label">NET: ONLINE</span>
         </div>
       </div>
 
@@ -61,6 +81,10 @@
           <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.75">
           <span class="volume-value" id="masterVolumeDisplay">75%</span>
         </div>
+        <button class="btn btn-outline pwa-install-header-btn" id="pwaInstallBtn" title="Als eigenständige App installieren (Offline & Fullscreen)" style="display: none;">
+          <span class="btn-icon">⚡</span>
+          <span>APP INSTALLIEREN</span>
+        </button>
         <button class="btn btn-outline drum-rack-header-btn" id="openDrumDrawerBtn" title="Drum & Bass Machine ein-/ausfahren (Shift+D)">
           <span class="btn-icon">🥁</span>
           <span>DRUM RACK</span>
@@ -68,7 +92,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.3.0</span>
+          <span class="version-tag">v1.4.0</span>
         </button>
         <button class="power-switch-btn" id="mainPowerBtn" title="Synthesizer Ein-/Ausschalten">
           <span class="power-indicator"></span>
@@ -1046,6 +1070,90 @@
     </div>
   </aside>
 
+  <!-- PWA Update Notification Toast -->
+  <div class="pwa-update-toast" id="pwaUpdateToast">
+    <div class="toast-content">
+      <span class="toast-icon">⚡</span>
+      <div class="toast-text">
+        <strong>Neues Studio-Update verfügbar!</strong>
+        <span>Eine aktualisierte Version des Synthesizers ist bereit.</span>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="pwaUpdateReloadBtn">Jetzt aktualisieren</button>
+  </div>
+
+  <!-- PWA Install Modal -->
+  <div class="modal-backdrop" id="pwaModal">
+    <div class="modal-dialog pwa-install-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="version-release-header">
+            <span class="badge-tag-release">STANDALONE APP</span>
+            <span class="release-version-number">PWA READY</span>
+          </div>
+          <h2>RETROVOX SUB-1 • App installieren</h2>
+          <p class="modal-subtitle">Echtes Hardware-Gefühl: 100% Offline, Randloses Studio, Low-Latency Web MIDI</p>
+        </div>
+        <button class="modal-close-btn" id="closePwaModalBtn" aria-label="Schließen">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="pwa-hero-box">
+          <div class="pwa-hero-icon">
+            <img src="icons/icon.svg" alt="RetroVox SUB-1 Icon" width="64" height="64">
+          </div>
+          <div class="pwa-hero-desc">
+            <h3>RETROVOX SUB-1 & RETROBEAT D-909</h3>
+            <p>Installiere den Synthesizer direkt als vollwertige native App auf deinem Computer, Tablet oder Smartphone.</p>
+          </div>
+        </div>
+        
+        <div class="pwa-benefits-grid">
+          <div class="pwa-benefit-card">
+            <span class="benefit-icon">✈️</span>
+            <div>
+              <strong>100% Offline-Betrieb</strong>
+              <p>Alle DSP-Stimmen und Drum-Sounds laufen autark ohne Internet.</p>
+            </div>
+          </div>
+          <div class="pwa-benefit-card">
+            <span class="benefit-icon">🖥️</span>
+            <div>
+              <strong>Fullscreen Standalone</strong>
+              <p>Keine störende Browser-Leiste, maximaler Platz für Potis & Fader.</p>
+            </div>
+          </div>
+          <div class="pwa-benefit-card">
+            <span class="benefit-icon">🎹</span>
+            <div>
+              <strong>Direkte MIDI-Hardware</strong>
+              <p>Sofortige USB- und Bluetooth-MIDI Keyboard-Erkennung.</p>
+            </div>
+          </div>
+          <div class="pwa-benefit-card">
+            <span class="benefit-icon">⚡</span>
+            <div>
+              <strong>Stage & Live Mode</strong>
+              <p>Verhindert Display-Sleep während Live-Sessions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pwa-install-guide">
+          <p class="guide-title">ℹ️ Installationshinweise je nach Browser & Gerät:</p>
+          <ul>
+            <li><strong>Chrome / Edge (Desktop):</strong> Klicke auf den Button unten oder das Installations-Icon rechts in der Adressleiste.</li>
+            <li><strong>Safari (iOS / iPadOS):</strong> Tippe auf <em>Teilen</em> (<span style="font-size:1.1em;">⎙</span>) und wähle <strong>"Zum Home-Bildschirm"</strong>.</li>
+            <li><strong>Android:</strong> Tippe auf den Button unten oder im Browsermenü auf <strong>"App installieren"</strong>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer pwa-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('pwaModal').classList.remove('open')">Schließen</button>
+        <button class="btn btn-primary" id="modalInstallBtn">⚡ Jetzt installieren</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Was gibt's Neues (What's New) Modal -->
   <div class="modal-backdrop" id="changelogModal">
     <div class="modal-dialog changelog-dialog">
@@ -1053,21 +1161,36 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.3.0</span>
+            <span class="release-version-number">v1.4.0</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Studio Expansion • RETROBEAT D-909 Drum & 303 Bass Machine Sidekick Rack</p>
+          <p class="modal-subtitle">PWA Transformation • 100% Offline Studio Engine & Standalone Experience</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
-          
+
           <div class="changelog-card highlight-card">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">PWA STANDALONE</div>
+              <h3>Progressive Web App & Offline Studio Engine</h3>
+              <p>Installierbar als echte Desktop- & Mobile-App:</p>
+              <ul>
+                <li><strong>100% Offline DSP:</strong> Sämtliche Synthese, Drums & Basslines spielen ohne Internet auf der Bühne oder im Flugzeug.</li>
+                <li><strong>App-Shell & Font Cache:</strong> Blitzschnelle Ladezeit (0ms) dank Service Worker und lokal gecachten CRT-Fonts.</li>
+                <li><strong>Stage Mode (Screen Wake Lock):</strong> Kein Abschalten des Bildschirms während Live-Sessions & Sequenzer-Jams.</li>
+                <li><strong>App Shortcuts:</strong> Schneller Direktstart von Synthesizer oder Drum Rack vom Desktop.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="changelog-card">
             <div class="card-icon">🥁</div>
             <div class="card-content">
-              <div class="card-badge perf-badge">STUDIO SIDEKICK</div>
+              <div class="card-badge env-badge">STUDIO SIDEKICK</div>
               <h3>RETROBEAT D-909 Drum & Bass Machine</h3>
               <p>Von rechts einfahrbares analoges Hardware-Rack-Gerät:</p>
               <ul>
@@ -1092,19 +1215,6 @@
           </div>
 
           <div class="changelog-card">
-            <div class="card-icon">⏱️</div>
-            <div class="card-content">
-              <div class="card-badge env-badge">ARPEGGIATOR CLOCK</div>
-              <h3>Web Worker Precision Sequenzer Clock</h3>
-              <p>Absolut stabiles Timing ohne UI-Latenz:</p>
-              <ul>
-                <li><strong>Hintergrund-Thread Worker:</strong> Taktgeber läuft isoliert vom DOM- und Render-Thread.</li>
-                <li><strong>Kein Jitter:</strong> Felsenfestes Arpeggio-Tempo, selbst bei Tab-Wechseln und schweren UI-Animationen.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="changelog-card">
             <div class="card-icon">🛡️</div>
             <div class="card-content">
               <div class="card-badge dsp-badge">AUDIO DSP</div>
@@ -1117,19 +1227,6 @@
             </div>
           </div>
 
-          <div class="changelog-card">
-            <div class="card-icon">🎛️</div>
-            <div class="card-content">
-              <div class="card-badge vcf-badge">VCF & UI WORKFLOW</div>
-              <h3>Tanh Filter-Drive & Fokus-Optimierung</h3>
-              <p>Feinste analoge Klangformung und flüssige Bedienung:</p>
-              <ul>
-                <li><strong>Hyperbeltangens-Sättigung:</strong> Stufenloser Übergang von linearem Clean-Sound bis zu warmer Bandsättigung ohne Pegelsprung.</li>
-                <li><strong>Unterbrechungsfreier Workflow:</strong> Preset-Auswahl und Regler-Bewegungen unterbrechen gehaltene Tastatur-Noten nicht mehr.</li>
-              </ul>
-            </div>
-          </div>
-
         </div>
 
         <!-- Previous Versions Accordion / Archive Section -->
@@ -1137,16 +1234,20 @@
           <details class="archive-details">
             <summary class="archive-summary">
               <span class="archive-title">📦 Frühere Versionen anzeigen</span>
-              <span class="archive-badge">v1.1.0 & v1.0.0</span>
+              <span class="archive-badge">v1.3.0, v1.1.0 & v1.0.0</span>
             </summary>
             <div class="archive-content">
               <div class="archive-entry">
+                <h4>Version 1.3.0 – RETROBEAT D-909 Drum & Bass Machine</h4>
+                <p>Einfahrbares 16-Step Studio Rack mit 5 synthetisierten Drums (BD, SD, CH, OH, CP) und monophonem 303 Acid Bassline Synthesizer.</p>
+              </div>
+              <div class="archive-entry" style="margin-top: 10px;">
                 <h4>Version 1.1.0 – DSP Limiter & De-Clicking</h4>
                 <p>Master Brickwall Limiter, asynchrones Envelope De-Clicking, 24dB Moog-Ladder Resonanz-Kompensation und "Was gibt's Neues"-Screen.</p>
               </div>
               <div class="archive-entry" style="margin-top: 10px;">
                 <h4>Version 1.0.0 – Initial Release</h4>
-                <p>Erstveröffentlichung des RETROVOX SUB-1 Synthesizers mit Dual-VCO, Sub-Oszillator, 24dB VCF, Dual-LFO, Vintage Stereo FX Rack (Juno Chorus, Tape Delay, Studio Reverb), Web MIDI API und 10 Factory Presets.</p>
+                <p>Erstveröffentlichung des RETROVOX SUB-1 Synthesizers mit Dual-VCO, Sub-Oszillator, 24dB VCF, Dual-LFO, Vintage Stereo FX Rack, Web MIDI API und 10 Factory Presets.</p>
               </div>
             </div>
           </details>
@@ -1198,13 +1299,14 @@
     </div>
   </div>
 
-  <!-- Audio Scripts -->
+  <!-- Audio & PWA Scripts -->
   <script src="js/presets.js"></script>
   <script src="js/arp-engine.js"></script>
   <script src="js/audio-engine.js"></script>
   <script src="js/drum-engine.js"></script>
   <script src="js/drum-ui.js"></script>
   <script src="js/synth-ui.js"></script>
+  <script src="js/pwa-manager.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

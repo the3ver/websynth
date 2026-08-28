@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient filling 100% of maskable area -->
+    <radialGradient id="maskBgGrad" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#161b26"/>
+      <stop offset="60%" stop-color="#0c0e14"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </radialGradient>
+
+    <linearGradient id="cyanNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="100%" stop-color="#00B4D8"/>
+    </linearGradient>
+
+    <linearGradient id="magentaNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF3366"/>
+      <stop offset="100%" stop-color="#E01E5A"/>
+    </linearGradient>
+
+    <linearGradient id="amberNeon" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFB703"/>
+      <stop offset="100%" stop-color="#FB8500"/>
+    </linearGradient>
+
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glowMagenta" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Full Bleed Background for Maskable Icon -->
+  <rect x="0" y="0" width="512" height="512" fill="url(#maskBgGrad)"/>
+  
+  <!-- Subtle CRT Scanlines -->
+  <g opacity="0.08">
+    <line x1="0" y1="64" x2="512" y2="64" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="128" x2="512" y2="128" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="192" x2="512" y2="192" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="256" x2="512" y2="256" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="320" x2="512" y2="320" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="384" x2="512" y2="384" stroke="#00E5FF" stroke-width="2"/>
+    <line x1="0" y1="448" x2="512" y2="448" stroke="#00E5FF" stroke-width="2"/>
+  </g>
+
+  <!-- Content scaled inside 80% Safe Zone (radius 200 center 256, 256) -->
+  <g transform="translate(51.2, 51.2) scale(0.8)">
+    <!-- Oscilloscope Ring -->
+    <circle cx="256" cy="240" r="148" fill="#080a0f" stroke="#1f2737" stroke-width="6"/>
+    <circle cx="256" cy="240" r="140" fill="none" stroke="#00E5FF" stroke-opacity="0.2" stroke-dasharray="6 6" stroke-width="2"/>
+
+    <!-- Glowing Synth Waveform -->
+    <path d="M 126 240 Q 158 170 190 240 T 254 240 L 320 155 L 320 325 L 386 240" 
+          fill="none" 
+          stroke="url(#cyanNeon)" 
+          stroke-width="14" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          filter="url(#glowCyan)"/>
+
+    <!-- Lightning Bolt -->
+    <polygon points="275,105 220,230 265,230 235,340 310,205 265,205" 
+             fill="url(#amberNeon)" 
+             filter="url(#glowMagenta)" 
+             opacity="0.95"/>
+
+    <!-- Brand Typography -->
+    <text x="256" y="70" text-anchor="middle" font-family="'Chakra Petch', 'Arial Black', sans-serif" font-weight="700" font-size="32" fill="#E2E8F0" letter-spacing="6">
+      RETROVOX
+    </text>
+    <text x="256" y="440" text-anchor="middle" font-family="'JetBrains Mono', 'Courier New', monospace" font-weight="600" font-size="16" fill="#00E5FF" letter-spacing="4" opacity="0.9">
+      SUB-1 • D-909
+    </text>
+  </g>
+</svg>

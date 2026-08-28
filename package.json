@@ -1,15 +1,20 @@
 {
   "name": "retrovox-sub1-websynth",
-  "version": "1.3.0",
-  "description": "Analog Subtractive Synthesizer built with HTML5, Vanilla CSS, and Web Audio / Web MIDI API.",
+  "version": "1.4.0",
+  "description": "Progressive Web App Analog Synthesizer & Drum Studio built with HTML5, Vanilla CSS, and Web Audio / Web MIDI API.",
   "main": "index.html",
   "scripts": {
     "dev": "npx serve .",
     "start": "npx serve .",
-    "serve": "npx serve ."
+    "serve": "npx serve .",
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "keywords": [
     "synthesizer",
+    "pwa",
+    "progressive-web-app",
+    "service-worker",
+    "offline-first",
     "web-audio-api",
     "web-midi-api",
     "subtractive-synth",

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const SynthUI = window.SynthUI;
   const DrumEngine = window.DrumEngine;
   const DrumUI = window.DrumUI;
+  const PWAManager = window.PWAManager;
 
   // Initialize Core Engines
   const audioEngine = new AudioEngine();
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const synthUI = new SynthUI(audioEngine, arpEngine);
   const drumEngine = new DrumEngine(audioEngine);
   const drumUI = new DrumUI(drumEngine, arpEngine, audioEngine);
+  const pwaManager = new PWAManager(audioEngine, drumEngine, drumUI);
 
   // Top Bar UI Elements
   const mainPowerBtn = document.getElementById('mainPowerBtn');
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.3.0';
+  const CURRENT_APP_VERSION = '1.4.0';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -147,6 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       if (changelogModal && changelogModal.classList.contains('open')) {
         closeChangelog();
+      }
+      const pwaModal = document.getElementById('pwaModal');
+      if (pwaModal && pwaModal.classList.contains('open')) {
+        pwaModal.classList.remove('open');
       }
     }
   });

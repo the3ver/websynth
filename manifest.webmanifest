@@ -1,0 +1,80 @@
+{
+  "name": "RETROVOX SUB-1 • Analog Synthesizer & D-909 Drum Studio",
+  "short_name": "RetroVox SUB-1",
+  "description": "Professioneller analoger subtraktiver Web-Synthesizer mit 16-Step Drum & Bass Machine (Web Audio & Web MIDI API).",
+  "id": "./?source=pwa",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "theme_color": "#0c0e14",
+  "background_color": "#07090e",
+  "lang": "de",
+  "dir": "ltr",
+  "categories": [
+    "music",
+    "multimedia",
+    "utilities",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Synthesizer Lab",
+      "short_name": "Synthesizer",
+      "description": "Öffnet das SUB-1 Synthesizer Haupt-Panel",
+      "url": "./index.html#synth",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "D-909 Drum & Bass Rack",
+      "short_name": "Drum Machine",
+      "description": "Öffnet die D-909 Drum & Bass Machine",
+      "url": "./index.html#drums",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

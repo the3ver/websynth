@@ -1,19 +1,27 @@
-# ⚡ RETROVOX SUB-1 • Analog Web Synthesizer & RETROBEAT D-909 Studio
+# ⚡ RETROVOX SUB-1 • Analog Synthesizer & RETROBEAT D-909 Studio (PWA)
 
-[![Version](https://img.shields.io/badge/Version-1.3.0-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.4.0-00E5FF?style=flat-square)](#)
+[![PWA Ready](https://img.shields.io/badge/PWA-Installable_%26_Offline-00ff88?style=flat-square&logo=pwa&logoColor=white)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio_API-DSP_Engine-00E5FF?style=flat-square&logo=w3c&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI_API-Supported-FF3366?style=flat-square&logo=midi&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-JavaScript_%26_CSS-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-brightgreen?style=flat-square)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-> **RETROVOX SUB-1** ist ein vollwertiger, subtraktiver analoger Synthesizer und **RETROBEAT D-909** eine vollwertige Drum & Bass Machine direkt im Webbrowser. Entwickelt mit nativer **Web Audio API**, **Web MIDI API** und **Vanilla JavaScript/CSS** – kompromisslose Studio-Performance ohne externe Frameworks oder Build-Schritte.
+> **RETROVOX SUB-1** ist ein vollwertiger, subtraktiver analoger Synthesizer und **RETROBEAT D-909** eine vollwertige Drum & Bass Machine als **installierbare Progressive Web App (PWA)**. Entwickelt mit nativer **Web Audio API**, **Web MIDI API** und **Vanilla JavaScript/CSS** – kompromisslose Studio-Performance, 100% Offline-Fähigkeit ohne externe Frameworks oder Build-Schritte.
 
 ---
 
 ## 🌟 Features & Highlights
 
-### 🥁 NEU in v1.3.0: RETROBEAT D-909 Drum & Bass Machine (Sidekick Unit)
+### ⚡ NEU in v1.4.0: Progressive Web App (PWA) & 100% Offline Studio Engine
+- **Installierbare Standalone Desktop- & Mobile-App**: Direkt aus dem Browser installierbar (Windows, macOS, Linux, iOS, Android) mit eigenem App-Fenster, Dock-Icon und schnellen App-Shortcuts (*Synthesizer Lab* & *D-909 Drum Rack*).
+- **100% Offline DSP (Zero Network Dependencies)**: Alle Oszillatoren, Filter, Drums und 303-Basslines werden in Echtzeit per DSP berechnet – kein Audio-Streaming oder Sample-Download erforderlich. Funktioniert komplett ohne Internetverbindung im Flugzeug oder auf der Bühne.
+- **Service Worker mit High-Performance App Shell & Dynamic Font Cache**: Lokale Speicherung aller Skripte, Stylesheets und Google Webfonts für 0ms Ladezeit.
+- **Stage Mode (Screen Wake Lock API)**: Verhindert automatisches Abschalten des Displays während Live-Sessions und Sequenzer-Jams.
+- **Safe-Area Inset Support**: Randloses Eintauchen auf Smartphones und Tablets mit Notches.
+
+### 🥁 RETROBEAT D-909 Drum & Bass Machine (Sidekick Unit)
 - **Einfahrbares Studio-Rack-Gerät**: Auf Knopfdruck (`Shift+D` oder rechter Seitenreiter) fährt von rechts ein vollwertiger analoger Drumcomputer mit Metall-Rack-Design ein.
 - **5 Synthetisierte DSP Drum-Spuren (Zero Samples)**:
   - **BD (Bass Drum / Kick)**: Wuchtiger 909/808 Sub-Drop mit Klick-Transiente & Tanh-Sättigung.
