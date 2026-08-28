@@ -1161,9 +1161,12 @@
           </ul>
         </div>
       </div>
-      <div class="modal-footer pwa-footer">
-        <button class="btn btn-secondary" onclick="document.getElementById('pwaModal').classList.remove('open')">Schließen</button>
-        <button class="btn btn-primary" id="modalInstallBtn">⚡ Jetzt installieren</button>
+      <div class="modal-footer pwa-footer" style="display: flex; align-items: center; justify-content: space-between;">
+        <a href="privacy.html" target="_blank" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); text-decoration: none;">🔒 DATENSCHUTZ</a>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" onclick="document.getElementById('pwaModal').classList.remove('open')">Schließen</button>
+          <button class="btn btn-primary" id="modalInstallBtn">⚡ Jetzt installieren</button>
+        </div>
       </div>
     </div>
   </div>

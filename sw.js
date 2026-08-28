@@ -11,6 +11,7 @@ const FONT_CACHE = 'retrovox-fonts-v1';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
+  './privacy.html',
   './css/style.css',
   './js/app.js',
   './js/pwa-manager.js',

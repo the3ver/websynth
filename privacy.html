@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutzerklärung • RETROVOX SUB-1 & RETROBEAT D-909</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --card-bg: #0f131c;
+      --border-color: #242938;
+      --text-main: #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent-cyan: #00e5ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 1.6rem;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .header p {
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+    h2 {
+      font-size: 1.15rem;
+      color: #ffffff;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--accent-cyan);
+      padding-left: 10px;
+    }
+    p, ul {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .badge-box {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 6px;
+      padding: 14px;
+      margin: 20px 0;
+    }
+    .badge-box strong {
+      color: var(--accent-cyan);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .footer {
+      margin-top: 32px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Datenschutzerklärung (Privacy Policy)</h1>
+      <p>RETROVOX SUB-1 Synthesizer & RETROBEAT D-909 Studio</p>
+    </div>
+
+    <div class="badge-box">
+      <strong>🔒 100% Lokale Datenverarbeitung (Privacy by Design)</strong>
+      <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;">
+        Die Anwendung <strong>RETROVOX SUB-1</strong> erhebt, speichert oder überträgt keinerlei personenbezogene Daten, Tracking-Cookies, Analysedaten oder Telemetrie an externe Server.
+      </p>
+    </div>
+
+    <h2>1. Verantwortliche Stelle</h2>
+    <p>
+      Verantwortlich für die Bereitstellung dieser Anwendung im Sinne der Datenschutzgesetze ist:<br>
+      <strong>the3ver</strong><br>
+      Kontakt: <a href="mailto:the3ver@pm.me" style="color: var(--accent-cyan);">the3ver@pm.me</a><br>
+      Website: <a href="https://the3ver.github.io/websynth/" style="color: var(--accent-cyan);">https://the3ver.github.io/websynth/</a>
+    </p>
+
+    <h2>2. Erhebung und Nutzung von Daten</h2>
+    <p>
+      <strong>a) Audiosynthese & Klangerzeugung:</strong><br>
+      Alle Audiosignale (Oszillatoren, Filter, Effekte, Drum-Synthese) werden in Echtzeit direkt über die standardisierte Web Audio API deines Gerätes (CPU/DSP) berechnet. Es werden keine Audioaufnahmen oder Mikrofondaten erfasst oder ins Internet übertragen.
+    </p>
+    <p>
+      <strong>b) Web MIDI API:</strong><br>
+      Sofern du ein externes MIDI-Keyboard oder einen Controller anschließt, verarbeitet die App die eingehenden Steuersignale (Note-On, Note-Off, Velocity, Pitch-Bend) ausschließlich lokal zur Klangerzeugung.
+    </p>
+    <p>
+      <strong>c) Lokale Presets (Local Storage):</strong><br>
+      Selbsterstellte Presets und Sequenzer-Muster werden lokal im Speicher deines Gerätes (Web Storage / `localStorage`) gesichert und verbleiben ausschließlich auf deinem Gerät.
+    </p>
+
+    <h2>3. Drittanbieter & Server-Logs</h2>
+    <p>
+      Die Anwendung wird über GitHub Pages (GitHub Inc.) als statische Webanwendung bereitgestellt. Bei einem Aufruf können durch den Hosting-Provider standardmäßige technische Verbindungsdaten (z.B. IP-Adresse, Browser-Typ zur Auslieferung der Dateien) verarbeitet werden. Wir selbst setzen keine Werbenetzwerke, Social-Media-Plugins oder Tracker (wie Google Analytics) ein.
+    </p>
+
+    <h2>4. Rechte der Nutzer</h2>
+    <p>
+      Da wir keine personenbezogenen Daten von dir erheben oder speichern, fallen keine verarbeitbaren Datensätze an. Bei Fragen kannst du dich jederzeit an die oben genannte Kontaktadresse wenden.
+    </p>
+
+    <div class="footer">
+      <span>Stand: August 2026</span>
+      <a href="./index.html">← Zurück zum Synthesizer</a>
+    </div>
+  </div>
+</body>
+</html>
