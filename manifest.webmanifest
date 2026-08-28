@@ -1,7 +1,7 @@
 {
   "name": "RETROVOX SUB-1 • Analog Synthesizer & D-909 Drum Studio",
   "short_name": "RetroVox SUB-1",
-  "description": "Professioneller analoger subtraktiver Web-Synthesizer mit 16-Step Drum & Bass Machine (Web Audio & Web MIDI API).",
+  "description": "Analoger subtraktiver Web-Synthesizer mit 16-Step Drum & Bass Machine (Web Audio & Web MIDI API).",
   "id": "./?source=pwa",
   "start_url": "./index.html",
   "scope": "./",
