@@ -3015,7 +3015,7 @@ body {
   box-shadow: 0 0 10px #ffffff;
 }
 
-.tab-title {
+.drum-drawer-tab .tab-title {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
@@ -3819,5 +3819,372 @@ body.is-pwa-standalone .studio-container {
   height: 100vh;
   height: 100dvh;
 }
+
+/* ==========================================================================
+   MOBILE MODULE TABS & TOUCH RESPONSIVENESS (< 900px)
+   ========================================================================== */
+
+.mobile-synth-tabs-bar {
+  display: none; /* hidden on desktop >= 900px */
+  gap: 6px;
+  background: #0d0f14;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  background: #141720;
+  border: 1px solid #232734;
+  border-radius: 6px;
+  color: #8c95a8;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  writing-mode: horizontal-tb !important;
+  transform: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-tab-btn .tab-icon {
+  font-size: 0.95rem;
+}
+
+.mobile-tab-btn .mobile-tab-title {
+  writing-mode: horizontal-tb !important;
+  transform: none !important;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.mobile-tab-btn:hover {
+  background: #1b202c;
+  color: #d8e0f0;
+}
+
+.mobile-tab-btn.active {
+  background: linear-gradient(180deg, #262b3a 0%, #171a24 100%);
+  border-color: var(--led-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.mobile-tab-btn.active .mobile-tab-title {
+  color: var(--led-cyan);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+@keyframes mobileTabFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+
+/* TABLET & MOBILE VIEWPORT (< 900px) */
+@media (max-width: 900px) {
+  :root {
+    --white-key-width: 38px;
+    --white-key-height: 150px;
+    --black-key-width: 24px;
+    --black-key-height: 96px;
+  }
+
+  .studio-container {
+    padding: 0 6px;
+  }
+
+  .studio-desk {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  /* Hide KRK speakers on mobile to give 100% space to synth unit */
+  .studio-monitor {
+    display: none !important;
+  }
+
+  .synth-unit {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .wood-side-cheek {
+    width: 10px;
+    padding: 6px 0;
+  }
+  .wood-side-cheek .brass-screw {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Show Mobile Tabs Bar */
+  .mobile-synth-tabs-bar {
+    display: flex;
+  }
+
+  /* Stack modules inside active tab view */
+  .modular-control-surface {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: auto;
+  }
+
+  .module-bay[data-tab-group] {
+    display: none;
+    width: 100%;
+  }
+
+  .module-bay[data-tab-group].mobile-active {
+    display: flex;
+    animation: mobileTabFade 0.22s ease-out;
+  }
+
+  /* Subgrid expands on mobile */
+  .vco-subgrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Header adjustments */
+  .studio-header {
+    height: auto;
+    min-height: var(--header-height);
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .header-center {
+    display: none; /* Hide master VU bar in narrow headers */
+  }
+
+  .header-right {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .changelog-trigger-btn span:not(.version-tag):not(.changelog-sparkle) {
+    display: none;
+  }
+
+  /* Top panel strip */
+  .panel-header-strip {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .preset-manager-bay {
+    order: 2;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .preset-nav-wrapper {
+    flex: 1;
+  }
+
+  .oled-screen-housing.hud-scope {
+    order: 3;
+    width: 100%;
+    height: 32px;
+  }
+  .oled-screen-housing.hud-scope canvas {
+    width: 100% !important;
+  }
+
+  /* Arpeggiator Strip */
+  .arp-sequencer-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    height: auto;
+    padding: 10px;
+  }
+
+  .arp-ctrl-cluster,
+  .arp-timing-cluster {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .arp-step-grid {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    justify-content: flex-start;
+  }
+
+  /* Performance & Keybed */
+  .keyboard-performance-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .performance-bay {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    gap: 12px;
+  }
+
+  .wheel-section {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .keyboard-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding-bottom: 6px;
+    touch-action: pan-x;
+  }
+
+  .synth-keyboard {
+    min-width: calc(15 * var(--white-key-width));
+  }
+
+  .chassis-bottom-bezel .keyboard-guide {
+    display: none;
+  }
+}
+
+/* SMARTPHONE NARROW VIEWPORT (< 480px) */
+@media (max-width: 480px) {
+  :root {
+    --white-key-width: 34px;
+    --white-key-height: 135px;
+    --black-key-width: 22px;
+    --black-key-height: 88px;
+  }
+
+  .brand-name {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+
+  .brand-model {
+    font-size: 0.55rem;
+  }
+
+  .master-volume-control label {
+    display: none;
+  }
+
+  .master-volume-control input[type="range"] {
+    width: 60px;
+  }
+
+  .drum-rack-header-btn span:not(.btn-icon) {
+    display: none;
+  }
+
+  .pwa-install-header-btn span:not(.btn-icon) {
+    display: none;
+  }
+
+  .mobile-tab-btn {
+    font-size: 0.7rem;
+    padding: 6px 4px;
+    gap: 4px;
+  }
+
+  .synth-knob-wrapper .knob-label-text {
+    font-size: 0.55rem;
+  }
+
+  .synth-knob-wrapper .knob-readout-badge {
+    font-size: 0.55rem;
+    padding: 1px 3px;
+  }
+}
+
+/* MOBILE LANDSCAPE PERFORMANCE MODE */
+@media (orientation: landscape) and (max-height: 600px) {
+  :root {
+    --white-key-width: 36px;
+    --white-key-height: 110px;
+    --black-key-width: 22px;
+    --black-key-height: 70px;
+  }
+
+  .studio-header {
+    display: none;
+  }
+
+  .studio-container {
+    padding: 2px 4px;
+  }
+
+  .synth-top-panel {
+    padding: 4px 8px;
+  }
+
+  .panel-header-strip {
+    margin-bottom: 4px;
+  }
+
+  .keyboard-performance-row {
+    flex-direction: row;
+  }
+
+  .performance-bay {
+    width: auto;
+    flex-direction: column;
+    padding: 4px 6px;
+  }
+
+  .wheel-section {
+    flex-direction: row;
+  }
+
+  .wheel-box {
+    height: 48px;
+  }
+
+  .keyboard-wrapper {
+    overflow-x: auto;
+  }
+}
+
 
 

@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Automatic Version Detection on Page Load
   try {
     const lastSeenVersion = localStorage.getItem(STORAGE_KEY_VERSION);
-    if (lastSeenVersion !== CURRENT_APP_VERSION) {
+    if (lastSeenVersion !== CURRENT_APP_VERSION && !window.location.hash) {
       // Show "What's New" modal with a smooth slight delay
       setTimeout(() => {
         openChangelog();

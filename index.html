@@ -199,11 +199,27 @@
               </div>
             </div>
 
-            <!-- Free Control Surface with Structured Module Grids for Future Controls -->
-            <div class="modular-control-surface">
+            <!-- Mobile Module Section Tabs (Visible on screens < 900px) -->
+            <div class="mobile-synth-tabs-bar" id="mobileSynthTabsBar">
+              <button class="mobile-tab-btn active" data-tab="osc-mix">
+                <span class="tab-icon">🎛️</span>
+                <span class="mobile-tab-title">OSC &amp; MIX</span>
+              </button>
+              <button class="mobile-tab-btn" data-tab="vcf-lfo">
+                <span class="tab-icon">🔊</span>
+                <span class="mobile-tab-title">VCF &amp; LFO</span>
+              </button>
+              <button class="mobile-tab-btn" data-tab="env-fx">
+                <span class="tab-icon">⚡</span>
+                <span class="mobile-tab-title">ENV &amp; FX</span>
+              </button>
+            </div>
+
+            <!-- Modular Control Surface with Structured Module Grids -->
+            <div class="modular-control-surface" id="modularControlSurface">
               
               <!-- Module 1: Dual-VCO (Oscillators) -->
-              <div class="module-bay vco-module active-module">
+              <div class="module-bay vco-module active-module mobile-active" data-tab-group="osc-mix">
                 <div class="module-title">
                   <span>01 // DUAL-VCO OSCILLATORS</span>
                   <span class="module-led cyan"></span>
@@ -322,7 +338,7 @@
               </div>
 
               <!-- Module 2: Mixer & Noise -->
-              <div class="module-bay mixer-module active-module">
+              <div class="module-bay mixer-module active-module mobile-active" data-tab-group="osc-mix">
                 <div class="module-title">
                   <span>02 // MIXER & NOISE</span>
                   <span class="module-led green"></span>
@@ -397,7 +413,7 @@
               </div>
 
               <!-- Module 3: 24dB Ladder VCF Filter (Centerpiece) -->
-              <div class="module-bay vcf-module active-module highlight-module">
+              <div class="module-bay vcf-module active-module highlight-module" data-tab-group="vcf-lfo">
                 <div class="module-title">
                   <span>03 // 24dB LADDER FILTER (VCF)</span>
                   <span class="module-led amber"></span>
@@ -480,7 +496,7 @@
               </div>
 
               <!-- Module 4: Dual LFO & Modulation Matrix -->
-              <div class="module-bay lfo-module active-module" id="lfoModuleBay">
+              <div class="module-bay lfo-module active-module" id="lfoModuleBay" data-tab-group="vcf-lfo">
                 <div class="module-title">
                   <span>04 // DUAL LFO & MOD</span>
                   <span class="module-led amber"></span>
@@ -577,7 +593,7 @@
               </div>
 
               <!-- Module 5: Dual ADSR Envelopes (VCA & VCF) -->
-              <div class="module-bay env-module active-module" id="adsrModuleBay">
+              <div class="module-bay env-module active-module" id="adsrModuleBay" data-tab-group="env-fx">
                 <div class="module-title">
                   <span>05 // DUAL ADSR ENVELOPES</span>
                   <span class="module-led cyan"></span>
@@ -646,7 +662,7 @@
               </div>
 
               <!-- Module 6: Vintage Stereo FX Rack -->
-              <div class="module-bay fx-module active-module" id="stereoFxModuleBay">
+              <div class="module-bay fx-module active-module" id="stereoFxModuleBay" data-tab-group="env-fx">
                 <div class="module-title">
                   <span>06 // VINTAGE STEREO FX</span>
                   <span class="module-led green"></span>

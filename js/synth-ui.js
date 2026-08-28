@@ -92,11 +92,62 @@ class SynthUI {
     this.initKnobs();
     this.initFaders();
     this.initModuleControls();
+    this.initMobileTabs();
     this.initPerformanceControls();
     this.initKeyboardHotkeys();
     this.initPresets();
     this.initArpeggiatorControls();
     this.startVisualizer();
+  }
+
+  /**
+   * Initializes mobile module navigation tabs (< 900px screens)
+   */
+  initMobileTabs() {
+    const tabsBar = document.getElementById('mobileSynthTabsBar');
+    if (!tabsBar) return;
+    const tabButtons = tabsBar.querySelectorAll('.mobile-tab-btn');
+    const moduleBays = document.querySelectorAll('.module-bay[data-tab-group]');
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.dataset.tab;
+        tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
+        moduleBays.forEach((bay) => {
+          const isActive = bay.dataset.tabGroup === targetTab;
+          bay.classList.toggle('mobile-active', isActive);
+        });
+        if (btn.blur) btn.blur();
+      });
+    });
+  }
+
+  /**
+   * Recalculates black key left offsets according to responsive key width
+   */
+  repositionBlackKeys() {
+    const whiteKeyEl = this.keyboardContainer.querySelector('.key-white');
+    const blackKeyEl = this.keyboardContainer.querySelector('.key-black');
+    if (!whiteKeyEl || !blackKeyEl) return;
+    const whiteKeyWidth = whiteKeyEl.getBoundingClientRect().width;
+    const blackKeyWidth = blackKeyEl.getBoundingClientRect().width;
+    if (whiteKeyWidth <= 0) return;
+
+    let whiteKeyIndex = 0;
+    const startMidi = 48;
+    const numKeys = 25;
+    for (let i = 0; i < numKeys; i++) {
+      const midiNote = startMidi + i;
+      const noteInOctave = midiNote % 12;
+      const isBlack = [1, 3, 6, 8, 10].includes(noteInOctave);
+      const keyEl = this.activeKeyElements.get(midiNote);
+      if (!isBlack) {
+        whiteKeyIndex++;
+      } else if (keyEl) {
+        const leftOffset = (whiteKeyIndex * whiteKeyWidth) - (blackKeyWidth / 2);
+        keyEl.style.left = `${leftOffset}px`;
+      }
+    }
   }
 
   /**
@@ -156,6 +207,52 @@ class SynthUI {
       this.attachKeyEvents(keyEl, midiNote);
     }
 
+    // Window resize & orientation change recalculations
+    window.addEventListener('resize', () => this.repositionBlackKeys());
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => this.repositionBlackKeys(), 100);
+    });
+
+    // Multi-touch keyboard tracking for glissando & mobile playing
+    const activeTouchNotes = new Map();
+
+    const handleTouchInteraction = (e) => {
+      const currentTouches = new Set();
+      for (let i = 0; i < e.touches.length; i++) {
+        const touch = e.touches[i];
+        currentTouches.add(touch.identifier);
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        const keyEl = element ? element.closest('.key-white, .key-black') : null;
+        const previousNote = activeTouchNotes.get(touch.identifier);
+
+        if (keyEl && keyEl.dataset.note) {
+          const note = parseInt(keyEl.dataset.note, 10);
+          if (previousNote !== note) {
+            if (previousNote !== undefined) {
+              this.releaseTouchNote(previousNote);
+            }
+            activeTouchNotes.set(touch.identifier, note);
+            this.triggerTouchNote(note, keyEl);
+          }
+        } else if (previousNote !== undefined) {
+          this.releaseTouchNote(previousNote);
+          activeTouchNotes.delete(touch.identifier);
+        }
+      }
+
+      for (const [touchId, note] of Array.from(activeTouchNotes.entries())) {
+        if (!currentTouches.has(touchId)) {
+          this.releaseTouchNote(note);
+          activeTouchNotes.delete(touchId);
+        }
+      }
+    };
+
+    this.keyboardContainer.addEventListener('touchstart', handleTouchInteraction, { passive: true });
+    this.keyboardContainer.addEventListener('touchmove', handleTouchInteraction, { passive: true });
+    this.keyboardContainer.addEventListener('touchend', handleTouchInteraction, { passive: true });
+    this.keyboardContainer.addEventListener('touchcancel', handleTouchInteraction, { passive: true });
+
     // Global mouseup only releases keys triggered via on-screen mouse interaction
     window.addEventListener('mouseup', () => {
       this.isMouseDown = false;
@@ -163,6 +260,37 @@ class SynthUI {
     });
 
     this.keyboardContainer.addEventListener('dragstart', (e) => e.preventDefault());
+  }
+
+  triggerTouchNote(midiNote, keyEl) {
+    if (!this.mouseHeldKeys.has(midiNote)) {
+      this.mouseHeldKeys.add(midiNote);
+      if (keyEl) keyEl.classList.add('active');
+      if (!this.keyboardHeldKeys.has(midiNote)) {
+        if (this.arp && this.arp.enabled) {
+          this.arp.handleKeyDown(midiNote);
+        } else {
+          this.engine.noteOn(midiNote);
+        }
+      }
+    }
+  }
+
+  releaseTouchNote(midiNote) {
+    if (this.mouseHeldKeys.has(midiNote)) {
+      this.mouseHeldKeys.delete(midiNote);
+      const keyEl = this.activeKeyElements.get(midiNote);
+      if (keyEl && !this.keyboardHeldKeys.has(midiNote)) {
+        keyEl.classList.remove('active');
+      }
+      if (!this.keyboardHeldKeys.has(midiNote)) {
+        if (this.arp && this.arp.enabled) {
+          this.arp.handleKeyUp(midiNote);
+        } else {
+          this.engine.noteOff(midiNote);
+        }
+      }
+    }
   }
 
   attachKeyEvents(keyEl, midiNote) {
