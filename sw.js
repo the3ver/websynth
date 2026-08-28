@@ -28,7 +28,9 @@ const PRECACHE_ASSETS = [
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/favicon.png'
+  './icons/favicon.png',
+  './screenshots/screenshot-desktop.png',
+  './screenshots/screenshot-mobile.png'
 ];
 
 // Install: Pre-cache App Shell & Icons
