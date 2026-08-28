@@ -302,7 +302,7 @@ class AudioEngine {
       const lfo1PitchGain = this.ctx.createGain();
       const lfo1VcfGain = this.ctx.createGain();
       const lfo1AmpGain = this.ctx.createGain();
-      lfo1PitchGain.gain.setValueAtTime(this.lfo1.destinations.pitch * 1200, now);
+      lfo1PitchGain.gain.setValueAtTime(this.lfo1.destinations.pitch * 200, now);
       lfo1VcfGain.gain.setValueAtTime(this.lfo1.destinations.vcf * 3600, now);
       lfo1AmpGain.gain.setValueAtTime(this.lfo1.destinations.amp * 0.45, now);
 
@@ -320,7 +320,7 @@ class AudioEngine {
       const lfo2PitchGain = this.ctx.createGain();
       const lfo2VcfGain = this.ctx.createGain();
       const lfo2AmpGain = this.ctx.createGain();
-      lfo2PitchGain.gain.setValueAtTime(this.lfo2.destinations.pitch * 1200, now);
+      lfo2PitchGain.gain.setValueAtTime(this.lfo2.destinations.pitch * 200, now);
       lfo2VcfGain.gain.setValueAtTime(this.lfo2.destinations.vcf * 3600, now);
       lfo2AmpGain.gain.setValueAtTime(this.lfo2.destinations.amp * 0.45, now);
 
@@ -822,7 +822,7 @@ class AudioEngine {
 
     // --- 7. LFO Fade-In Modulation ---
     const lfo1Fade = this.lfo1.fadeIn || 0;
-    const pAmt1 = this.lfo1.destinations.pitch * 1200;
+    const pAmt1 = this.lfo1.destinations.pitch * 200;
     const vAmt1 = this.lfo1.destinations.vcf * 3600;
     const aAmt1 = this.lfo1.destinations.amp * 0.45;
 
@@ -840,7 +840,7 @@ class AudioEngine {
     }
 
     const lfo2Fade = this.lfo2.fadeIn || 0;
-    const pAmt2 = this.lfo2.destinations.pitch * 1200;
+    const pAmt2 = this.lfo2.destinations.pitch * 200;
     const vAmt2 = this.lfo2.destinations.vcf * 3600;
     const aAmt2 = this.lfo2.destinations.amp * 0.45;
 
@@ -1188,7 +1188,7 @@ class AudioEngine {
           for (const voice of this.voicePool) {
             const node = lfoNum === 2 ? voice.lfo2PitchGain : voice.lfo1PitchGain;
             if (node) {
-              node.gain.setTargetAtTime(lfo.destinations.pitch * 1200, now, 0.02);
+              node.gain.setTargetAtTime(lfo.destinations.pitch * 200, now, 0.02);
             }
           }
         }
