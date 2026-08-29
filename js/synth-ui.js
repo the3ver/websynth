@@ -229,8 +229,6 @@ class SynthUI {
       if (this.keyboardHeldKeys.has(midiNote) || this.mouseHeldKeys.has(midiNote)) {
         keyEl.classList.add('active');
       }
-
-      this.attachKeyEvents(keyEl, midiNote);
     }
 
     // Position black keys after layout calculation
@@ -271,7 +269,57 @@ class SynthUI {
       observer.observe(this.keyboardContainer.parentElement || this.keyboardContainer);
     }
 
+    // Helper to resolve key note under point
+    const getKeyNoteFromPoint = (clientX, clientY) => {
+      const element = document.elementFromPoint(clientX, clientY);
+      const keyEl = element ? element.closest('.key-white, .key-black') : null;
+      return keyEl && keyEl.dataset.note ? parseInt(keyEl.dataset.note, 10) : null;
+    };
+
+    // -----------------------------------------------------------------------
+    // Container-level Mouse tracking with instant glissando & drag-over
+    // -----------------------------------------------------------------------
+    this.currentMouseNote = null;
+
+    this.keyboardContainer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      this.isMouseDown = true;
+      const note = getKeyNoteFromPoint(e.clientX, e.clientY);
+      if (note !== null) {
+        this.currentMouseNote = note;
+        this.triggerMouseNote(note);
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.isMouseDown) return;
+      if (e.buttons === 0) {
+        this.isMouseDown = false;
+        this.releaseAllMouseNotes();
+        return;
+      }
+      const note = getKeyNoteFromPoint(e.clientX, e.clientY);
+      if (note !== this.currentMouseNote) {
+        if (this.currentMouseNote !== null) {
+          this.releaseMouseNote(this.currentMouseNote);
+        }
+        this.currentMouseNote = note;
+        if (note !== null) {
+          this.triggerMouseNote(note);
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (this.isMouseDown || this.currentMouseNote !== null) {
+        this.isMouseDown = false;
+        this.releaseAllMouseNotes();
+      }
+    });
+
+    // -----------------------------------------------------------------------
     // Multi-touch keyboard tracking for glissando & mobile playing
+    // -----------------------------------------------------------------------
     const activeTouchNotes = new Map();
 
     const handleTouchInteraction = (e) => {
@@ -280,20 +328,18 @@ class SynthUI {
       for (let i = 0; i < e.touches.length; i++) {
         const touch = e.touches[i];
         currentTouches.add(touch.identifier);
-        const element = document.elementFromPoint(touch.clientX, touch.clientY);
-        const keyEl = element ? element.closest('.key-white, .key-black') : null;
+        const note = getKeyNoteFromPoint(touch.clientX, touch.clientY);
         const previousNote = activeTouchNotes.get(touch.identifier);
 
-        if (keyEl && keyEl.dataset.note) {
-          const note = parseInt(keyEl.dataset.note, 10);
+        if (note !== null) {
           if (previousNote !== note) {
-            if (previousNote !== undefined) {
+            if (previousNote !== undefined && previousNote !== null) {
               this.releaseTouchNote(previousNote);
             }
             activeTouchNotes.set(touch.identifier, note);
-            this.triggerTouchNote(note, keyEl);
+            this.triggerTouchNote(note);
           }
-        } else if (previousNote !== undefined) {
+        } else if (previousNote !== undefined && previousNote !== null) {
           this.releaseTouchNote(previousNote);
           activeTouchNotes.delete(touch.identifier);
         }
@@ -307,23 +353,20 @@ class SynthUI {
       }
     };
 
-    this.keyboardContainer.addEventListener('touchstart', handleTouchInteraction, { passive: true });
-    this.keyboardContainer.addEventListener('touchmove', handleTouchInteraction, { passive: true });
-    this.keyboardContainer.addEventListener('touchend', handleTouchInteraction, { passive: true });
-    this.keyboardContainer.addEventListener('touchcancel', handleTouchInteraction, { passive: true });
-
-    // Global mouseup only releases keys triggered via on-screen mouse interaction
-    window.addEventListener('mouseup', () => {
-      this.isMouseDown = false;
-      this.releaseAllMouseNotes();
-    });
+    this.keyboardContainer.addEventListener('touchstart', handleTouchInteraction, { passive: false });
+    this.keyboardContainer.addEventListener('touchmove', handleTouchInteraction, { passive: false });
+    this.keyboardContainer.addEventListener('touchend', handleTouchInteraction, { passive: false });
+    this.keyboardContainer.addEventListener('touchcancel', handleTouchInteraction, { passive: false });
 
     this.keyboardContainer.addEventListener('dragstart', (e) => e.preventDefault());
   }
 
-  triggerTouchNote(midiNote, keyEl) {
+  triggerMouseNote(midiNote) {
+    if (midiNote === null || midiNote === undefined) return;
+    this.engine.ensureAudioRunning();
     if (!this.mouseHeldKeys.has(midiNote)) {
       this.mouseHeldKeys.add(midiNote);
+      const keyEl = this.activeKeyElements.get(midiNote);
       if (keyEl) keyEl.classList.add('active');
       if (!this.keyboardHeldKeys.has(midiNote)) {
         if (this.arp && this.arp.enabled) {
@@ -335,7 +378,8 @@ class SynthUI {
     }
   }
 
-  releaseTouchNote(midiNote) {
+  releaseMouseNote(midiNote) {
+    if (midiNote === null || midiNote === undefined) return;
     if (this.mouseHeldKeys.has(midiNote)) {
       this.mouseHeldKeys.delete(midiNote);
       const keyEl = this.activeKeyElements.get(midiNote);
@@ -352,71 +396,23 @@ class SynthUI {
     }
   }
 
-  attachKeyEvents(keyEl, midiNote) {
-    const triggerNote = () => {
-      if (!this.mouseHeldKeys.has(midiNote)) {
-        this.mouseHeldKeys.add(midiNote);
-        keyEl.classList.add('active');
-        if (!this.keyboardHeldKeys.has(midiNote)) {
-          if (this.arp && this.arp.enabled) {
-            this.arp.handleKeyDown(midiNote);
-          } else {
-            this.engine.noteOn(midiNote);
-          }
-        }
-      }
-    };
+  triggerTouchNote(midiNote) {
+    this.triggerMouseNote(midiNote);
+  }
 
-    const releaseNote = () => {
-      if (this.mouseHeldKeys.has(midiNote)) {
-        this.mouseHeldKeys.delete(midiNote);
-        if (!this.keyboardHeldKeys.has(midiNote)) {
-          keyEl.classList.remove('active');
-          if (this.arp && this.arp.enabled) {
-            this.arp.handleKeyUp(midiNote);
-          } else {
-            this.engine.noteOff(midiNote);
-          }
-        }
-      }
-    };
-
-    keyEl.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      this.isMouseDown = true;
-      triggerNote();
-    });
-
-    keyEl.addEventListener('mouseenter', () => {
-      if (this.isMouseDown) triggerNote();
-    });
-
-    keyEl.addEventListener('mouseleave', () => {
-      if (this.isMouseDown) releaseNote();
-    });
-
-    keyEl.addEventListener('mouseup', (e) => {
-      e.preventDefault();
-      releaseNote();
-    });
-
-    keyEl.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      triggerNote();
-    }, { passive: false });
-
-    keyEl.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      releaseNote();
-    });
+  releaseTouchNote(midiNote) {
+    this.releaseMouseNote(midiNote);
   }
 
   releaseAllMouseNotes() {
+    this.currentMouseNote = null;
     for (const note of Array.from(this.mouseHeldKeys)) {
       this.mouseHeldKeys.delete(note);
+      const keyEl = this.activeKeyElements.get(note);
+      if (keyEl && !this.keyboardHeldKeys.has(note)) {
+        keyEl.classList.remove('active');
+      }
       if (!this.keyboardHeldKeys.has(note)) {
-        const keyEl = this.activeKeyElements.get(note);
-        if (keyEl) keyEl.classList.remove('active');
         if (this.arp && this.arp.enabled) {
           this.arp.handleKeyUp(note);
         } else {
@@ -724,15 +720,30 @@ class SynthUI {
       const handlePointerDown = (clientY) => {
         isDragging = true;
         startY = clientY;
-        const currentVal = (this.currentEnvTarget === 'amp' ? this.engine.ampEnv : this.engine.filterEnv)[faderParam];
-        startRatio = valToRatio(currentVal);
+        const rect = housing.getBoundingClientRect();
+        if (rect.height > 0) {
+          const clickRatio = Math.max(0, Math.min(1, (rect.bottom - clientY) / rect.height));
+          let newValue = ratioToVal(clickRatio);
+          if (type === 'time') {
+            newValue = newValue < 1.0 ? Math.round(newValue * 1000) / 1000 : Math.round(newValue * 100) / 100;
+          } else {
+            newValue = Math.round(newValue * 100) / 100;
+          }
+          startRatio = clickRatio;
+          updateFaderVisual(newValue);
+          dispatchValue(newValue);
+        } else {
+          const currentVal = (this.currentEnvTarget === 'amp' ? this.engine.ampEnv : this.engine.filterEnv)[faderParam];
+          startRatio = valToRatio(currentVal);
+        }
         document.body.style.cursor = 'ns-resize';
       };
 
       const handlePointerMove = (clientY, shiftKey) => {
         if (!isDragging) return;
         const deltaY = startY - clientY;
-        const sensitivity = shiftKey ? 300 : 70;
+        const trackHeight = housing.clientHeight || 70;
+        const sensitivity = shiftKey ? 300 : Math.max(70, trackHeight * 1.05);
         const deltaRatio = deltaY / sensitivity;
 
         let newRatio = Math.max(0, Math.min(1, startRatio + deltaRatio));

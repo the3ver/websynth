@@ -37,7 +37,12 @@ const phoneFullShot = path.join(screenshotsDir, 'screenshot-phone-full.png');
 console.log('4. Capturing phone full-page screenshot (360x1200)...');
 execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=360,1200 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
+const phoneLandscapeShot = path.join(screenshotsDir, 'screenshot-phone-landscape.png');
+console.log('5. Capturing phone landscape screenshot (844x390)...');
+execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=844,390 --screenshot="${phoneLandscapeShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+
 console.log('✓ Desktop screenshot:', fs.statSync(desktopShot).size, 'bytes');
 console.log('✓ Mobile screenshot:', fs.statSync(mobileShot).size, 'bytes');
 console.log('✓ Phone portrait screenshot:', fs.statSync(phonePortraitShot).size, 'bytes');
+console.log('✓ Phone landscape screenshot:', fs.statSync(phoneLandscapeShot).size, 'bytes');
 

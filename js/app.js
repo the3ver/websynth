@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.7.1';
+  const CURRENT_APP_VERSION = '1.7.2';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -75,6 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
       drumEngine.stop();
     }
   });
+
+  // Hard Refresh / Reload Button
+  const hardRefreshBtn = document.getElementById('hardRefreshBtn');
+  if (hardRefreshBtn) {
+    hardRefreshBtn.addEventListener('click', async () => {
+      hardRefreshBtn.classList.add('loading');
+      hardRefreshBtn.disabled = true;
+      if (hardRefreshBtn.querySelector('.btn-icon')) {
+        hardRefreshBtn.querySelector('.btn-icon').style.display = 'inline-block';
+        hardRefreshBtn.querySelector('.btn-icon').style.animation = 'spin 0.6s linear infinite';
+      }
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const reg of registrations) {
+            await reg.update();
+          }
+        }
+      } catch (err) {
+        console.warn('Service worker update check on reload:', err);
+      }
+      window.location.reload();
+    });
+  }
 
   // AudioContext auto-unlock listener for Mobile/iPadOS Safari & Desktop
   const unlockEvents = ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'mousedown', 'click', 'keydown'];

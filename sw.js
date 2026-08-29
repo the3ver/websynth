@@ -1,10 +1,10 @@
 /**
  * RETROVOX SUB-1 • Service Worker (App Shell & Offline Precache)
- * Version: 1.7.1
+ * Version: 1.7.2
  * Pure Native Standards (Zero Bundlers / Zero Build Steps)
  */
 
-const CACHE_VERSION = 'v1.7.1';
+const CACHE_VERSION = 'v1.7.2';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
