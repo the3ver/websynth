@@ -105,34 +105,44 @@ class SynthUI {
    */
   initMobileTabs() {
     const tabsBar = document.getElementById('mobileSynthTabsBar');
-    if (!tabsBar) return;
-    const tabButtons = tabsBar.querySelectorAll('.mobile-tab-btn');
-    const moduleBays = document.querySelectorAll('.module-bay[data-tab-group]');
     const modularSurface = document.getElementById('modularControlSurface');
+    if (!tabsBar || !modularSurface) return;
 
-    tabButtons.forEach((btn) => {
+    const tabButtons = tabsBar.querySelectorAll('.mobile-tab-btn');
+    const moduleSlides = modularSurface.querySelectorAll('.module-slide');
+
+    // Click on tab smoothly scrolls the carousel
+    tabButtons.forEach((btn, index) => {
       btn.addEventListener('click', () => {
-        const targetTab = btn.dataset.tab;
-        tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
-
-        if (targetTab === 'keys-bay') {
-          // Hide module bays to give 100% full screen focus to Keybed & Arpeggiator
-          moduleBays.forEach((bay) => bay.classList.remove('mobile-active'));
-          if (modularSurface) modularSurface.style.display = 'none';
-          const keyRow = document.querySelector('.keyboard-performance-row');
-          if (keyRow) {
-            keyRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        } else {
-          if (modularSurface) modularSurface.style.display = '';
-          moduleBays.forEach((bay) => {
-            const isActive = bay.dataset.tabGroup === targetTab;
-            bay.classList.toggle('mobile-active', isActive);
+        const slideIndex = parseInt(btn.dataset.slideIndex ?? index, 10);
+        const targetSlide = moduleSlides[slideIndex];
+        if (targetSlide) {
+          modularSurface.scrollTo({
+            left: targetSlide.offsetLeft,
+            behavior: 'smooth',
           });
         }
+        tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
         if (btn.blur) btn.blur();
       });
     });
+
+    // Horizontal swipe listener updates active tab highlight
+    let isScrolling = null;
+    modularSurface.addEventListener('scroll', () => {
+      if (isScrolling) cancelAnimationFrame(isScrolling);
+      isScrolling = requestAnimationFrame(() => {
+        const scrollLeft = modularSurface.scrollLeft;
+        const slideWidth = modularSurface.clientWidth || 1;
+        const activeIndex = Math.min(
+          tabButtons.length - 1,
+          Math.max(0, Math.round(scrollLeft / slideWidth))
+        );
+        tabButtons.forEach((btn, idx) => {
+          btn.classList.toggle('active', idx === activeIndex);
+        });
+      });
+    }, { passive: true });
   }
 
   /**

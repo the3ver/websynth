@@ -131,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.7.4</span>
+          <span class="version-tag">v1.7.5</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -230,33 +230,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
             <!-- Mobile Module Section Tabs (Visible on screens < 900px) -->
             <div class="mobile-synth-tabs-bar" id="mobileSynthTabsBar">
-              <button class="mobile-tab-btn active" data-tab="osc-mix">
+              <button class="mobile-tab-btn active" data-tab="osc-mix" data-slide-index="0">
                 <span class="tab-icon">🎛️</span>
                 <span class="mobile-tab-title">OSC &amp; MIX</span>
               </button>
-              <button class="mobile-tab-btn" data-tab="vcf-lfo">
+              <button class="mobile-tab-btn" data-tab="vcf-lfo" data-slide-index="1">
                 <span class="tab-icon">🔊</span>
                 <span class="mobile-tab-title">VCF &amp; LFO</span>
               </button>
-              <button class="mobile-tab-btn" data-tab="env-fx">
+              <button class="mobile-tab-btn" data-tab="env-fx" data-slide-index="2">
                 <span class="tab-icon">⚡</span>
                 <span class="mobile-tab-title">ENV &amp; FX</span>
               </button>
-              <button class="mobile-tab-btn" data-tab="keys-bay">
-                <span class="tab-icon">🎹</span>
-                <span class="mobile-tab-title">KEYBED</span>
-              </button>
             </div>
 
-            <!-- Modular Control Surface with Structured Module Grids -->
+            <!-- Modular Control Surface with Structured Module Grids / Swipe Carousel -->
             <div class="modular-control-surface" id="modularControlSurface">
               
-              <!-- Module 1: Dual-VCO (Oscillators) -->
-              <div class="module-bay vco-module active-module mobile-active" data-tab-group="osc-mix">
-                <div class="module-title">
-                  <span>01 // DUAL-VCO OSCILLATORS</span>
-                  <span class="module-led cyan"></span>
-                </div>
+              <!-- Slide 1: OSC & MIX (VCO 1/2 + Mixer & Noise) -->
+              <div class="module-slide" data-slide="osc-mix" data-slide-index="0">
+                <!-- Module 1: Dual-VCO (Oscillators) -->
+                <div class="module-bay vco-module active-module" data-tab-group="osc-mix">
+                  <div class="module-title">
+                    <span>01 // DUAL-VCO OSCILLATORS</span>
+                    <span class="module-led cyan"></span>
+                  </div>
                 
                 <div class="vco-subgrid">
                   <!-- VCO 1 Section -->
@@ -444,7 +442,10 @@ window.addEventListener('DOMContentLoaded', () => {
                   </div>
                 </div>
               </div>
+            </div>
 
+            <!-- Slide 2: VCF & LFO (24dB Ladder Filter + Dual LFO & Mod) -->
+            <div class="module-slide" data-slide="vcf-lfo" data-slide-index="1">
               <!-- Module 3: 24dB Ladder VCF Filter (Centerpiece) -->
               <div class="module-bay vcf-module active-module highlight-module" data-tab-group="vcf-lfo">
                 <div class="module-title">
@@ -624,7 +625,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 </div>
               </div>
+            </div>
 
+            <!-- Slide 3: ENV & FX (Dual ADSR Envelopes + Vintage Stereo FX) -->
+            <div class="module-slide" data-slide="env-fx" data-slide-index="2">
               <!-- Module 5: Dual ADSR Envelopes (VCA & VCF) -->
               <div class="module-bay env-module active-module" id="adsrModuleBay" data-tab-group="env-fx">
                 <div class="module-title">
@@ -788,6 +792,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 </div>
               </div>
+              <!-- End of Slide 3 -->
 
             </div>
           </div>
@@ -1232,11 +1237,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.7.4</span>
+            <span class="release-version-number">v1.7.5</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Mobile Phone Touch Ergonomics • Full-Screen Keybed Tab & Split Studio Landscape Layout</p>
+          <p class="modal-subtitle">Mobile Portrait Carousel • Fixed Master Bar & Keybed • Horizontal Module Swipe</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1244,15 +1249,15 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
-            <div class="card-icon">🎹</div>
+            <div class="card-icon">🎛️</div>
             <div class="card-content">
-              <div class="card-badge perf-badge">MOBILE ERGONOMICS</div>
-              <h3>Mobile Phone Keyboard & Split Landscape Mode</h3>
-              <p>Volle Spielbarkeit und Sound-Design auf Smartphones:</p>
+              <div class="card-badge perf-badge">PORTRAIT CAROUSEL</div>
+              <h3>Fixierte Master Bar & Horizontales Modul-Wischen</h3>
+              <p>Perfektioniertes Spielgefühl im Hochformat auf Smartphones:</p>
               <ul>
-                <li><strong>Neuer <code>[ 🎹 KEYBED ]</code> Tab:</strong> 1-Tap Fokus auf die volle Klaviatur und den 16-Step Arpeggiator ohne langes Scrollen.</li>
-                <li><strong>Split Studio Querformat:</strong> Bei horizontaler Drehung sind Regler & Oszillatoren links und die spielbare Tastatur + Arp rechts nebeneinander platziert.</li>
-                <li><strong>Unblockiertes Touch-Scrolling:</strong> Standard-Viewport Scrollen auf iOS Safari & Android Chrome ohne Scroll-Fallen.</li>
+                <li><strong>Fixierte Leisten oben & unten:</strong> Master-Toolbar, Preset-LCD & 3-Tab-Leiste oben sowie 16-Step Arpeggiator & Klaviatur unten bleiben permanent sichtbar und sofort anspielbar.</li>
+                <li><strong>Horizontales Modul-Karussell:</strong> Durch seitliches Wischen mit dem Finger rotieren die Synth-Sektionen (<code>[ OSC & MIX ]</code>, <code>[ VCF & LFO ]</code>, <code>[ ENV & FX ]</code>) butterweich mit nativer 60/120fps Hardware-Beschleunigung.</li>
+                <li><strong>Kein vertikales Bouncen:</strong> 100% Viewport-Locking verhindert lästiges vertikales Seiten-Verschieben oder unbeabsichtigtes Page-Reloading.</li>
               </ul>
             </div>
           </div>

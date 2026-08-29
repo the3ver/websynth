@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.4-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.5-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,10 +10,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.4: Mobile Phone Keyboard & Split Studio Landscape Layout
-- **🎹 4. Mobile Tab `[ KEYBED ]`:** Blitzschneller 1-Tap Fokus auf die volle Klaviatur und den 16-Step Arpeggiator ohne langes Scrollen.
-- **📱 Split Studio Querformat:** Bei Drehung ins Smartphone-Querformat teilt sich das Chassis in eine 2-Spalten-Ansicht: Links Synth-Regler & Tabs, rechts Klaviatur + Arp – 100% ohne Scrollen mit beiden Händen spielbar.
-- **👆 Unblockiertes Touch-Scrolling:** Native Scrollcontainer-Optimierung für geschmeidiges, fehlerfreies Scrollen auf iOS Safari und Chrome Android.
+### ⚡ NEU in v1.7.5: Mobile Portrait Carousel & Fixed Master/Keybed Bar
+- **🎛️ Fixierte Leisten oben & unten:** Master-Toolbar, Preset-LCD & 3-Tab-Leiste oben sowie 16-Step Arpeggiator & Klaviatur unten bleiben im Smartphone-Hochformat permanent sichtbar und spielbereit.
+- **📱 Horizontales Modul-Karussell:** Durch seitliches Wischen mit dem Finger rotieren die Synth-Sektionen (`[ OSC & MIX ]`, `[ VCF & LFO ]`, `[ ENV & FX ]`) butterweich mit nativer CSS Hardware-Beschleunigung.
+- **🔒 100% Viewport-Locking:** Verhindert vertikales Bouncen oder versehentliches Neuladen der Seite beim Scrollen auf Touch-Geräten.
 
 ---
 
