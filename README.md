@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.3-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.4-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,10 +10,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.3: RETROBEAT D-909 Drum Rack Layout & Level Slider Fit
-- **🥁 Drum Master Bar Flex-Wrap & Level-Fader Fit:** Der Master-Level-Schieberegler und Prozent-Readout sind nun logisch in der Hauptsteuerleiste positioniert und bleiben auf allen Bildschirmgrößen 100% im Sichtfeld ohne horizontales Scrollen.
-- **🎛️ Sound Tweak Strip 9-Voice Alignment:** Alle 9 Regler (5 Drum-Stimmen + 4 303-Bass-Parameter inkl. WAVE-Toggle) bilden ein bündiges, einzeiliges Rack ohne Umbrüche.
-- **📱 Mobile Drawer Fluid Layout:** Vollständig responsive Schieberegler und Preset-Wahl im Drum-Rack-Drawer.
+### ⚡ NEU in v1.7.4: Mobile Phone Keyboard & Split Studio Landscape Layout
+- **🎹 4. Mobile Tab `[ KEYBED ]`:** Blitzschneller 1-Tap Fokus auf die volle Klaviatur und den 16-Step Arpeggiator ohne langes Scrollen.
+- **📱 Split Studio Querformat:** Bei Drehung ins Smartphone-Querformat teilt sich das Chassis in eine 2-Spalten-Ansicht: Links Synth-Regler & Tabs, rechts Klaviatur + Arp – 100% ohne Scrollen mit beiden Händen spielbar.
+- **👆 Unblockiertes Touch-Scrolling:** Native Scrollcontainer-Optimierung für geschmeidiges, fehlerfreies Scrollen auf iOS Safari und Chrome Android.
 
 ---
 

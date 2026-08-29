@@ -4026,14 +4026,17 @@ body.is-pwa-standalone .studio-container {
 /* TABLET & MOBILE VIEWPORT (< 900px) */
 @media (max-width: 900px) {
   :root {
-    --white-key-width: 34px;
-    --white-key-height: 112px;
-    --black-key-width: 21px;
-    --black-key-height: 72px;
+    --white-key-width: 32px;
+    --white-key-height: 98px;
+    --black-key-width: 20px;
+    --black-key-height: 64px;
+    --knob-size: 34px;
   }
 
   html {
-    overflow-x: clip !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
     max-width: 100vw !important;
     width: 100% !important;
     height: auto !important;
@@ -4041,7 +4044,7 @@ body.is-pwa-standalone .studio-container {
 
   body {
     overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow-y: visible !important;
     -webkit-overflow-scrolling: touch;
     max-width: 100vw !important;
     width: 100% !important;
@@ -4057,7 +4060,7 @@ body.is-pwa-standalone .studio-container {
 
   .studio-container {
     padding: 0 4px !important;
-    padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 30px)) !important;
+    padding-bottom: max(75px, calc(env(safe-area-inset-bottom) + 40px)) !important;
     max-width: 100vw !important;
     width: 100% !important;
     min-height: 100dvh;
@@ -4235,16 +4238,16 @@ body.is-pwa-standalone .studio-container {
     display: none !important;
   }
 
-  /* Mobile Tabs Bar - 3-Column Grid with Firefox minmax(0, 1fr) containment */
+  /* Mobile Tabs Bar - 4-Column Grid for OSC, VCF, ENV, KEYBED */
   .mobile-synth-tabs-bar {
     display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
-    gap: 2px !important;
-    padding: 2px !important;
+    gap: 3px !important;
+    padding: 3px !important;
     margin-bottom: 6px !important;
   }
 
@@ -4488,9 +4491,10 @@ body.is-pwa-standalone .studio-container {
 @media (max-width: 480px) {
   :root {
     --white-key-width: 30px;
-    --white-key-height: 105px;
+    --white-key-height: 94px;
     --black-key-width: 19px;
-    --black-key-height: 66px;
+    --black-key-height: 60px;
+    --knob-size: 32px;
   }
 
   .studio-container {
@@ -4498,17 +4502,17 @@ body.is-pwa-standalone .studio-container {
   }
 
   .brand-name {
-    font-size: 0.85rem !important;
-    letter-spacing: 0.5px;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.4px;
   }
 
   .brand-model {
-    font-size: 0.5rem !important;
+    font-size: 0.48rem !important;
   }
 
   .engine-status-pill {
     padding: 2px 4px !important;
-    font-size: 0.58rem !important;
+    font-size: 0.55rem !important;
   }
 
   .master-volume-control label {
@@ -4517,21 +4521,21 @@ body.is-pwa-standalone .studio-container {
 
   .master-volume-control {
     padding: 2px 4px !important;
-    gap: 4px !important;
+    gap: 3px !important;
   }
 
   .master-volume-control input[type="range"] {
-    width: 38px !important;
+    width: 34px !important;
   }
 
   .volume-value {
-    font-size: 0.62rem !important;
-    min-width: 24px !important;
+    font-size: 0.58rem !important;
+    min-width: 22px !important;
   }
 
   .btn {
-    padding: 4px 6px !important;
-    font-size: 0.7rem !important;
+    padding: 3px 5px !important;
+    font-size: 0.68rem !important;
   }
 
   .header-reload-btn span:not(.btn-icon) {
@@ -4539,8 +4543,8 @@ body.is-pwa-standalone .studio-container {
   }
 
   .header-reload-btn {
-    padding: 4px 6px !important;
-    font-size: 0.7rem !important;
+    padding: 3px 5px !important;
+    font-size: 0.68rem !important;
   }
 
   .drum-rack-header-btn span:not(.btn-icon) {
@@ -4552,49 +4556,112 @@ body.is-pwa-standalone .studio-container {
   }
 
   .power-switch-btn {
-    padding: 4px 6px !important;
-    font-size: 0.62rem !important;
+    padding: 3px 5px !important;
+    font-size: 0.58rem !important;
   }
 
   .power-switch-btn .power-indicator {
-    width: 6px !important;
-    height: 6px !important;
+    width: 5px !important;
+    height: 5px !important;
+  }
+
+  .mobile-synth-tabs-bar {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    padding: 2px !important;
   }
 
   .mobile-tab-btn {
-    padding: 5px 1px !important;
+    padding: 4px 1px !important;
     gap: 2px !important;
   }
 
   .mobile-tab-btn .tab-icon {
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
   }
 
   .mobile-tab-btn .mobile-tab-title {
-    font-size: 0.6rem !important;
+    font-size: 0.54rem !important;
+  }
+
+  .module-bay[data-tab-group] {
+    padding: 4px 2px !important;
+  }
+
+  .module-title {
+    font-size: 0.58rem !important;
+    padding: 2px 4px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .vco-subgrid {
+    gap: 4px !important;
+  }
+
+  .vco-section-block {
+    padding: 4px 2px !important;
+  }
+
+  .vco-section-label {
+    font-size: 0.52rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .vco-btn {
+    height: 22px !important;
+    padding: 0 4px !important;
+  }
+
+  .vco-btn svg {
+    width: 14px !important;
+    height: 10px !important;
   }
 
   .synth-knob-wrapper .knob-label-text {
-    font-size: 0.52rem;
+    font-size: 0.5rem !important;
   }
 
   .synth-knob-wrapper .knob-readout-badge {
-    font-size: 0.52rem;
-    padding: 1px 2px;
+    font-size: 0.5rem !important;
+    padding: 1px 2px !important;
+  }
+
+  .arp-sequencer-strip {
+    padding: 3px !important;
+    gap: 3px !important;
+  }
+
+  .performance-bay {
+    padding: 2px !important;
+    gap: 3px !important;
+  }
+
+  .wheel-box {
+    height: 36px !important;
   }
 }
 
-/* MOBILE & PHONE LANDSCAPE PERFORMANCE MODE (< 600px HEIGHT) */
+/* MOBILE & PHONE LANDSCAPE SPLIT STUDIO MODE (< 600px HEIGHT) */
 @media (orientation: landscape) and (max-height: 600px) {
   :root {
     --white-key-width: 32px;
-    --white-key-height: 94px;
+    --white-key-height: 90px;
     --black-key-width: 20px;
-    --black-key-height: 60px;
+    --black-key-height: 58px;
+    --knob-size: 32px;
   }
 
-  html, body {
+  html {
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    height: auto !important;
+    min-height: 100dvh;
+  }
+
+  body {
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
     height: auto !important;
     min-height: 100dvh;
@@ -4602,8 +4669,8 @@ body.is-pwa-standalone .studio-container {
 
   .studio-header {
     display: flex !important;
-    height: 34px !important;
-    min-height: 34px !important;
+    height: 28px !important;
+    min-height: 28px !important;
     padding: 0 8px !important;
     margin-bottom: 2px !important;
     border-radius: 0 0 6px 6px !important;
@@ -4614,13 +4681,13 @@ body.is-pwa-standalone .studio-container {
   }
 
   .engine-status-pill {
-    font-size: 0.55rem !important;
-    padding: 2px 4px !important;
+    font-size: 0.52rem !important;
+    padding: 1px 4px !important;
   }
 
   .studio-container {
     padding: 2px 4px !important;
-    padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 30px)) !important;
+    padding-bottom: max(30px, calc(env(safe-area-inset-bottom) + 15px)) !important;
     min-height: 100dvh;
     height: auto !important;
     overflow-y: visible !important;
@@ -4628,47 +4695,108 @@ body.is-pwa-standalone .studio-container {
   }
 
   .studio-desk {
-    margin-bottom: 12px !important;
+    margin-bottom: 6px !important;
     overflow: visible !important;
     height: auto !important;
+    width: 100% !important;
   }
 
-  .synth-unit, .synth-chassis {
+  .synth-unit {
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Split Studio Chassis: Left side Modules + Tabs, Right side Arp + Keybed */
+  .synth-chassis {
+    display: grid !important;
+    grid-template-columns: 46% 54% !important;
+    grid-template-rows: auto 1fr !important;
+    gap: 0 !important;
+    width: 100% !important;
     overflow: visible !important;
     height: auto !important;
   }
 
   .synth-top-panel {
-    padding: 4px 6px !important;
-    overflow: visible !important;
+    grid-column: 1 !important;
+    grid-row: 1 / 3 !important;
+    border-right: 2px solid #0a0b0e !important;
+    border-bottom: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 3px 4px !important;
+    max-height: 350px !important;
   }
 
   .panel-header-strip {
-    margin-bottom: 3px !important;
-    padding-bottom: 3px !important;
+    margin-bottom: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .mobile-synth-tabs-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* In landscape, the 4th KEYBED tab is hidden because the keybed is always visible on the right half */
+  .mobile-synth-tabs-bar .mobile-tab-btn[data-tab="keys-bay"] {
+    display: none !important;
+  }
+
+  .modular-control-surface {
+    overflow-y: auto !important;
+    max-height: 270px !important;
+  }
+
+  .module-bay[data-tab-group] {
+    padding: 4px 2px !important;
+  }
+
+  .synth-bottom-panel {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    padding: 2px 4px !important;
+    border-bottom: 1px solid #1c202a !important;
+    overflow: visible !important;
+  }
+
+  .arp-sequencer-strip {
+    padding: 2px 4px !important;
+    gap: 3px !important;
+  }
+
+  .arp-step-grid {
+    padding-bottom: 2px !important;
   }
 
   .keyboard-performance-row {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
     flex-direction: row !important;
+    padding: 3px 4px !important;
+    gap: 3px !important;
+    align-items: stretch !important;
     overflow: visible !important;
-    gap: 4px !important;
   }
 
   .performance-bay {
     width: auto !important;
     flex-direction: column !important;
-    padding: 3px 4px !important;
-    gap: 4px !important;
+    padding: 2px 3px !important;
+    gap: 3px !important;
   }
 
   .wheel-section {
     flex-direction: row !important;
-    gap: 4px !important;
+    gap: 3px !important;
   }
 
   .wheel-box {
-    height: 42px !important;
-    width: 22px !important;
+    height: 36px !important;
+    width: 18px !important;
   }
 
   .keyboard-wrapper {
@@ -4676,14 +4804,13 @@ body.is-pwa-standalone .studio-container {
     overflow-x: auto !important;
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px !important;
+    padding-bottom: 4px !important;
     touch-action: pan-x pan-y !important;
   }
 
   .chassis-bottom-bezel {
-    padding: 2px 6px !important;
-    margin-bottom: 12px !important;
-    overflow: visible !important;
+    grid-column: 1 / 3 !important;
+    display: none !important;
   }
 }
 

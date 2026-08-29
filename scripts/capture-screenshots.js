@@ -20,26 +20,29 @@ const desktopShot = path.join(screenshotsDir, 'screenshot-desktop.png');
 const mobileShot = path.join(screenshotsDir, 'screenshot-mobile.png');
 const phonePortraitShot = path.join(screenshotsDir, 'screenshot-phone-portrait.png');
 
+const tempProfile = path.join(__dirname, '..', 'scratch', 'temp-profile');
+if (!fs.existsSync(tempProfile)) fs.mkdirSync(tempProfile, { recursive: true });
+
 console.log('1. Capturing desktop screenshot (1440x920)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=1440,920 --screenshot="${desktopShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=1440,920 --screenshot="${desktopShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 const ipadShot = path.join(screenshotsDir, 'screenshot-ipad.png');
 console.log('1b. Capturing iPad landscape screenshot (1024x768)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=1024,768 --screenshot="${ipadShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=1024,768 --screenshot="${ipadShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 console.log('2. Capturing mobile screenshot (750x1334)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=750,1334 --screenshot="${mobileShot}" "${fileUrl}#drums"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=750,1334 --screenshot="${mobileShot}" "${fileUrl}#drums"`, { stdio: 'inherit' });
 
 console.log('3. Capturing phone portrait screenshot (360x780)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=360,780 --screenshot="${phonePortraitShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=360,780 --screenshot="${phonePortraitShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 const phoneFullShot = path.join(screenshotsDir, 'screenshot-phone-full.png');
 console.log('4. Capturing phone full-page screenshot (360x1200)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=360,1200 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=360,1200 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 const phoneLandscapeShot = path.join(screenshotsDir, 'screenshot-phone-landscape.png');
 console.log('5. Capturing phone landscape screenshot (844x390)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=844,390 --screenshot="${phoneLandscapeShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+execSync(`"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=844,390 --screenshot="${phoneLandscapeShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 console.log('✓ Desktop screenshot:', fs.statSync(desktopShot).size, 'bytes');
 console.log('✓ Mobile screenshot:', fs.statSync(mobileShot).size, 'bytes');

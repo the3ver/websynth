@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.7.3';
+  const CURRENT_APP_VERSION = '1.7.4';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements

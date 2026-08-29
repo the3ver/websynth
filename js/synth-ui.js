@@ -108,15 +108,28 @@ class SynthUI {
     if (!tabsBar) return;
     const tabButtons = tabsBar.querySelectorAll('.mobile-tab-btn');
     const moduleBays = document.querySelectorAll('.module-bay[data-tab-group]');
+    const modularSurface = document.getElementById('modularControlSurface');
 
     tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const targetTab = btn.dataset.tab;
         tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
-        moduleBays.forEach((bay) => {
-          const isActive = bay.dataset.tabGroup === targetTab;
-          bay.classList.toggle('mobile-active', isActive);
-        });
+
+        if (targetTab === 'keys-bay') {
+          // Hide module bays to give 100% full screen focus to Keybed & Arpeggiator
+          moduleBays.forEach((bay) => bay.classList.remove('mobile-active'));
+          if (modularSurface) modularSurface.style.display = 'none';
+          const keyRow = document.querySelector('.keyboard-performance-row');
+          if (keyRow) {
+            keyRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        } else {
+          if (modularSurface) modularSurface.style.display = '';
+          moduleBays.forEach((bay) => {
+            const isActive = bay.dataset.tabGroup === targetTab;
+            bay.classList.toggle('mobile-active', isActive);
+          });
+        }
         if (btn.blur) btn.blur();
       });
     });
