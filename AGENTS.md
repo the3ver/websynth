@@ -111,19 +111,50 @@ makeDistortionCurve(amount) {
 
 ---
 
-## 🎨 UI & Event Interaction Rules (`js/synth-ui.js` & `js/drum-ui.js`)
+## 🎨 UI, Mobile Ergonomics & Responsive Architecture (`js/synth-ui.js` & `css/style.css`)
 
-1. **Keyboard vs Mouse Note Separation**:
-   - `this.keyboardHeldKeys`: Tracks physical computer keyboard notes.
-   - `this.mouseHeldKeys`: Tracks on-screen keybed clicks/touches.
-   - `window.addEventListener('mouseup')` **ONLY** releases notes in `this.mouseHeldKeys`, preventing UI tweaking from muting physical keyboard keys.
-2. **Keyboard Filter (`isTextInput`)**:
-   - Must only block musical hotkeys when `target.tagName === 'TEXTAREA'` or `target.tagName === 'INPUT'` with text types.
-   - `<select>`, range sliders, and buttons must never suppress musical keys.
-   - Dropdown selections and button clicks must call `.blur()` immediately after interaction.
-3. **CRT Visualizer Optimization**:
-   - Monitors audio output level via `AnalyserNode`.
-   - After 15 silent frames ($< 0.001$ RMS), heavy path computations pause to preserve CPU/GPU battery.
+### 1. Mobile Portrait Carousel Architecture (`@media (max-width: 900px) and (orientation: portrait)`)
+- **100% Viewport-Locked (`100dvh`, `overflow: hidden`)**: Prevents vertical pull-to-refresh, page reload bounces, and window-level scroll displacement during performance.
+- **Fixed Top Panel**: Master-Toolbar (Power, Volume, Drum Rack toggle, Hard-Reload), Hardware Preset LCD Manager (`◀ / ▶`), and 3 Module Selector Tabs (`[ 🎛️ OSC & MIX ]`, `[ 🔊 VCF & LFO ]`, `[ ⚡ ENV & FX ]`).
+- **Middle Horizontal Carousel (`.modular-control-surface`)**:
+  - Contains 3 `.module-slide` containers:
+    - **Slide 1**: `01 // DUAL-VCO OSCILLATORS` + `02 // MIXER & NOISE`
+    - **Slide 2**: `03 // 24dB LADDER FILTER (VCF)` + `04 // DUAL LFO & MOD`
+    - **Slide 3**: `05 // DUAL ADSR ENVELOPES` + `06 // VINTAGE STEREO FX`
+  - Utilizes native `scroll-snap-type: x mandatory` and `scroll-behavior: smooth` with 60/120fps GPU hardware acceleration.
+- **Fixed Bottom Panel**: 16-Step Arpeggiator & Sequencer Strip + Performance Bay (Pitch/Mod Wheels, Octave `[-1, 0, +1]`, Glide Switch) + Playable 3D Piano Keyboard.
+- **Bi-directional Tab & Carousel Sync**:
+  - Tab button click calls `modularSurface.scrollTo({ left: targetSlide.offsetLeft, behavior: 'smooth' })`.
+  - Carousel swipe listener evaluates `Math.round(modularSurface.scrollLeft / slideWidth)` in a `requestAnimationFrame` loop and toggles `.mobile-tab-btn.active`.
+
+### 2. Desktop Seamless Grid Inheritance (`display: contents;`)
+- On Desktop (`min-width: 900px`), `.module-slide` applies `display: contents;`.
+- All 6 module bays seamlessly inherit the parent 6-column desktop grid (`1.55fr 0.95fr 1.15fr 1.15fr 0.95fr 1.1fr`) with zero layout shift, zero DOM restructuring, and zero CSS wrapper overhead.
+
+### 3. Mobile Landscape Split-Studio Mode (`@media (orientation: landscape) and (max-height: 600px)`)
+- Splits the chassis into a 2-column layout (`grid-template-columns: 46% 54%`):
+  - **Left 46%**: Top panel, Preset LCD, and horizontal module carousel.
+  - **Right 54%**: 16-Step Arpeggiator Sequencer + Full playable 3D keybed.
+- Studio speakers and wooden side cheeks are hidden (`display: none !important;`) to maximize touch area.
+
+### 4. Keyboard vs Mouse vs Touch Note Separation & Glissando
+- `this.keyboardHeldKeys`: Tracks physical computer keyboard notes.
+- `this.mouseHeldKeys`: Tracks on-screen keybed mouse clicks.
+- `this.touchHeldKeys`: Tracks multi-touch touchpoints using `document.elementFromPoint(x, y)`.
+- `window.addEventListener('mouseup')` **ONLY** releases notes in `this.mouseHeldKeys`, preventing UI parameter tweaking from muting physical keyboard keys.
+- Glissando drag handlers release previous keys instantly on pointer boundary crossings.
+
+### 5. Envelope Fader Full-Height Utilization
+- `.env-fader-track` and `.fader-track-housing` use dynamic flex-grow (`flex: 1 1 auto; min-height: 120px; max-height: 240px;`) so ADSR sliders match the full height of neighboring LFO / FX racks while respecting max-height constraints on mobile screens.
+
+### 6. Keyboard Filter (`isTextInput`)
+- Must only block musical hotkeys when `target.tagName === 'TEXTAREA'` or `target.tagName === 'INPUT'` with text types.
+- `<select>`, range sliders, and buttons must never suppress musical keys.
+- Dropdown selections and button clicks must call `.blur()` immediately after interaction.
+
+### 7. CRT Visualizer Optimization
+- Monitors audio output level via `AnalyserNode`.
+- After 15 silent frames ($< 0.001$ RMS), heavy path computations pause to preserve CPU/GPU battery.
 
 ---
 
@@ -134,6 +165,16 @@ Before committing any modifications:
    ```bash
    node -c js/app.js js/pwa-manager.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js js/drum-engine.js js/drum-ui.js sw.js
    ```
-2. Check for zero console warnings / uncaught exceptions.
-3. Ensure no memory leaks or unmanaged event listeners on `window`.
-4. Ensure new parameters have proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
+2. Run automated headless visual screenshot suite:
+   ```bash
+   node scripts/capture-screenshots.js
+   ```
+   Inspect generated screenshots in `screenshots/`:
+   - `screenshot-desktop.png` (1440x920)
+   - `screenshot-ipad.png` (1024x768)
+   - `screenshot-mobile.png` (750x1334)
+   - `screenshot-phone-portrait.png` (360x780)
+   - `screenshot-phone-landscape.png` (844x390)
+3. Check for zero console warnings / uncaught exceptions.
+4. Ensure no memory leaks or unmanaged event listeners on `window`.
+5. Ensure new parameters have proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
