@@ -266,9 +266,12 @@ class DrumEngine {
    */
   start() {
     this.initAudio();
+    if (this.synthAudio) {
+      this.synthAudio.ensureAudioRunning();
+    }
     if (!this.ctx) return;
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx.state !== 'running') {
+      this.ctx.resume().catch(() => {});
     }
 
     this.isPlaying = true;

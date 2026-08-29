@@ -26,12 +26,12 @@ execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=1280,720 -
 console.log('2. Capturing mobile screenshot (750x1334)...');
 execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=750,1334 --screenshot="${mobileShot}" "${fileUrl}#drums"`, { stdio: 'inherit' });
 
-console.log('3. Capturing phone portrait screenshot (390x844)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=390,844 --screenshot="${phonePortraitShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+console.log('3. Capturing phone portrait screenshot (360x780)...');
+execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=360,780 --screenshot="${phonePortraitShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 const phoneFullShot = path.join(screenshotsDir, 'screenshot-phone-full.png');
-console.log('4. Capturing phone full-page screenshot (390x1400)...');
-execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=390,1400 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+console.log('4. Capturing phone full-page screenshot (360x1200)...');
+execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=360,1200 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
 console.log('✓ Desktop screenshot:', fs.statSync(desktopShot).size, 'bytes');
 console.log('✓ Mobile screenshot:', fs.statSync(mobileShot).size, 'bytes');

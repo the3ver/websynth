@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.6.1';
+  const CURRENT_APP_VERSION = '1.6.2';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -76,20 +76,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // AudioContext auto-unlock listener on first user interaction anywhere
-  const unlockAudio = () => {
+  // AudioContext auto-unlock listener for Mobile/iPadOS Safari & Desktop
+  const unlockEvents = ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'mousedown', 'click', 'keydown'];
+  const handleUserInteractionUnlock = () => {
     if (audioEngine.isPowered) {
-      const state = audioEngine.initAudio();
-      if (state === 'running') {
+      audioEngine.ensureAudioRunning();
+      if (audioEngine.ctx && audioEngine.ctx.state === 'running') {
         audioStatusBadge.querySelector('.status-label').textContent = 'AUDIO ENGINE: RUNNING';
+        removeUnlockListeners();
       }
     }
   };
 
-  window.addEventListener('pointerdown', unlockAudio, { once: true, capture: true });
-  window.addEventListener('touchstart', unlockAudio, { once: true, capture: true });
-  window.addEventListener('mousedown', unlockAudio, { once: true, capture: true });
-  window.addEventListener('keydown', unlockAudio, { once: true, capture: true });
+  const removeUnlockListeners = () => {
+    unlockEvents.forEach((evt) => {
+      window.removeEventListener(evt, handleUserInteractionUnlock, { capture: true });
+    });
+  };
+
+  unlockEvents.forEach((evt) => {
+    window.addEventListener(evt, handleUserInteractionUnlock, { capture: true, passive: true });
+  });
+
+  // Keep Audio State Badge 100% in sync with Web Audio Context state
+  audioEngine.onAudioStateChange = (state) => {
+    const statusLabel = audioStatusBadge.querySelector('.status-label');
+    if (!audioEngine.isPowered) {
+      statusLabel.textContent = 'AUDIO ENGINE: OFF';
+      return;
+    }
+    if (state === 'running') {
+      statusLabel.textContent = 'AUDIO ENGINE: RUNNING';
+      removeUnlockListeners();
+    } else if (state === 'suspended' || state === 'interrupted') {
+      statusLabel.textContent = 'AUDIO ENGINE: TAP TO ACTIVATE';
+    } else {
+      statusLabel.textContent = `AUDIO ENGINE: ${state.toUpperCase()}`;
+    }
+  };
+
+  // Direct Tap on Audio Status Badge to manually unlock or resume audio
+  audioStatusBadge.style.cursor = 'pointer';
+  audioStatusBadge.addEventListener('click', () => {
+    if (audioEngine.isPowered) {
+      audioEngine.resumeAudio();
+    }
+  });
+
+  // Re-resume audio when returning from background / tab switch on iOS / iPadOS
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && audioEngine.isPowered) {
+      audioEngine.ensureAudioRunning();
+    }
+  });
 
   // Web MIDI Status listener
   audioEngine.onMidiStateChange = (hasDevices, count) => {

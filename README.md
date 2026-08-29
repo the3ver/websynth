@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.6.1-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.6.2-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,13 +10,11 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.6.1: Kalibriertes LFO-Pitch-Tracking & Musikalische Vibrato-Skalierung
-- **🎵 Kalibrierte LFO-Pitch-Modulation:** Der Modulationsbereich für Tonhöhen-Vibrato wurde von $\pm 1200\,\text{Cents}$ auf feinfühlige $\pm 200\,\text{Cents}$ ($\pm 2\,\text{Halbtöne}$) optimiert. Selbst bei $10\text{--}30\,\%$ Potentiometerstellung entsteht ein warmer, musikalischer Vintage-Vibrato-Effekt statt starker Tonhöhen-Verstimmung.
-- **🥁 16-Step Beatbox Matrix Synchronisation:** Perfekte pixelgenaue Ausrichtung der 16 Step-Buttons mit der LED-Lauflicht-Leiste und sanftes horizontales Scrollen auf Smartphones.
-- **🎚️ Optimierter Swing-Fader:** Saubere Trennung von Slider und Beschriftung ohne Überlappungen in Chrome und Firefox.
-- **📱 Responsive Modul-Tabs:** Nahtloses Umschalten zwischen Klangmodulen (`OSC & MIX`, `VCF & LFO`, `ENV & FX`) auf Smartphones und schmalen Bildschirmen.
-- **🎹 Multi-Touch Glissando & Scrollbare Klaviatur:** Präzise Daumen- und Fingersteuerung für 25 Tasten auf Touchscreens ohne Notenhänger.
-- **🔇 Preset Audio Polish:** Vollständig entkoppelte Idle-VCA-Stufen für absolute Stille beim Preset-Wechsel – Noten erklingen erst bei echtem Tastenanschlag.
+### ⚡ NEU in v1.6.2: iOS & iPadOS Safari CoreAudio Entsperrung & Resilientes Audio-Unlocking
+- **🍎 iOS / iPadOS Safari CoreAudio Kickstart:** Zuverlässige Hardware-Entsperrung des Audio-Outputs via 1-Sample-Silent-Buffer beim ersten Touch- oder Tastenanschlag.
+- **🔄 Resilientes Unlock-Handling:** Unlock-Listener bleiben aktiv, bis der `AudioContext` verifiziert den Status `running` erreicht hat (keine Notenaussetzer mehr nach Hardware-Keyboard-Eingaben).
+- **👆 Interaktiver Audio-Status-Badge (Tap-to-Activate):** Der `AUDIO ENGINE`-Badge im Header zeigt den echten Zustand an und kann bei Audio-Unterbrechungen (z. B. nach App-Wechsel auf dem iPad) direkt angetippt werden.
+- **👁️ Automatischer Re-Resume bei Tab-Rückkehr:** Nahtlose Reaktivierung der Audio-Engine bei Rückkehr aus dem Hintergrund (`visibilitychange`).
 
 ---
 

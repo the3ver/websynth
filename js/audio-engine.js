@@ -158,6 +158,41 @@ class AudioEngine {
     // Callbacks for UI updates
     this.onVoiceChange = null;
     this.onMidiStateChange = null;
+    this.onAudioStateChange = null;
+  }
+
+  /**
+   * Resumes and unlocks the Web Audio API context with iOS / iPadOS Safari CoreAudio kickstart.
+   */
+  async resumeAudio() {
+    if (!this.ctx) {
+      this.initAudio();
+    }
+    if (this.ctx && this.ctx.state !== 'running') {
+      try {
+        await this.ctx.resume();
+      } catch (e) {}
+
+      // Kickstart iOS / iPadOS Safari CoreAudio hardware output bus with a 1-sample silent buffer
+      try {
+        const buffer = this.ctx.createBuffer(1, 1, 22050);
+        const source = this.ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.ctx.destination);
+        source.start(0);
+      } catch (e) {}
+    }
+
+    if (this.onAudioStateChange && this.ctx) {
+      this.onAudioStateChange(this.ctx.state);
+    }
+    return this.ctx ? this.ctx.state : 'uninitialized';
+  }
+
+  ensureAudioRunning() {
+    if (!this.ctx || this.ctx.state !== 'running') {
+      this.resumeAudio();
+    }
   }
 
   /**
@@ -167,6 +202,13 @@ class AudioEngine {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx({ latencyHint: 'interactive' });
+
+      // Listen for hardware audio state transitions
+      this.ctx.onstatechange = () => {
+        if (this.onAudioStateChange) {
+          this.onAudioStateChange(this.ctx.state);
+        }
+      };
 
       // Master Voice Bus
       this.masterVoiceBus = this.ctx.createGain();
@@ -207,8 +249,8 @@ class AudioEngine {
       this.initMidi();
     }
 
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx.state !== 'running') {
+      this.resumeAudio();
     }
 
     return this.ctx.state;
@@ -721,13 +763,9 @@ class AudioEngine {
    */
   noteOn(midiNote, velocity = 1.0) {
     if (!this.isPowered) return;
-    if (!this.ctx) {
-      this.initAudio();
-    } else if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    this.ensureAudioRunning();
 
-    const now = this.ctx.currentTime;
+    const now = this.ctx ? this.ctx.currentTime : 0;
     const voice = this.allocateVoice(midiNote);
     if (!voice) return;
 
@@ -1364,6 +1402,8 @@ class AudioEngine {
     this.isPowered = on;
     if (!on) {
       this.allNotesOff();
+    } else {
+      this.ensureAudioRunning();
     }
   }
 
