@@ -123,19 +123,43 @@ class SynthUI {
   }
 
   /**
+   * Calculates the optimal number of keys to fill the keyboard container width without blank gaps.
+   * Snaps dynamically to classic analog synth keybed standards (25, 37, 49, or 61 keys, all ending on C).
+   */
+  calculateOptimalKeyCount() {
+    if (!this.keyboardContainer) return 25;
+    const containerWidth = this.keyboardContainer.clientWidth;
+    if (!containerWidth || containerWidth < 200) return 25;
+
+    // Minimum comfortable width per white key
+    const minWhiteKeyWidth = 35; // px
+
+    if (containerWidth >= 36 * minWhiteKeyWidth) {
+      return 61; // 5 Octaves + 1 (C3 to C8, 36 white keys)
+    } else if (containerWidth >= 29 * minWhiteKeyWidth) {
+      return 49; // 4 Octaves + 1 (C3 to C7, 29 white keys)
+    } else if (containerWidth >= 22 * minWhiteKeyWidth) {
+      return 37; // 3 Octaves + 1 (C3 to C6, 22 white keys)
+    } else {
+      return 25; // 2 Octaves + 1 (C3 to C5, 15 white keys)
+    }
+  }
+
+  /**
    * Recalculates black key left offsets according to responsive key width
    */
   repositionBlackKeys() {
+    if (!this.keyboardContainer) return;
     const whiteKeyEl = this.keyboardContainer.querySelector('.key-white');
     const blackKeyEl = this.keyboardContainer.querySelector('.key-black');
     if (!whiteKeyEl || !blackKeyEl) return;
     const whiteKeyWidth = whiteKeyEl.getBoundingClientRect().width;
-    const blackKeyWidth = blackKeyEl.getBoundingClientRect().width;
+    const blackKeyWidth = blackKeyEl.getBoundingClientRect().width || 26;
     if (whiteKeyWidth <= 0) return;
 
     let whiteKeyIndex = 0;
-    const startMidi = 48;
-    const numKeys = 25;
+    const startMidi = this.startMidi || 48;
+    const numKeys = this.numKeys || 25;
     for (let i = 0; i < numKeys; i++) {
       const midiNote = startMidi + i;
       const noteInOctave = midiNote % 12;
@@ -151,12 +175,15 @@ class SynthUI {
   }
 
   /**
-   * Generates the 25-Key Keybed (C3 = 48 to C5 = 72)
+   * Generates the Dynamic Keybed (C3 = 48 upwards, dynamically scaled to container width)
    */
-  initKeyboard() {
+  initKeyboard(isRebuild = false) {
+    if (!this.keyboardContainer) return;
+    this.startMidi = 48; // C3
+    this.numKeys = this.calculateOptimalKeyCount();
+
     this.keyboardContainer.innerHTML = '';
-    const startMidi = 48; // C3
-    const numKeys = 25;   // 2 Octaves + 1 Key
+    this.activeKeyElements.clear();
     
     const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const keyShortcuts = {
@@ -168,8 +195,8 @@ class SynthUI {
 
     let whiteKeyIndex = 0;
 
-    for (let i = 0; i < numKeys; i++) {
-      const midiNote = startMidi + i;
+    for (let i = 0; i < this.numKeys; i++) {
+      const midiNote = this.startMidi + i;
       const noteInOctave = midiNote % 12;
       const octaveNum = Math.floor(midiNote / 12) - 1;
       const isBlack = [1, 3, 6, 8, 10].includes(noteInOctave);
@@ -194,29 +221,61 @@ class SynthUI {
           <span class="key-note-label">${noteName}</span>
           ${shortcut ? `<span class="key-shortcut">${shortcut}</span>` : ''}
         `;
-
-        const whiteKeyWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--white-key-width')) || 42;
-        const blackKeyWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--black-key-width')) || 26;
-        const leftOffset = (whiteKeyIndex * whiteKeyWidth) - (blackKeyWidth / 2);
-        keyEl.style.left = `${leftOffset}px`;
-        
         this.keyboardContainer.appendChild(keyEl);
         this.activeKeyElements.set(midiNote, keyEl);
+      }
+
+      // Preserve active state if key is currently held
+      if (this.keyboardHeldKeys.has(midiNote) || this.mouseHeldKeys.has(midiNote)) {
+        keyEl.classList.add('active');
       }
 
       this.attachKeyEvents(keyEl, midiNote);
     }
 
+    // Position black keys after layout calculation
+    requestAnimationFrame(() => this.repositionBlackKeys());
+
+    if (isRebuild) return;
+
     // Window resize & orientation change recalculations
-    window.addEventListener('resize', () => this.repositionBlackKeys());
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => this.repositionBlackKeys(), 100);
+    window.addEventListener('resize', () => {
+      const newCount = this.calculateOptimalKeyCount();
+      if (newCount !== this.numKeys) {
+        this.initKeyboard(true);
+      } else {
+        this.repositionBlackKeys();
+      }
     });
+
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        this.initKeyboard(true);
+      }, 120);
+    });
+
+    // ResizeObserver for dynamic container responsiveness
+    if (window.ResizeObserver && this.keyboardContainer) {
+      let resizeTimer = null;
+      const observer = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const newCount = this.calculateOptimalKeyCount();
+          if (newCount !== this.numKeys) {
+            this.initKeyboard(true);
+          } else {
+            this.repositionBlackKeys();
+          }
+        }, 60);
+      });
+      observer.observe(this.keyboardContainer.parentElement || this.keyboardContainer);
+    }
 
     // Multi-touch keyboard tracking for glissando & mobile playing
     const activeTouchNotes = new Map();
 
     const handleTouchInteraction = (e) => {
+      this.engine.ensureAudioRunning();
       const currentTouches = new Set();
       for (let i = 0; i < e.touches.length; i++) {
         const touch = e.touches[i];

@@ -1131,15 +1131,19 @@ body {
 .synth-keyboard {
   display: flex;
   position: relative;
+  width: 100%;
   height: var(--white-key-height);
   background: #0a0b0e;
   padding: 0 2px 2px 2px;
   border-radius: 0 0 4px 4px;
+  box-sizing: border-box;
 }
 
 /* White Key */
 .key-white {
-  width: var(--white-key-width);
+  flex: 1 1 0;
+  min-width: 28px;
+  max-width: 48px;
   height: var(--white-key-height);
   background: linear-gradient(180deg, #f8f9fb 0%, #edeef2 70%, #dcdfe6 100%);
   border: 1px solid #b8bcc8;

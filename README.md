@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.6.2-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.0-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,11 +10,12 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.6.2: iOS & iPadOS Safari CoreAudio Entsperrung & Resilientes Audio-Unlocking
+### ⚡ NEU in v1.7.0: Dynamische Klaviatur-Erweiterung für Widescreen & PC
+- **🎹 Dynamische Vollbreiten-Klaviatur:** Die Klaviatur füllt das Synthesizer-Chassis auf PCs und Widescreen-Monitoren nun ohne leere Lücken vollflächig aus (automatische Skalierung auf 25, 37, 49 oder bis zu 61 Tasten).
+- **🎼 Harmonischer Oktaven-Abschluss:** Die Klaviatur schließt immer sauber und symmetrisch auf einem hohen **C** ab (z. B. C3–C6, C3–C7).
+- **📐 Millimetergenaue Halbtonton-Ausrichtung:** Halbtöne werden per Vektor-Berechnung exakt an den flexiblen Tastenrändern platziert.
+- **⚡ Live ResizeObserver:** Nahtlose Größenanpassung bei Fensteränderungen, ohne aktive Noten zu unterbrechen.
 - **🍎 iOS / iPadOS Safari CoreAudio Kickstart:** Zuverlässige Hardware-Entsperrung des Audio-Outputs via 1-Sample-Silent-Buffer beim ersten Touch- oder Tastenanschlag.
-- **🔄 Resilientes Unlock-Handling:** Unlock-Listener bleiben aktiv, bis der `AudioContext` verifiziert den Status `running` erreicht hat (keine Notenaussetzer mehr nach Hardware-Keyboard-Eingaben).
-- **👆 Interaktiver Audio-Status-Badge (Tap-to-Activate):** Der `AUDIO ENGINE`-Badge im Header zeigt den echten Zustand an und kann bei Audio-Unterbrechungen (z. B. nach App-Wechsel auf dem iPad) direkt angetippt werden.
-- **👁️ Automatischer Re-Resume bei Tab-Rückkehr:** Nahtlose Reaktivierung der Audio-Engine bei Rückkehr aus dem Hintergrund (`visibilitychange`).
 
 ---
 
