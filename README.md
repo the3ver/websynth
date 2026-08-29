@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.2-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.3-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,13 +10,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.2: Mobile PWA Polish & Glissando-Präzision
-- **📱 Pull-to-Refresh Deaktivierung:** Kein versehentliches Neuladen beim Wischen auf Smartphones und in der installierten PWA dank `overscroll-behavior: none`.
-- **🔄 Hard-Reload Button:** Neuer Header-Button zur manuellen Cache-Aktualisierung und schnellen Fehlerbehebung.
-- **🎹 Mobile Portrait Safe-Area:** Großzügiges Polster am Displayrand, sodass die gesamte Klaviatur und das Gehäuse 100% sichtbar und erreichbar sind.
-- **🔄 Mobile Landscape Scrolling:** Volle vertikale Scrollbarkeit im Querformat mit kompakter Header-Toolbar und angepasster Tastenhöhe.
-- **🎚️ Volle ADSR-Modulhöhe:** Hüllkurven-Fader nutzen die gesamte vertikale Höhe der Nachbarmodule für millimetergenaue Attack/Decay/Sustain/Release-Steuerung.
-- **⚡ Bulletproof Glissando:** Fließendes Key-Swipen ohne Hängenbleiben der ersten Taste bei Maus- und Touchbedienung.
+### ⚡ NEU in v1.7.3: RETROBEAT D-909 Drum Rack Layout & Level Slider Fit
+- **🥁 Drum Master Bar Flex-Wrap & Level-Fader Fit:** Der Master-Level-Schieberegler und Prozent-Readout sind nun logisch in der Hauptsteuerleiste positioniert und bleiben auf allen Bildschirmgrößen 100% im Sichtfeld ohne horizontales Scrollen.
+- **🎛️ Sound Tweak Strip 9-Voice Alignment:** Alle 9 Regler (5 Drum-Stimmen + 4 303-Bass-Parameter inkl. WAVE-Toggle) bilden ein bündiges, einzeiliges Rack ohne Umbrüche.
+- **📱 Mobile Drawer Fluid Layout:** Vollständig responsive Schieberegler und Preset-Wahl im Drum-Rack-Drawer.
 
 ---
 

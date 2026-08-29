@@ -199,7 +199,10 @@ class DrumUI {
     // Master Volume
     if (this.volumeSlider) {
       this.volumeSlider.addEventListener('input', (e) => {
-        this.drum.setVolume(parseFloat(e.target.value));
+        const val = parseFloat(e.target.value);
+        this.drum.setVolume(val);
+        const readout = document.getElementById('drumVolReadout');
+        if (readout) readout.textContent = `${Math.round(val * 100)}%`;
       });
       this.volumeSlider.addEventListener('change', (e) => e.target.blur());
     }

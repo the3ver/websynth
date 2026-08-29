@@ -131,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.7.2</span>
+          <span class="version-tag">v1.7.3</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1048,6 +1048,15 @@ window.addEventListener('DOMContentLoaded', () => {
           <input type="range" id="drumSwingKnob" min="0" max="0.65" step="0.01" value="0" class="drum-mini-slider">
         </div>
 
+        <!-- Master Drum Volume -->
+        <div class="drum-control-pod drum-vol-pod">
+          <div class="pod-label-row">
+            <span class="drum-mini-label">LEVEL</span>
+            <span class="drum-mini-val" id="drumVolReadout">85%</span>
+          </div>
+          <input type="range" id="drumVolumeSlider" min="0" max="1" step="0.01" value="0.85" class="drum-mini-slider">
+        </div>
+
         <!-- Kit / Pattern Preset Selector -->
         <div class="drum-preset-unit">
           <span class="drum-mini-label">KIT & PATTERN</span>
@@ -1056,12 +1065,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
         <!-- Pattern Clear -->
         <button class="btn-mini drum-clear-btn" id="drumClearBtn" title="Aktuelles Pattern löschen">CLR</button>
-
-        <!-- Master Drum Volume -->
-        <div class="drum-control-pod drum-vol-pod">
-          <span class="drum-mini-label">LEVEL</span>
-          <input type="range" id="drumVolumeSlider" min="0" max="1" step="0.01" value="0.85" class="drum-mini-slider">
-        </div>
       </div>
 
       <!-- Sound Tweak Strip (Analog Voice Dials) -->
@@ -1225,11 +1228,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.7.2</span>
+            <span class="release-version-number">v1.7.3</span>
             <span class="release-date-tag">August 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Mobile PWA Polish • Pull-to-Refresh Block, Full-Height ADSR Faders & Glissando Fix</p>
+          <p class="modal-subtitle">RETROBEAT D-909 Drum Rack Layout Polish • Level Slider & Sound Tweak Strip Fit</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>

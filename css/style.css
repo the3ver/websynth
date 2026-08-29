@@ -3105,7 +3105,7 @@ body {
   right: 0;
   bottom: 0;
   width: 720px;
-  max-width: 96vw;
+  max-width: 100vw;
   background: #11131a;
   border-left: 2px solid #2e3444;
   z-index: 95;
@@ -3126,9 +3126,12 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 16px 20px;
-  gap: 14px;
+  overflow-x: hidden;
+  padding: 12px 14px 60px 14px;
+  padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 30px));
+  gap: 12px;
   background: radial-gradient(circle at 80% 20%, #1a1e2b 0%, #101218 100%);
+  box-sizing: border-box;
 }
 
 /* Rack Header & Screws */
@@ -3138,7 +3141,7 @@ body {
   align-items: center;
   justify-content: space-between;
   border-bottom: 2px solid #242938;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
 
 .rack-mount-screw {
@@ -3155,7 +3158,7 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 10px;
+  padding: 0 8px;
 }
 
 .drum-logo-group {
@@ -3165,34 +3168,34 @@ body {
 
 .drum-logo-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   color: #ff9900;
   text-shadow: 0 0 12px rgba(255, 153, 0, 0.35);
 }
 
 .drum-logo-sub {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   color: #8c95a8;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .drum-status-cluster {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .drum-sync-btn {
   background: #1c202d;
   border: 1px solid rgba(0, 229, 255, 0.3);
   color: var(--led-cyan);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
@@ -3229,28 +3232,32 @@ body {
 .drum-master-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
   background: #151822;
   border: 1px solid #282e3f;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .drum-transport-btn {
   background: linear-gradient(180deg, #242938 0%, #171a24 100%);
   border: 1px solid rgba(255, 157, 0, 0.5);
   color: #ffb84d;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 6px;
   font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .drum-transport-btn:hover {
@@ -3269,15 +3276,16 @@ body {
 .drum-tempo-unit {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .drum-mini-label {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
   color: #8c95a8;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .drum-bpm-box {
@@ -3293,10 +3301,10 @@ body {
   background: #1c202d;
   border: none;
   color: #cbd3e6;
-  padding: 3px 7px;
+  padding: 3px 6px;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .bpm-step-btn:hover {
@@ -3305,12 +3313,12 @@ body {
 }
 
 .drum-bpm-input {
-  width: 44px;
+  width: 38px;
   background: transparent;
   border: none;
   color: var(--led-amber);
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-align: center;
   outline: none;
@@ -3320,10 +3328,10 @@ body {
   background: #1c202d;
   border: 1px solid #333d52;
   color: #cbd3e6;
-  padding: 4px 8px;
+  padding: 4px 7px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   cursor: pointer;
 }
 
@@ -3336,7 +3344,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 68px;
+  min-width: 54px;
+  flex-shrink: 0;
   box-sizing: border-box;
 }
 
@@ -3351,14 +3360,14 @@ body {
 
 .drum-mini-val {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: var(--led-amber);
   line-height: 1;
 }
 
 .drum-mini-slider {
   width: 100% !important;
-  max-width: 72px;
+  max-width: 68px;
   height: 4px;
   accent-color: var(--led-amber);
   cursor: pointer;
@@ -3371,30 +3380,35 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
+  flex: 1 1 130px;
+  min-width: 110px;
+  box-sizing: border-box;
 }
 
 .drum-styled-select {
   background: #0e1017;
   border: 1px solid #333d52;
   color: #cbd3e6;
-  padding: 5px 8px;
+  padding: 4px 6px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   outline: none;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .drum-clear-btn {
   background: rgba(255, 51, 102, 0.1);
   border: 1px solid rgba(255, 51, 102, 0.3);
   color: #ff3366;
-  padding: 4px 8px;
+  padding: 4px 7px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .drum-clear-btn:hover {
@@ -3402,16 +3416,45 @@ body {
   color: #ffffff;
 }
 
+.drum-vol-pod {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 56px;
+  flex-shrink: 0;
+}
+
 .drum-vol-pod .drum-mini-slider {
-  width: 60px;
+  width: 56px;
+  max-width: 100%;
   accent-color: var(--led-cyan);
+}
+
+@media (max-width: 640px) {
+  .drum-master-bar {
+    gap: 6px 8px;
+    padding: 6px 8px;
+  }
+
+  .drum-preset-unit {
+    flex: 1 1 100%;
+    order: 10;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .drum-sound-tweak-strip {
+    grid-template-columns: repeat(auto-fit, minmax(56px, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px 8px !important;
+  }
 }
 
 /* Sound Tweak Strip */
 .drum-sound-tweak-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 6px 8px;
   background: #141720;
   border: 1px solid #242938;
   border-radius: 6px;
