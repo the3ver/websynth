@@ -23,6 +23,10 @@ const phonePortraitShot = path.join(screenshotsDir, 'screenshot-phone-portrait.p
 console.log('1. Capturing desktop screenshot (1440x920)...');
 execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=1440,920 --screenshot="${desktopShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
 
+const ipadShot = path.join(screenshotsDir, 'screenshot-ipad.png');
+console.log('1b. Capturing iPad landscape screenshot (1024x768)...');
+execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=1024,768 --screenshot="${ipadShot}" "${fileUrl}#synth"`, { stdio: 'inherit' });
+
 console.log('2. Capturing mobile screenshot (750x1334)...');
 execSync(`"${CHROME_PATH}" --headless=new --disable-gpu --window-size=750,1334 --screenshot="${mobileShot}" "${fileUrl}#drums"`, { stdio: 'inherit' });
 

@@ -42,11 +42,11 @@
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Dimensions */
-  --header-height: 56px;
+  --header-height: 48px;
   --white-key-width: 42px;
-  --white-key-height: 175px;
+  --white-key-height: 118px;
   --black-key-width: 26px;
-  --black-key-height: 112px;
+  --black-key-height: 75px;
 }
 
 /* Reset & Box Sizing */
@@ -106,13 +106,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 16px;
   background: rgba(18, 20, 26, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  margin-bottom: 24px;
+  margin-bottom: 4px;
 }
 
 .header-left, .header-right {
@@ -377,9 +377,9 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 28px;
+  gap: 20px;
   margin-top: auto;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   position: relative;
 }
 
@@ -388,19 +388,19 @@ body {
    -------------------------------------------------------------------------- */
 .studio-monitor {
   position: relative;
-  width: 170px;
+  width: 140px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .speaker-cabinet {
   width: 100%;
-  height: 320px;
+  height: 250px;
   background: linear-gradient(175deg, #1c1e24 0%, #101115 100%);
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid #2e323e;
   box-shadow: 
     inset 0 1px 2px rgba(255, 255, 255, 0.15),
@@ -409,45 +409,45 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 12px;
+  padding: 12px 8px;
   position: relative;
 }
 
 .speaker-screw {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #4a5060, #1b1d24);
   box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.8);
 }
-.speaker-screw.top-left { top: 10px; left: 10px; }
-.speaker-screw.top-right { top: 10px; right: 10px; }
-.speaker-screw.bottom-left { bottom: 10px; left: 10px; }
-.speaker-screw.bottom-right { bottom: 10px; right: 10px; }
+.speaker-screw.top-left { top: 8px; left: 8px; }
+.speaker-screw.top-right { top: 8px; right: 8px; }
+.speaker-screw.bottom-left { bottom: 8px; left: 8px; }
+.speaker-screw.bottom-right { bottom: 8px; right: 8px; }
 
 .speaker-brand {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #8c93a4;
-  letter-spacing: 1.5px;
-  margin-bottom: 10px;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
   text-align: center;
 }
 
 .speaker-brand .sub-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.46rem;
   color: #555b6a;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 /* Tweeter */
 .tweeter-housing {
-  width: 58px;
-  height: 58px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: radial-gradient(circle, #15171d 0%, #0a0b0e 100%);
   border: 2px solid #282c37;
@@ -455,13 +455,13 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 2px 4px rgba(255,255,255,0.05);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   position: relative;
 }
 
 .silk-dome {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #2a2e3a 0%, #0d0e12 85%);
   box-shadow: 0 0 4px rgba(0,0,0,0.8);
@@ -469,11 +469,11 @@ body {
 
 /* Woofer */
 .woofer-housing {
-  width: 120px;
-  height: 120px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background: radial-gradient(circle, #0e1014 0%, #1a1c24 100%);
-  border: 4px solid var(--speaker-rim);
+  border: 3px solid var(--speaker-rim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -482,8 +482,8 @@ body {
 }
 
 .woofer-rim {
-  width: 106px;
-  height: 106px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   background: #14161d;
   display: flex;
@@ -492,8 +492,8 @@ body {
 }
 
 .woofer-cone {
-  width: 92px;
-  height: 92px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, var(--speaker-cone-dark) 0%, var(--speaker-cone-gold) 60%, #855500 100%);
   box-shadow: 
@@ -512,8 +512,8 @@ body {
 }
 
 .dust-cap {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 40%, #20222a 0%, #090a0d 90%);
   box-shadow: 0 1px 4px rgba(0,0,0,0.8);
@@ -647,7 +647,7 @@ body {
 
 /* Top Control Panel Area */
 .synth-top-panel {
-  padding: 10px 16px 8px 16px;
+  padding: 6px 14px 6px 14px;
   background: linear-gradient(180deg, #161820 0%, #111319 100%);
   border-bottom: 2px solid #232734;
 }
@@ -657,10 +657,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  height: 34px;
-  padding-bottom: 4px;
+  height: 28px;
+  padding-bottom: 3px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .synth-logo-badge {
@@ -674,9 +674,9 @@ body {
 .badge-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   line-height: 1;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   color: #ffffff;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
   white-space: nowrap;
@@ -684,10 +684,10 @@ body {
 
 .badge-tech {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   line-height: 1;
   color: #7d8495;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   white-space: nowrap;
 }
 
@@ -722,15 +722,15 @@ body {
 .modular-control-surface {
   display: grid;
   grid-template-columns: 1.55fr 0.95fr 1.15fr 1.15fr 0.95fr 1.1fr;
-  gap: 10px;
-  min-height: 185px;
+  gap: 6px;
+  min-height: 150px;
 }
 
 .module-bay {
   background: #0f1016;
   border: 1px dashed rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 8px;
+  border-radius: 5px;
+  padding: 5px 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -755,13 +755,13 @@ body {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   font-weight: 700;
   color: #9299a9;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 4px;
-  margin-bottom: 6px;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .module-led {
@@ -926,13 +926,13 @@ body {
   display: flex;
   flex-direction: column;
   background: #0c0d12;
-  padding: 6px 16px 8px 16px;
-  gap: 8px;
+  padding: 4px 14px 6px 14px;
+  gap: 4px;
 }
 
 .keyboard-performance-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: stretch;
 }
 
@@ -941,33 +941,33 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 130px;
+  width: 110px;
   background: #14161e;
   border: 1px solid #232734;
   border-radius: 6px;
-  padding: 10px 8px;
+  padding: 6px 6px;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
 }
 
 .wheel-section {
   display: flex;
   justify-content: space-around;
-  gap: 8px;
+  gap: 6px;
 }
 
 .wheel-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .wheel-housing {
-  width: 32px;
-  height: 80px;
+  width: 26px;
+  height: 56px;
   background: #08090d;
   border: 1px solid #1e222d;
-  border-radius: 4px;
+  border-radius: 3px;
   box-shadow: inset 0 4px 10px rgba(0,0,0,0.95);
   display: flex;
   align-items: center;
@@ -977,8 +977,8 @@ body {
 }
 
 .wheel {
-  width: 24px;
-  height: 70px;
+  width: 20px;
+  height: 48px;
   background: linear-gradient(180deg, #1e212b 0%, #353b4d 50%, #1e212b 100%);
   border-radius: 2px;
   cursor: ns-resize;
@@ -991,7 +991,7 @@ body {
   left: 2px;
   right: 2px;
   top: 50%;
-  height: 3px;
+  height: 2.5px;
   background: var(--led-amber);
   transform: translateY(-50%);
   border-radius: 1px;
@@ -1000,18 +1000,18 @@ body {
 
 .wheel-label {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   color: #798192;
   font-weight: 700;
 }
 
 .control-sublabel {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.5rem;
   color: #636a7a;
   text-align: center;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   font-weight: 700;
 }
 
@@ -1024,17 +1024,17 @@ body {
 .octave-button-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .octave-btn {
-  width: 26px;
-  height: 24px;
+  width: 24px;
+  height: 20px;
   background: #202430;
   border: 1px solid #363c4e;
   color: #e0e5f0;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
   border-radius: 3px;
   cursor: pointer;
@@ -1251,11 +1251,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 16px;
+  padding: 3px 14px;
   background: #0e0f14;
   border-top: 1px solid #1a1d26;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.54rem;
   color: #636b7d;
 }
 
@@ -1275,7 +1275,7 @@ body {
 
 /* Desk Edge */
 .studio-desk-edge {
-  height: 24px;
+  height: 16px;
   background: linear-gradient(180deg, var(--desk-wood-highlight) 0%, var(--desk-wood) 100%);
   border-top: 1px solid #5a3725;
   border-radius: 4px;
@@ -1737,7 +1737,7 @@ body {
 .vco-subgrid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   height: 100%;
 }
 
@@ -1745,10 +1745,10 @@ body {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
-  padding: 6px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .vco-section-header {
@@ -1756,34 +1756,34 @@ body {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   font-weight: 700;
   color: #a8b0c2;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .vco-section-header .tag {
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   color: var(--led-amber);
   background: rgba(255, 157, 0, 0.1);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: 2px;
 }
 
 /* Waveform Selector Buttons */
 .wave-btn-row {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   justify-content: center;
   background: #090a0e;
-  padding: 3px;
+  padding: 2px;
   border-radius: 4px;
   border: 1px solid #1c202a;
 }
 
 .wave-btn {
   flex: 1;
-  height: 24px;
+  height: 20px;
   background: #141720;
   border: 1px solid #282d3b;
   border-radius: 3px;
@@ -1797,8 +1797,8 @@ body {
 }
 
 .wave-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   stroke: currentColor;
   transition: stroke 0.15s;
 }
@@ -1833,13 +1833,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   position: relative;
 }
 
 .synth-knob-housing {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, #0d0f14 0%, #161922 100%);
   border: 1.5px solid #2c3242;
@@ -1856,8 +1856,8 @@ body {
 }
 
 .synth-knob-dial {
-  width: 28px;
-  height: 28px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #464e63 0%, #202430 70%, #13151d 100%);
   border: 1px solid #5a647d;
@@ -1873,7 +1873,7 @@ body {
   top: 2px;
   left: 50%;
   width: 2px;
-  height: 9px;
+  height: 7px;
   background: var(--led-amber);
   transform: translateX(-50%);
   border-radius: 1px;
@@ -1882,7 +1882,7 @@ body {
 
 .knob-dial-center {
   position: absolute;
-  inset: 6px;
+  inset: 5px;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 40%, #2d3342 0%, #11131a 100%);
   border: 1px solid #1a1e28;
@@ -1890,26 +1890,26 @@ body {
 
 .knob-label-text {
   font-family: var(--font-mono);
-  font-size: 0.54rem;
+  font-size: 0.5rem;
   font-weight: 700;
   color: #798296;
   text-align: center;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   line-height: 1;
-  margin-top: 2px;
+  margin-top: 1px;
   white-space: nowrap;
 }
 
 .knob-readout-badge {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 700;
   color: var(--led-amber);
   background: #090b10;
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: 2px;
   border: 1px solid rgba(255, 157, 0, 0.25);
-  min-width: 28px;
+  min-width: 26px;
   text-align: center;
   line-height: 1;
   margin-top: 1px;
@@ -1921,14 +1921,14 @@ body {
   align-items: center;
   justify-content: space-between;
   background: #0b0c10;
-  padding: 3px 6px;
+  padding: 2px 5px;
   border-radius: 3px;
   border: 1px solid #1a1d26;
 }
 
 .mini-switch-label {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 700;
   color: #7e879b;
 }
@@ -1940,12 +1940,12 @@ body {
 
 .sub-oct-btn {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.48rem;
   font-weight: 700;
   background: #141720;
   border: 1px solid #252a38;
   color: #727a8c;
-  padding: 2px 5px;
+  padding: 1px 4px;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -1959,12 +1959,12 @@ body {
 
 .sync-toggle-btn {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 700;
   background: #141720;
   border: 1px solid #252a38;
   color: #727a8c;
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.15s;
@@ -1981,32 +1981,32 @@ body {
    LARGE VCF FILTER KNOBS & FILTER MODE SELECTOR
    -------------------------------------------------------------------------- */
 .synth-knob-housing.large {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border: 2px solid rgba(255, 157, 0, 0.35);
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(255, 157, 0, 0.15);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.95), 0 0 10px rgba(255, 157, 0, 0.15);
 }
 
 .synth-knob-housing.large:hover {
   border-color: var(--led-amber);
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.95), 0 0 18px var(--led-amber-glow);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.95), 0 0 16px var(--led-amber-glow);
 }
 
 .synth-knob-dial.large-dial {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   background: radial-gradient(circle at 35% 35%, #565f77 0%, #252a38 70%, #151821 100%);
   border: 1.5px solid #6b7794;
 }
 
 .synth-knob-dial.large-dial .knob-pointer {
-  height: 12px;
-  width: 2.5px;
+  height: 10px;
+  width: 2px;
   top: 2px;
 }
 
 .synth-knob-dial.large-dial .knob-dial-center {
-  inset: 8px;
+  inset: 6px;
 }
 
 .knob-label-text.highlight {
@@ -2015,30 +2015,30 @@ body {
 }
 
 .knob-readout-badge.large {
-  min-width: 46px;
-  font-size: 0.56rem;
+  min-width: 40px;
+  font-size: 0.52rem;
   border-color: rgba(255, 157, 0, 0.4);
 }
 
 /* Filter Mode Buttons */
 .filter-mode-row {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   justify-content: center;
   background: #090a0e;
-  padding: 3px;
+  padding: 2px;
   border-radius: 4px;
   border: 1px solid #1c202a;
 }
 
 .filter-mode-btn {
   flex: 1;
-  height: 22px;
+  height: 20px;
   background: #141720;
   border: 1px solid #282d3b;
   border-radius: 3px;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.5rem;
   font-weight: 700;
   color: #6a7488;
   cursor: pointer;
@@ -2068,22 +2068,22 @@ body {
    -------------------------------------------------------------------------- */
 .env-tab-group {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   background: #090a0e;
-  padding: 3px;
+  padding: 2px;
   border-radius: 4px;
   border: 1px solid #1c202a;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .env-tab-btn {
   flex: 1;
-  height: 22px;
+  height: 20px;
   background: #141720;
   border: 1px solid #282d3b;
   border-radius: 3px;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.5rem;
   font-weight: 700;
   color: #6a7488;
   cursor: pointer;
@@ -2110,7 +2110,7 @@ body {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
-  padding: 6px 2px;
+  padding: 4px 2px;
   gap: 2px;
 }
 
@@ -2118,14 +2118,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   position: relative;
   flex: 1;
 }
 
 .synth-fader-track-housing {
-  width: 22px;
-  height: 72px;
+  width: 20px;
+  height: 56px;
   background: #08090d;
   border: 1px solid #1f232e;
   border-radius: 3px;
@@ -2138,8 +2138,8 @@ body {
 
 .synth-fader-groove {
   position: absolute;
-  top: 6px;
-  bottom: 6px;
+  top: 4px;
+  bottom: 4px;
   width: 4px;
   background: #040507;
   border-radius: 2px;
@@ -2151,8 +2151,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: 50%; /* Positioned dynamically via JS bottom% */
-  width: 18px;
-  height: 10px;
+  width: 16px;
+  height: 9px;
   background: linear-gradient(180deg, #4d5568 0%, #2b303d 50%, #171a22 100%);
   border: 1px solid #5d677e;
   border-radius: 2px;
@@ -2179,24 +2179,24 @@ body {
 
 .fader-label-text {
   font-family: var(--font-mono);
-  font-size: 0.54rem;
+  font-size: 0.5rem;
   font-weight: 700;
   color: #798296;
   text-align: center;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   line-height: 1;
 }
 
 .fader-readout-badge {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.48rem;
   font-weight: 700;
   color: var(--led-cyan);
   background: #090b10;
   padding: 1px 2px;
   border-radius: 2px;
   border: 1px solid rgba(0, 229, 255, 0.25);
-  min-width: 26px;
+  min-width: 24px;
   text-align: center;
   line-height: 1;
 }
@@ -2650,11 +2650,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   background: #0e1117;
   border-top: 1px solid #1c2230;
   border-bottom: 2px solid #080a0e;
-  padding: 4px 14px;
+  padding: 3px 10px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
@@ -2662,17 +2662,17 @@ body {
 .arp-timing-cluster {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .arp-toggle-btn {
-  height: 24px;
-  padding: 0 8px;
+  height: 20px;
+  padding: 0 6px;
   background: #141822;
   border: 1px solid #283348;
   border-radius: 3px;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   font-weight: 800;
   color: #7b88a3;
   cursor: pointer;
@@ -2704,23 +2704,23 @@ body {
 
 .arp-tiny-label {
   font-family: var(--font-mono);
-  font-size: 0.46rem;
+  font-size: 0.44rem;
   font-weight: 800;
   color: #63708a;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   line-height: 1;
 }
 
 .arp-styled-select {
-  height: 22px;
+  height: 19px;
   background: #131722;
   border: 1px solid #283348;
   border-radius: 2px;
   color: var(--led-cyan);
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.54rem;
   font-weight: 700;
-  padding: 0 3px;
+  padding: 0 2px;
   outline: none;
   cursor: pointer;
 }
@@ -2733,21 +2733,21 @@ body {
 .arp-micro-knob {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid #1c2230;
   border-radius: 3px;
-  padding: 2px 6px;
+  padding: 1px 4px;
   box-sizing: border-box;
 }
 
 .arp-micro-knob .synth-knob-housing {
-  width: 22px !important;
-  height: 22px !important;
-  min-width: 22px !important;
-  min-height: 22px !important;
-  max-width: 22px !important;
-  max-height: 22px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
   aspect-ratio: 1 / 1 !important;
   border-radius: 50% !important;
   flex-shrink: 0 !important;
@@ -2756,25 +2756,25 @@ body {
 }
 
 .arp-micro-knob .synth-knob-dial {
-  width: 16px !important;
-  height: 16px !important;
-  min-width: 16px !important;
-  min-height: 16px !important;
-  max-width: 16px !important;
-  max-height: 16px !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
   aspect-ratio: 1 / 1 !important;
   border-radius: 50% !important;
   box-sizing: border-box !important;
 }
 
 .arp-micro-knob .knob-pointer {
-  height: 5px !important;
+  height: 4px !important;
   width: 1.5px !important;
   top: 1px !important;
 }
 
 .arp-micro-knob .knob-dial-center {
-  inset: 3px !important;
+  inset: 2.5px !important;
   border-radius: 50% !important;
 }
 
@@ -2786,7 +2786,7 @@ body {
 
 .arp-badge {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   font-weight: 800;
   color: var(--led-amber);
   line-height: 1;
@@ -2795,17 +2795,17 @@ body {
 /* 16-Step Sequencer Grid */
 .arp-step-grid {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   align-items: center;
   background: #080a0e;
-  padding: 3px 6px;
+  padding: 2px 4px;
   border-radius: 4px;
   border: 1px solid #181d28;
 }
 
 .arp-step-btn {
-  width: 18px;
-  height: 26px;
+  width: 16px;
+  height: 21px;
   background: #141822;
   border: 1px solid #252e42;
   border-radius: 2px;
@@ -2813,7 +2813,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 1px;
+  padding: 1.5px 1px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-sizing: border-box;
