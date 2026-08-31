@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.5-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.6-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,10 +10,11 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.5: Mobile Portrait Carousel & Fixed Master/Keybed Bar
-- **🎛️ Fixierte Leisten oben & unten:** Master-Toolbar, Preset-LCD & 3-Tab-Leiste oben sowie 16-Step Arpeggiator & Klaviatur unten bleiben im Smartphone-Hochformat permanent sichtbar und spielbereit.
-- **📱 Horizontales Modul-Karussell:** Durch seitliches Wischen mit dem Finger rotieren die Synth-Sektionen (`[ OSC & MIX ]`, `[ VCF & LFO ]`, `[ ENV & FX ]`) butterweich mit nativer CSS Hardware-Beschleunigung.
-- **🔒 100% Viewport-Locking:** Verhindert vertikales Bouncen oder versehentliches Neuladen der Seite beim Scrollen auf Touch-Geräten.
+### ⚡ NEU in v1.7.6: Mobile Landscape Carousel, Fluid Desktop Toolbar & iPad Symmetry
+- **📱 Smartphone Landscape Karussell:** Volle Bildschirmbreite im Querformat mit permanent fixierter Header- & Tab-Leiste oben sowie 16-Step Arpeggiator & Klaviatur unten.
+- **🖥️ Strikte Desktop-Gerätetrennung:** Desktop-PCs und portable 1080p-Monitore bleiben bei jeder Zoomstufe (100%/125%/150%) im vollen Studio-Layout mit Studio-Boxen.
+- **🎛️ Fluide Toolbar:** Dynamisch skalierende Toolbar-Abstände und Breakpoints verhindern das Abschneiden von Buttons auf kleineren Bildschirmen.
+- **🪵 iPad & Tablet Symmetrie:** Auf Tablets (< 1200px) ist die Synth-Einheit mit beiden Holzbacken symmetrisch zentriert – 0px Scrollen im PWA-Modus.
 
 ---
 
