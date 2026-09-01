@@ -1,6 +1,6 @@
 {
   "name": "retrovox-sub1-websynth",
-  "version": "1.7.7",
+  "version": "1.8.0",
   "description": "RETROVOX SUB-1 & RETROBEAT D-909 Analog Web Synthesizer Studio & Drum Studio built with HTML5, Vanilla CSS, and Web Audio / Web MIDI API.",
   "main": "index.html",
   "scripts": {

@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.7-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.0-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,11 +10,11 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.7: Real-Time Audio-Rate PWM & Dual-VCO WaveShaper Engine
-- **🎛️ 4x-Oversampled WaveShaper PWM:** Analoge Sägezahn-zu-Puls-Transformation mit de-klickendem Tanh-Komparator für obertonreiche Juno- und Solina-Klanglandschaften.
-- **🔄 Dual-LFO Modulationsmatrix:** LFO 1 und LFO 2 modulieren die Pulsbreite von VCO 1 und VCO 2 kontinuierlich in Echtzeit (PWM-Potis).
-- **⏱️ Sample & Hold + Fade-In Support:** S&H-Zufallsmodulation und LFO-Delay greifen nahtlos auf die Pulsbreite über.
-- **📐 Manuelle Pulsbreitenjustierung:** Stufenloser statischer PW-Offset von 10% bis 90% für VCO 1.
+### ⚡ NEU in v1.8.0: Preset Manager In-Place Update & Poti-Ergonomie
+- **💾 In-Place Preset Update & Save-As-New:** Eigene Sounds mit `💾 Überschreiben` direkt in-place aktualisieren oder über `Als Neu speichern` Varianten abzweigen.
+- **🗑️ User-Preset Löschen:** Ungewollte User-Patches direkt aus dem Dialog sauber aus dem Browser-Speicher entfernen.
+- **📐 100% Circular Potentiometers:** Durch striktes `aspect-ratio: 1 / 1` bleiben alle Drehregler (VCF Cutoff, Resonance, Arp Timing) auf allen Viewports, Desktops und Mobile-Landscape-Ansichten perfekt kreisrund ohne Ellipsenverzerrung.
+- **⌨️ Keyboard Shortcuts:** <kbd>Enter</kbd> im Preset-Dialog speichert sofort, <kbd>Escape</kbd> schließt Dialoge.
 
 ---
 

@@ -47,11 +47,17 @@ class SynthUI {
     this.initPatchBtn = document.getElementById('initPatchBtn');
 
     this.savePresetModal = document.getElementById('savePresetModal');
+    this.savePresetModalTitle = document.getElementById('savePresetModalTitle');
+    this.savePresetModalDesc = document.getElementById('savePresetModalDesc');
     this.closeSaveModalBtn = document.getElementById('closeSaveModalBtn');
     this.cancelSavePresetBtn = document.getElementById('cancelSavePresetBtn');
+    this.saveAsNewPresetBtn = document.getElementById('saveAsNewPresetBtn');
     this.confirmSavePresetBtn = document.getElementById('confirmSavePresetBtn');
+    this.deleteCurrentPresetBtn = document.getElementById('deleteCurrentPresetBtn');
     this.userPresetNameInput = document.getElementById('userPresetNameInput');
     this.userPresetCategorySelect = document.getElementById('userPresetCategorySelect');
+    this.savePresetMode = 'create';
+    this.editingPresetId = null;
 
     // Arpeggiator & Sequencer Elements
     this.arpPowerBtn = document.getElementById('arpPowerBtn');
@@ -1108,9 +1114,46 @@ class SynthUI {
 
     if (this.savePresetBtn && this.savePresetModal) {
       this.savePresetBtn.addEventListener('click', () => {
-        this.userPresetNameInput.value = '';
+        const currentPreset = this.presetsList[this.currentPresetIndex];
+        const isUserPreset = currentPreset && currentPreset.id && currentPreset.id.startsWith('user-');
+
+        if (isUserPreset) {
+          if (this.savePresetModalTitle) this.savePresetModalTitle.textContent = 'USER-PRESET BEARBEITEN / SPEICHERN';
+          if (this.savePresetModalDesc) {
+            this.savePresetModalDesc.textContent = 'Möchtest du das bestehende User-Preset mit deinen Sound-Änderungen überschreiben oder als neues Preset ablegen?';
+          }
+          const cleanName = (currentPreset.name || '').replace(/^USER\s*\/\/\s*/i, '');
+          this.userPresetNameInput.value = cleanName;
+          this.userPresetCategorySelect.value = currentPreset.category || 'USER';
+          if (this.deleteCurrentPresetBtn) this.deleteCurrentPresetBtn.style.display = 'inline-flex';
+          if (this.saveAsNewPresetBtn) this.saveAsNewPresetBtn.style.display = 'inline-flex';
+          if (this.confirmSavePresetBtn) this.confirmSavePresetBtn.textContent = '💾 Überschreiben';
+          this.savePresetMode = 'update';
+          this.editingPresetId = currentPreset.id;
+        } else {
+          if (this.savePresetModalTitle) this.savePresetModalTitle.textContent = 'SOUND ALS PRESET SPEICHERN';
+          if (this.savePresetModalDesc) {
+            this.savePresetModalDesc.textContent = 'Gib deinem Custom-Preset einen Namen. Der Sound wird dauerhaft in deinem Browser gespeichert.';
+          }
+          const defaultName = (currentPreset && currentPreset.name && !currentPreset.id.includes('init'))
+            ? currentPreset.name.replace(/^\d+\s*\/\/\s*/, '') + ' (Custom)'
+            : '';
+          this.userPresetNameInput.value = defaultName;
+          this.userPresetCategorySelect.value = (currentPreset && currentPreset.category && currentPreset.category !== 'INIT')
+            ? currentPreset.category
+            : 'USER';
+          if (this.deleteCurrentPresetBtn) this.deleteCurrentPresetBtn.style.display = 'none';
+          if (this.saveAsNewPresetBtn) this.saveAsNewPresetBtn.style.display = 'none';
+          if (this.confirmSavePresetBtn) this.confirmSavePresetBtn.textContent = '💾 Speichern';
+          this.savePresetMode = 'create';
+          this.editingPresetId = null;
+        }
+
         this.savePresetModal.classList.add('active');
-        setTimeout(() => this.userPresetNameInput.focus(), 50);
+        setTimeout(() => {
+          this.userPresetNameInput.focus();
+          this.userPresetNameInput.select();
+        }, 50);
       });
     }
 
@@ -1126,12 +1169,53 @@ class SynthUI {
       });
     }
 
+    if (this.savePresetModal) {
+      this.savePresetModal.addEventListener('click', (e) => {
+        if (e.target === this.savePresetModal) {
+          this.savePresetModal.classList.remove('active');
+        }
+      });
+    }
+
+    if (this.userPresetNameInput) {
+      this.userPresetNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (this.confirmSavePresetBtn) this.confirmSavePresetBtn.click();
+        }
+      });
+    }
+
     if (this.confirmSavePresetBtn) {
       this.confirmSavePresetBtn.addEventListener('click', () => {
         const name = this.userPresetNameInput.value.trim() || 'My Custom Synth';
         const category = this.userPresetCategorySelect.value || 'USER';
+        if (this.savePresetMode === 'update' && this.editingPresetId) {
+          this.updateUserPreset(this.editingPresetId, name, category);
+        } else {
+          this.saveCurrentUserPreset(name, category);
+        }
+        this.savePresetModal.classList.remove('active');
+      });
+    }
+
+    if (this.saveAsNewPresetBtn) {
+      this.saveAsNewPresetBtn.addEventListener('click', () => {
+        const name = this.userPresetNameInput.value.trim() || 'My Custom Synth';
+        const category = this.userPresetCategorySelect.value || 'USER';
         this.saveCurrentUserPreset(name, category);
         this.savePresetModal.classList.remove('active');
+      });
+    }
+
+    if (this.deleteCurrentPresetBtn) {
+      this.deleteCurrentPresetBtn.addEventListener('click', () => {
+        if (this.editingPresetId) {
+          const deleted = this.deleteUserPreset(this.editingPresetId);
+          if (deleted) {
+            this.savePresetModal.classList.remove('active');
+          }
+        }
       });
     }
   }
@@ -1161,6 +1245,42 @@ class SynthUI {
 
     this.refreshPresetsDropdown();
     this.applyPreset(newPreset);
+  }
+
+  updateUserPreset(id, name, category) {
+    const userPresets = this.loadUserPresets();
+    const idx = userPresets.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      userPresets[idx].name = `USER // ${name.toUpperCase()}`;
+      userPresets[idx].category = category;
+      userPresets[idx].state = this.engine.getPresetState();
+      try {
+        localStorage.setItem('retrovox_user_presets', JSON.stringify(userPresets));
+      } catch(e) {}
+
+      this.refreshPresetsDropdown();
+      this.applyPreset(userPresets[idx]);
+    } else {
+      this.saveCurrentUserPreset(name, category);
+    }
+  }
+
+  deleteUserPreset(id) {
+    const userPresets = this.loadUserPresets();
+    const target = userPresets.find(p => p.id === id);
+    const targetName = target ? (target.name || '').replace(/^USER\s*\/\/\s*/i, '') : 'dieses Preset';
+    if (!confirm(`Möchtest du das Preset "${targetName}" wirklich löschen?`)) {
+      return false;
+    }
+    const filtered = userPresets.filter(p => p.id !== id);
+    try {
+      localStorage.setItem('retrovox_user_presets', JSON.stringify(filtered));
+    } catch(e) {}
+
+    this.refreshPresetsDropdown();
+    const fallback = this.presetsList[0] || window.SYNTH_INIT_PRESET;
+    this.applyPreset(fallback);
+    return true;
   }
 
   refreshPresetsDropdown() {

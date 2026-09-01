@@ -1,10 +1,10 @@
 /**
  * RETROVOX SUB-1 & RETROBEAT D-909 • Progressive Web App Service Worker
- * Version: 1.7.7
+ * Version: 1.8.0
  * Provides 100% offline capability, app shell caching, and font asset caching.
  */
 
-const CACHE_VERSION = 'v1.7.7';
+const CACHE_VERSION = 'v1.8.0';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
