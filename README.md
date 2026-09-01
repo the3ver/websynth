@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.7.6-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.7.7-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,11 +10,11 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.7.6: Mobile Landscape Carousel, Fluid Desktop Toolbar & iPad Symmetry
-- **📱 Smartphone Landscape Karussell:** Volle Bildschirmbreite im Querformat mit permanent fixierter Header- & Tab-Leiste oben sowie 16-Step Arpeggiator & Klaviatur unten.
-- **🖥️ Strikte Desktop-Gerätetrennung:** Desktop-PCs und portable 1080p-Monitore bleiben bei jeder Zoomstufe (100%/125%/150%) im vollen Studio-Layout mit Studio-Boxen.
-- **🎛️ Fluide Toolbar:** Dynamisch skalierende Toolbar-Abstände und Breakpoints verhindern das Abschneiden von Buttons auf kleineren Bildschirmen.
-- **🪵 iPad & Tablet Symmetrie:** Auf Tablets (< 1200px) ist die Synth-Einheit mit beiden Holzbacken symmetrisch zentriert – 0px Scrollen im PWA-Modus.
+### ⚡ NEU in v1.7.7: Real-Time Audio-Rate PWM & Dual-VCO WaveShaper Engine
+- **🎛️ 4x-Oversampled WaveShaper PWM:** Analoge Sägezahn-zu-Puls-Transformation mit de-klickendem Tanh-Komparator für obertonreiche Juno- und Solina-Klanglandschaften.
+- **🔄 Dual-LFO Modulationsmatrix:** LFO 1 und LFO 2 modulieren die Pulsbreite von VCO 1 und VCO 2 kontinuierlich in Echtzeit (PWM-Potis).
+- **⏱️ Sample & Hold + Fade-In Support:** S&H-Zufallsmodulation und LFO-Delay greifen nahtlos auf die Pulsbreite über.
+- **📐 Manuelle Pulsbreitenjustierung:** Stufenloser statischer PW-Offset von 10% bis 90% für VCO 1.
 
 ---
 

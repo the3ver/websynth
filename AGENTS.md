@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.7.6), scripts & metadata
+├── package.json            # Versioning (v1.7.7), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -72,14 +72,13 @@ websynth/
 ### 1. 12-Voice Persistent Polyphonic Pool
 - **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances initialized on `AudioContext` startup.
 - **Voice Nodes**:
-  - `osc1` (Dual-VCO with bandlimited periodic wave PWM)
-  - `osc2` (Detune, Semitone offset, Hard-Sync)
+  - `osc1` & `osc2` (Dual-VCO with native Sine/Triangle/Sawtooth direct paths and 4x-oversampled WaveShaper audio-rate PWM)
   - `subOsc` (Sub-octave triangle wave)
   - `noiseGain` (White noise buffer input)
   - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
   - `vcf1` & `vcf2` (24dB/12dB cascaded Moog ladder filter with Q-staging)
   - `vca` (ADSR amplitude envelope gain stage)
-  - `lfoGains` (LFO1/LFO2 modulation routing nodes)
+  - `lfoGains` (LFO1/LFO2 modulation routing nodes for Pitch, VCF, PWM, and Amp)
 - **Lifecycle & LRU Voice Stealing**:
   - `noteOn(midiNote, velocity)` searches for an inactive voice in `this.voicePool`.
   - If all 12 voices are active, the voice with the oldest `timestamp` is stolen using a 2ms soft crossfade (`setTargetAtTime(0, now, 0.002)`).

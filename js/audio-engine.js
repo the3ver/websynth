@@ -30,6 +30,9 @@ class AudioEngine {
     this.noiseBuffer = null;
     this.sharedNoiseSource = null;
     this.sharedNoiseGain = null;
+    this.pwmCurve = null;
+    this.vco1PwOffset = null;
+    this.vco2PwOffset = null;
 
     // Dual-VCO Parameters
     this.vco1 = {
@@ -233,6 +236,20 @@ class AudioEngine {
       this.masterGain.connect(this.limiter);
       this.limiter.connect(this.ctx.destination);
 
+      // Pre-calculate PWM WaveShaper transfer curve
+      this.pwmCurve = this.createPWMShaperCurve();
+
+      // Static Pulse Width Offset Constant Sources
+      if (this.ctx.createConstantSource) {
+        this.vco1PwOffset = this.ctx.createConstantSource();
+        this.vco1PwOffset.offset.setValueAtTime((this.vco1.pulseWidth - 0.5) * 0.8, this.ctx.currentTime);
+        this.vco1PwOffset.start();
+
+        this.vco2PwOffset = this.ctx.createConstantSource();
+        this.vco2PwOffset.offset.setValueAtTime(0.0, this.ctx.currentTime);
+        this.vco2PwOffset.start();
+      }
+
       // Build Dual LFO Engines
       this.initLfoEngines();
 
@@ -277,27 +294,107 @@ class AudioEngine {
     for (let i = 0; i < count; i++) {
       // 1. Oscillators
       const osc1 = this.ctx.createOscillator();
-      if (this.vco1.wave === 'square' && Math.abs(this.vco1.pulseWidth - 0.5) > 0.02) {
-        osc1.setPeriodicWave(this.createPulsePeriodicWave(this.vco1.pulseWidth));
-      } else {
-        osc1.type = this.vco1.wave;
-      }
+      osc1.type = this.vco1.wave === 'square' ? 'sawtooth' : this.vco1.wave;
       osc1.frequency.setValueAtTime(440, now);
 
       const osc2 = this.ctx.createOscillator();
-      osc2.type = this.vco2.wave;
+      osc2.type = this.vco2.wave === 'square' ? 'sawtooth' : this.vco2.wave;
       osc2.frequency.setValueAtTime(440, now);
 
       const subOsc = this.ctx.createOscillator();
       subOsc.type = 'triangle';
       subOsc.frequency.setValueAtTime(220, now);
 
+      // VCO1 Dual-Path Routing (Direct for Saw/Tri/Sine, WaveShaper for Square/PWM)
+      const osc1DirectGain = this.ctx.createGain();
+      osc1DirectGain.gain.setValueAtTime(this.vco1.wave === 'square' ? 0.0 : 1.0, now);
+      osc1.connect(osc1DirectGain);
+
+      const osc1PwScale = this.ctx.createGain();
+      osc1PwScale.gain.setValueAtTime(0.4, now);
+      osc1.connect(osc1PwScale);
+
+      const pwInput1 = this.ctx.createGain();
+      pwInput1.gain.setValueAtTime(1.0, now);
+      osc1PwScale.connect(pwInput1);
+
+      if (this.vco1PwOffset) {
+        this.vco1PwOffset.connect(pwInput1);
+      }
+
+      const lfo1PwmGain1 = this.ctx.createGain();
+      lfo1PwmGain1.gain.setValueAtTime(this.lfo1.destinations.pwm * 0.35, now);
+      if (this.lfo1Gain) {
+        this.lfo1Gain.connect(lfo1PwmGain1);
+      }
+      lfo1PwmGain1.connect(pwInput1);
+
+      const lfo2PwmGain1 = this.ctx.createGain();
+      lfo2PwmGain1.gain.setValueAtTime(this.lfo2.destinations.pwm * 0.35, now);
+      if (this.lfo2Gain) {
+        this.lfo2Gain.connect(lfo2PwmGain1);
+      }
+      lfo2PwmGain1.connect(pwInput1);
+
+      const pwShaper1 = this.ctx.createWaveShaper();
+      pwShaper1.curve = this.pwmCurve;
+      pwShaper1.oversample = '4x';
+      pwInput1.connect(pwShaper1);
+
+      const osc1PulseGain = this.ctx.createGain();
+      osc1PulseGain.gain.setValueAtTime(this.vco1.wave === 'square' ? 1.0 : 0.0, now);
+      pwShaper1.connect(osc1PulseGain);
+
+      // VCO2 Dual-Path Routing (Direct for Saw/Tri/Sine, WaveShaper for Square/PWM)
+      const osc2DirectGain = this.ctx.createGain();
+      osc2DirectGain.gain.setValueAtTime(this.vco2.wave === 'square' ? 0.0 : 1.0, now);
+      osc2.connect(osc2DirectGain);
+
+      const osc2PwScale = this.ctx.createGain();
+      osc2PwScale.gain.setValueAtTime(0.4, now);
+      osc2.connect(osc2PwScale);
+
+      const pwInput2 = this.ctx.createGain();
+      pwInput2.gain.setValueAtTime(1.0, now);
+      osc2PwScale.connect(pwInput2);
+
+      if (this.vco2PwOffset) {
+        this.vco2PwOffset.connect(pwInput2);
+      }
+
+      const lfo1PwmGain2 = this.ctx.createGain();
+      lfo1PwmGain2.gain.setValueAtTime(this.lfo1.destinations.pwm * 0.35, now);
+      if (this.lfo1Gain) {
+        this.lfo1Gain.connect(lfo1PwmGain2);
+      }
+      lfo1PwmGain2.connect(pwInput2);
+
+      const lfo2PwmGain2 = this.ctx.createGain();
+      lfo2PwmGain2.gain.setValueAtTime(this.lfo2.destinations.pwm * 0.35, now);
+      if (this.lfo2Gain) {
+        this.lfo2Gain.connect(lfo2PwmGain2);
+      }
+      lfo2PwmGain2.connect(pwInput2);
+
+      const pwShaper2 = this.ctx.createWaveShaper();
+      pwShaper2.curve = this.pwmCurve;
+      pwShaper2.oversample = '4x';
+      pwInput2.connect(pwShaper2);
+
+      const osc2PulseGain = this.ctx.createGain();
+      osc2PulseGain.gain.setValueAtTime(this.vco2.wave === 'square' ? 1.0 : 0.0, now);
+      pwShaper2.connect(osc2PulseGain);
+
       // 2. Mixer Gains
       const osc1Gain = this.ctx.createGain();
       osc1Gain.gain.setValueAtTime(this.mixer.vco1Level, now);
+      osc1DirectGain.connect(osc1Gain);
+      osc1PulseGain.connect(osc1Gain);
 
       const osc2Gain = this.ctx.createGain();
       osc2Gain.gain.setValueAtTime(this.mixer.vco2Level, now);
+      osc2DirectGain.connect(osc2Gain);
+      osc2PulseGain.connect(osc2Gain);
 
       const subGain = this.ctx.createGain();
       subGain.gain.setValueAtTime(this.mixer.subLevel, now);
@@ -306,8 +403,6 @@ class AudioEngine {
       noiseGain.gain.setValueAtTime(this.mixer.noiseLevel, now);
 
       const voiceMixerBus = this.ctx.createGain();
-      osc1.connect(osc1Gain);
-      osc2.connect(osc2Gain);
       subOsc.connect(subGain);
       if (this.sharedNoiseGain) {
         this.sharedNoiseGain.connect(noiseGain);
@@ -391,10 +486,12 @@ class AudioEngine {
         baseFreq: 440,
         voiceCutoff: this.vcf.cutoff,
         osc1, osc2, subOsc,
+        osc1DirectGain, osc1PulseGain, pwShaper1,
+        osc2DirectGain, osc2PulseGain, pwShaper2,
         osc1Gain, osc2Gain, subGain, noiseGain,
         voiceMixerBus, driveShaper, vcf1, vcf2, vca, tremoloGain,
-        lfo1PitchGain, lfo1VcfGain, lfo1AmpGain,
-        lfo2PitchGain, lfo2VcfGain, lfo2AmpGain,
+        lfo1PitchGain, lfo1VcfGain, lfo1PwmGain1, lfo1PwmGain2, lfo1AmpGain,
+        lfo2PitchGain, lfo2VcfGain, lfo2PwmGain1, lfo2PwmGain2, lfo2AmpGain,
         cleanupTimer: null
       });
     }
@@ -445,6 +542,12 @@ class AudioEngine {
               if (voice.lfo1VcfGain) {
                 voice.lfo1VcfGain.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.vcf * 3600, now, 0.005);
               }
+              if (voice.lfo1PwmGain1) {
+                voice.lfo1PwmGain1.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.pwm * 0.35, now, 0.005);
+              }
+              if (voice.lfo1PwmGain2) {
+                voice.lfo1PwmGain2.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.pwm * 0.35, now, 0.005);
+              }
             }
           }
         }
@@ -463,6 +566,12 @@ class AudioEngine {
               }
               if (voice.lfo2VcfGain) {
                 voice.lfo2VcfGain.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.vcf * 3600, now, 0.005);
+              }
+              if (voice.lfo2PwmGain1) {
+                voice.lfo2PwmGain1.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.pwm * 0.35, now, 0.005);
+              }
+              if (voice.lfo2PwmGain2) {
+                voice.lfo2PwmGain2.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.pwm * 0.35, now, 0.005);
               }
             }
           }
@@ -641,6 +750,20 @@ class AudioEngine {
     }
 
     return this.ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+  }
+
+  /**
+   * Generates a steep analog comparator sigmoid curve for 4x-oversampled Pulse Width Modulation
+   */
+  createPWMShaperCurve() {
+    const n_samples = 2048;
+    const curve = new Float32Array(n_samples);
+    const k = 40;
+    for (let i = 0; i < n_samples; i++) {
+      const x = (i * 2) / (n_samples - 1) - 1;
+      curve[i] = Math.tanh(k * x);
+    }
+    return curve;
   }
 
   /**
@@ -862,6 +985,7 @@ class AudioEngine {
     const lfo1Fade = this.lfo1.fadeIn || 0;
     const pAmt1 = this.lfo1.destinations.pitch * 200;
     const vAmt1 = this.lfo1.destinations.vcf * 3600;
+    const pwmAmt1 = this.lfo1.destinations.pwm * 0.35;
     const aAmt1 = this.lfo1.destinations.amp * 0.45;
 
     if (lfo1Fade > 0.01) {
@@ -869,17 +993,28 @@ class AudioEngine {
       voice.lfo1PitchGain.gain.linearRampToValueAtTime(pAmt1, now + lfo1Fade);
       voice.lfo1VcfGain.gain.setValueAtTime(0, now);
       voice.lfo1VcfGain.gain.linearRampToValueAtTime(vAmt1, now + lfo1Fade);
+      if (voice.lfo1PwmGain1) {
+        voice.lfo1PwmGain1.gain.setValueAtTime(0, now);
+        voice.lfo1PwmGain1.gain.linearRampToValueAtTime(pwmAmt1, now + lfo1Fade);
+      }
+      if (voice.lfo1PwmGain2) {
+        voice.lfo1PwmGain2.gain.setValueAtTime(0, now);
+        voice.lfo1PwmGain2.gain.linearRampToValueAtTime(pwmAmt1, now + lfo1Fade);
+      }
       voice.lfo1AmpGain.gain.setValueAtTime(0, now);
       voice.lfo1AmpGain.gain.linearRampToValueAtTime(aAmt1, now + lfo1Fade);
     } else {
       voice.lfo1PitchGain.gain.setValueAtTime(pAmt1, now);
       voice.lfo1VcfGain.gain.setValueAtTime(vAmt1, now);
+      if (voice.lfo1PwmGain1) voice.lfo1PwmGain1.gain.setValueAtTime(pwmAmt1, now);
+      if (voice.lfo1PwmGain2) voice.lfo1PwmGain2.gain.setValueAtTime(pwmAmt1, now);
       voice.lfo1AmpGain.gain.setValueAtTime(aAmt1, now);
     }
 
     const lfo2Fade = this.lfo2.fadeIn || 0;
     const pAmt2 = this.lfo2.destinations.pitch * 200;
     const vAmt2 = this.lfo2.destinations.vcf * 3600;
+    const pwmAmt2 = this.lfo2.destinations.pwm * 0.35;
     const aAmt2 = this.lfo2.destinations.amp * 0.45;
 
     if (lfo2Fade > 0.01) {
@@ -887,11 +1022,21 @@ class AudioEngine {
       voice.lfo2PitchGain.gain.linearRampToValueAtTime(pAmt2, now + lfo2Fade);
       voice.lfo2VcfGain.gain.setValueAtTime(0, now);
       voice.lfo2VcfGain.gain.linearRampToValueAtTime(vAmt2, now + lfo2Fade);
+      if (voice.lfo2PwmGain1) {
+        voice.lfo2PwmGain1.gain.setValueAtTime(0, now);
+        voice.lfo2PwmGain1.gain.linearRampToValueAtTime(pwmAmt2, now + lfo2Fade);
+      }
+      if (voice.lfo2PwmGain2) {
+        voice.lfo2PwmGain2.gain.setValueAtTime(0, now);
+        voice.lfo2PwmGain2.gain.linearRampToValueAtTime(pwmAmt2, now + lfo2Fade);
+      }
       voice.lfo2AmpGain.gain.setValueAtTime(0, now);
       voice.lfo2AmpGain.gain.linearRampToValueAtTime(aAmt2, now + lfo2Fade);
     } else {
       voice.lfo2PitchGain.gain.setValueAtTime(pAmt2, now);
       voice.lfo2VcfGain.gain.setValueAtTime(vAmt2, now);
+      if (voice.lfo2PwmGain1) voice.lfo2PwmGain1.gain.setValueAtTime(pwmAmt2, now);
+      if (voice.lfo2PwmGain2) voice.lfo2PwmGain2.gain.setValueAtTime(pwmAmt2, now);
       voice.lfo2AmpGain.gain.setValueAtTime(aAmt2, now);
     }
 
@@ -1023,11 +1168,16 @@ class AudioEngine {
   setVCO1Wave(wave) {
     this.vco1.wave = wave;
     if (this.ctx && this.voicePool) {
+      const now = this.ctx.currentTime;
       for (const voice of this.voicePool) {
-        if (wave === 'square' && Math.abs(this.vco1.pulseWidth - 0.5) > 0.02) {
-          voice.osc1.setPeriodicWave(this.createPulsePeriodicWave(this.vco1.pulseWidth));
+        if (wave === 'square') {
+          voice.osc1.type = 'sawtooth';
+          if (voice.osc1DirectGain) voice.osc1DirectGain.gain.setTargetAtTime(0.0, now, 0.005);
+          if (voice.osc1PulseGain) voice.osc1PulseGain.gain.setTargetAtTime(1.0, now, 0.005);
         } else {
           voice.osc1.type = wave;
+          if (voice.osc1DirectGain) voice.osc1DirectGain.gain.setTargetAtTime(1.0, now, 0.005);
+          if (voice.osc1PulseGain) voice.osc1PulseGain.gain.setTargetAtTime(0.0, now, 0.005);
         }
       }
     }
@@ -1040,21 +1190,26 @@ class AudioEngine {
 
   setVCO1PW(pw) {
     this.vco1.pulseWidth = parseFloat(pw);
-    if (this.ctx && this.voicePool && this.vco1.wave === 'square') {
-      const pWave = this.createPulsePeriodicWave(this.vco1.pulseWidth);
-      for (const voice of this.voicePool) {
-        try {
-          voice.osc1.setPeriodicWave(pWave);
-        } catch(e) {}
-      }
+    if (this.vco1PwOffset && this.ctx) {
+      const offsetVal = (this.vco1.pulseWidth - 0.5) * 0.8;
+      this.vco1PwOffset.offset.setTargetAtTime(offsetVal, this.ctx.currentTime, 0.015);
     }
   }
 
   setVCO2Wave(wave) {
     this.vco2.wave = wave;
     if (this.ctx && this.voicePool) {
+      const now = this.ctx.currentTime;
       for (const voice of this.voicePool) {
-        voice.osc2.type = wave;
+        if (wave === 'square') {
+          voice.osc2.type = 'sawtooth';
+          if (voice.osc2DirectGain) voice.osc2DirectGain.gain.setTargetAtTime(0.0, now, 0.005);
+          if (voice.osc2PulseGain) voice.osc2PulseGain.gain.setTargetAtTime(1.0, now, 0.005);
+        } else {
+          voice.osc2.type = wave;
+          if (voice.osc2DirectGain) voice.osc2DirectGain.gain.setTargetAtTime(1.0, now, 0.005);
+          if (voice.osc2PulseGain) voice.osc2PulseGain.gain.setTargetAtTime(0.0, now, 0.005);
+        }
       }
     }
   }
@@ -1247,6 +1402,20 @@ class AudioEngine {
 
       case 'pwm':
         lfo.destinations.pwm = Math.max(0, Math.min(1, parseFloat(val)));
+        if (this.ctx && this.voicePool) {
+          const now = this.ctx.currentTime;
+          const amt = lfo.destinations.pwm * 0.35;
+          for (const voice of this.voicePool) {
+            const node1 = lfoNum === 2 ? voice.lfo2PwmGain1 : voice.lfo1PwmGain1;
+            const node2 = lfoNum === 2 ? voice.lfo2PwmGain2 : voice.lfo1PwmGain2;
+            if (node1) {
+              node1.gain.setTargetAtTime(amt, now, 0.02);
+            }
+            if (node2) {
+              node2.gain.setTargetAtTime(amt, now, 0.02);
+            }
+          }
+        }
         break;
 
       case 'amp':
