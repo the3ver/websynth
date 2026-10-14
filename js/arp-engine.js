@@ -127,7 +127,7 @@ class ArpEngine {
       }
     } else {
       if (this.heldKeys.length > 0) {
-        this.latchedKeys = this.heldKeys.map(k => k.midiNote);
+        this.latchedKeys = [...this.heldKeys];
       }
     }
   }

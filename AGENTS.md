@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.0), scripts & metadata
+├── package.json            # Versioning (v1.8.1), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -39,15 +39,19 @@ websynth/
 │   └── apple-touch-icon.png
 ├── css/
 │   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
-└── js/
-    ├── app.js              # Application entry, master power, volume & version manager
-    ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
-    ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-    ├── audio-engine.js     # Web Audio API Engine, 12-Voice Pool, VCF, LFO, FX Rack
-    ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
-    ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
-    ├── presets.js          # Factory Presets library & Patch state serialisation
-    └── synth-ui.js         # Rotary knobs, ADSR faders, CRT oscilloscope & MIDI handlers
+├── js/
+│   ├── app.js              # Application entry, master power, volume & version manager
+│   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
+│   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
+│   ├── audio-engine.js     # Web Audio API Engine, 12-Voice Pool, VCF, LFO, FX Rack
+│   ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
+│   ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
+│   ├── presets.js          # Factory Presets library & Patch state serialisation
+│   └── synth-ui.js         # Rotary knobs, ADSR faders, CRT oscilloscope & MIDI handlers
+└── test/
+    ├── helpers/
+    │   └── load-browser-script.js  # vm sandbox loader for js/ files
+    └── *.test.js           # node:test unit tests (npm test)
 ```
 
 ---
@@ -160,11 +164,16 @@ makeDistortionCurve(amount) {
 ## 🚀 Quality & Verification Checklist for Agents
 
 Before committing any modifications:
-1. Run syntax verification:
+1. Run syntax verification (`node -c` checks only one file per call):
    ```bash
-   node -c js/app.js js/pwa-manager.js js/audio-engine.js js/arp-engine.js js/presets.js js/synth-ui.js js/drum-engine.js js/drum-ui.js sw.js
+   for f in js/*.js sw.js; do node --check "$f" || echo "FAIL $f"; done
    ```
-2. Run automated headless visual screenshot suite:
+2. Run the unit tests (Node built-in test runner, no dependencies). All must pass before every push:
+   ```bash
+   npm test
+   ```
+   Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. Only logic that works without an `AudioContext` is covered (pitch, cutoff, voice allocation, arp sequences, preset round-trips). New features and bug fixes need a test here.
+3. Run automated headless visual screenshot suite:
    ```bash
    node scripts/capture-screenshots.js
    ```
@@ -174,6 +183,6 @@ Before committing any modifications:
    - `screenshot-mobile.png` (750x1334)
    - `screenshot-phone-portrait.png` (360x780)
    - `screenshot-phone-landscape.png` (844x390)
-3. Check for zero console warnings / uncaught exceptions.
-4. Ensure no memory leaks or unmanaged event listeners on `window`.
-5. Ensure new parameters have proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
+4. Check for zero console warnings / uncaught exceptions.
+5. Ensure no memory leaks or unmanaged event listeners on `window`.
+6. Ensure new parameters have proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
