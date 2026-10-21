@@ -16,6 +16,8 @@ const PRECACHE_ASSETS = [
   './js/app.js',
   './js/dom-utils.js',
   './js/pwa-manager.js',
+  './js/voice.js',
+  './js/fx-chain.js',
   './js/audio-engine.js',
   './js/drum-kits.js',
   './js/drum-engine.js',

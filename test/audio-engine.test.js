@@ -1,10 +1,10 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
-const { loadScripts } = require('./helpers/load-browser-script');
+const { loadEngineContext, createLiveEngine } = require('./helpers/synth-engine');
 
 function createEngine() {
-  const { AudioEngine } = loadScripts('audio-engine.js');
+  const { AudioEngine } = loadEngineContext();
   return new AudioEngine();
 }
 
@@ -149,41 +149,21 @@ describe('allocateVoice', () => {
 });
 
 describe('sample & hold LFO', () => {
-  // Records the last setTargetAtTime value per gain node
-  function recordingGain() {
-    const node = { value: null };
-    node.gain = { setTargetAtTime: (v) => { node.value = v; }, setValueAtTime() {}, cancelScheduledValues() {} };
-    return node;
-  }
-
-  function engineWithShVoice(lfoNum) {
-    const context = loadScripts('audio-engine.js');
-    vm.runInContext('Math.random = () => 1;', context); // S&H value = 1 * 2 - 1 = +1
-    const engine = new context.AudioEngine();
-    engine.ctx = { currentTime: 0 };
-    const voice = {};
-    for (const n of [1, 2]) {
-      for (const dest of ['PitchGain', 'VcfGain', 'PwmGain1', 'PwmGain2', 'AmpGain']) {
-        voice[`lfo${n}${dest}`] = recordingGain();
-      }
-    }
-    engine.voicePool = [voice];
-    engine.setLFOParam(lfoNum, 'wave', 'samplehold');
-    for (const dest of ['pitch', 'vcf', 'pwm', 'amp']) engine.setLFOParam(lfoNum, dest, 1);
-    engine.startSampleAndHoldLoop(lfoNum);
-    const tick = [...context.__intervals.values()].pop();
-    return { engine, voice, tick };
-  }
-
   for (const lfoNum of [1, 2]) {
     test(`LFO${lfoNum} S&H uses the same modulation depths as the continuous LFO`, () => {
-      const { voice, tick } = engineWithShVoice(lfoNum);
-      tick();
-      assert.equal(voice[`lfo${lfoNum}PitchGain`].value, 200);
-      assert.equal(voice[`lfo${lfoNum}VcfGain`].value, 3600);
-      assert.equal(voice[`lfo${lfoNum}PwmGain1`].value, 0.35);
-      assert.equal(voice[`lfo${lfoNum}PwmGain2`].value, 0.35);
-      assert.equal(voice[`lfo${lfoNum}AmpGain`].value, 0.45);
+      const { engine, context } = createLiveEngine();
+      vm.runInContext('Math.random = () => 1;', context); // S&H value = 1 * 2 - 1 = +1
+      engine.setLFOParam(lfoNum, 'wave', 'samplehold');
+      for (const dest of ['pitch', 'vcf', 'pwm', 'amp']) engine.setLFOParam(lfoNum, dest, 1);
+      engine.startSampleAndHoldLoop(lfoNum);
+      [...context.__intervals.values()].pop()();
+
+      const route = engine.voicePool[0].lfo[lfoNum];
+      assert.equal(route.pitch.gain.value, 200);
+      assert.equal(route.vcf.gain.value, 3600);
+      assert.equal(route.pwm[0].gain.value, 0.35);
+      assert.equal(route.pwm[1].gain.value, 0.35);
+      assert.equal(route.amp.gain.value, 0.45);
     });
   }
 });
@@ -204,7 +184,7 @@ describe('preset state', () => {
   });
 
   test('loadPresetState followed by getPresetState round-trips every factory preset', () => {
-    const { AudioEngine, SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET } = loadScripts('audio-engine.js', 'presets.js');
+    const { AudioEngine, SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET } = loadEngineContext('presets.js');
     for (const preset of [SYNTH_INIT_PRESET, ...SYNTH_FACTORY_PRESETS]) {
       const engine = new AudioEngine();
       engine.loadPresetState(preset.state);

@@ -9,10 +9,6 @@
  * Oscilloscope Analyser, Master Gain, and MIDI Integration.
  */
 
-// LFO destination depth at amount 1.0: cents for pitch/vcf, gain units for pwm/amp
-const LFO_DESTINATIONS = ['pitch', 'vcf', 'pwm', 'amp'];
-const LFO_DEPTH = { pitch: 200, vcf: 3600, pwm: 0.35, amp: 0.45 };
-
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -139,27 +135,7 @@ class AudioEngine {
       }
     };
 
-    // FX Nodes references
-    this.chorusDryGain = null;
-    this.chorusWetGain = null;
-    this.chorusDelayL = null;
-    this.chorusDelayR = null;
-    this.chorusLfo = null;
-    this.chorusLfoGainL = null;
-    this.chorusLfoGainR = null;
-
-    this.delayDryGain = null;
-    this.delayWetGain = null;
-    this.delayL = null;
-    this.delayR = null;
-    this.delayFilterL = null;
-    this.delayFilterR = null;
-    this.delayFeedbackGainL = null;
-    this.delayFeedbackGainR = null;
-
-    this.reverbDryGain = null;
-    this.reverbWetGain = null;
-    this.reverbConvolver = null;
+    this.fxChain = null;
 
     // Callbacks for UI updates
     this.onVoiceChange = null;
@@ -277,11 +253,10 @@ class AudioEngine {
   }
 
   /**
-   * Initializes the persistent Voice Pool (12 polyphonic voices pre-wired)
+   * Initializes the persistent Voice Pool (12 polyphonic voices pre-wired, see voice.js)
    */
   initVoicePool(count = 12) {
     if (this.voicePool.length > 0) return;
-    const now = this.ctx.currentTime;
 
     // Shared White Noise Generator
     if (!this.sharedNoiseSource) {
@@ -289,244 +264,37 @@ class AudioEngine {
       this.sharedNoiseSource.buffer = this.getNoiseBuffer();
       this.sharedNoiseSource.loop = true;
       this.sharedNoiseGain = this.ctx.createGain();
-      this.sharedNoiseGain.gain.setValueAtTime(1.0, now);
+      this.sharedNoiseGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
       this.sharedNoiseSource.connect(this.sharedNoiseGain);
       this.sharedNoiseSource.start(0);
     }
 
     for (let i = 0; i < count; i++) {
-      // 1. Oscillators
-      const osc1 = this.ctx.createOscillator();
-      osc1.type = this.vco1.wave === 'square' ? 'sawtooth' : this.vco1.wave;
-      osc1.frequency.setValueAtTime(440, now);
-
-      const osc2 = this.ctx.createOscillator();
-      osc2.type = this.vco2.wave === 'square' ? 'sawtooth' : this.vco2.wave;
-      osc2.frequency.setValueAtTime(440, now);
-
-      const subOsc = this.ctx.createOscillator();
-      subOsc.type = 'triangle';
-      subOsc.frequency.setValueAtTime(220, now);
-
-      // VCO1 Dual-Path Routing (Direct for Saw/Tri/Sine, WaveShaper for Square/PWM)
-      const osc1DirectGain = this.ctx.createGain();
-      osc1DirectGain.gain.setValueAtTime(this.vco1.wave === 'square' ? 0.0 : 1.0, now);
-      osc1.connect(osc1DirectGain);
-
-      const osc1PwScale = this.ctx.createGain();
-      osc1PwScale.gain.setValueAtTime(0.4, now);
-      osc1.connect(osc1PwScale);
-
-      const pwInput1 = this.ctx.createGain();
-      pwInput1.gain.setValueAtTime(1.0, now);
-      osc1PwScale.connect(pwInput1);
-
-      if (this.vco1PwOffset) {
-        this.vco1PwOffset.connect(pwInput1);
-      }
-
-      const lfo1PwmGain1 = this.ctx.createGain();
-      lfo1PwmGain1.gain.setValueAtTime(this.lfo1.destinations.pwm * 0.35, now);
-      if (this.lfo1Gain) {
-        this.lfo1Gain.connect(lfo1PwmGain1);
-      }
-      lfo1PwmGain1.connect(pwInput1);
-
-      const lfo2PwmGain1 = this.ctx.createGain();
-      lfo2PwmGain1.gain.setValueAtTime(this.lfo2.destinations.pwm * 0.35, now);
-      if (this.lfo2Gain) {
-        this.lfo2Gain.connect(lfo2PwmGain1);
-      }
-      lfo2PwmGain1.connect(pwInput1);
-
-      const pwShaper1 = this.ctx.createWaveShaper();
-      pwShaper1.curve = this.pwmCurve;
-      pwShaper1.oversample = '4x';
-      pwInput1.connect(pwShaper1);
-
-      const osc1PulseGain = this.ctx.createGain();
-      osc1PulseGain.gain.setValueAtTime(this.vco1.wave === 'square' ? 1.0 : 0.0, now);
-      pwShaper1.connect(osc1PulseGain);
-
-      // VCO2 Dual-Path Routing (Direct for Saw/Tri/Sine, WaveShaper for Square/PWM)
-      const osc2DirectGain = this.ctx.createGain();
-      osc2DirectGain.gain.setValueAtTime(this.vco2.wave === 'square' ? 0.0 : 1.0, now);
-      osc2.connect(osc2DirectGain);
-
-      const osc2PwScale = this.ctx.createGain();
-      osc2PwScale.gain.setValueAtTime(0.4, now);
-      osc2.connect(osc2PwScale);
-
-      const pwInput2 = this.ctx.createGain();
-      pwInput2.gain.setValueAtTime(1.0, now);
-      osc2PwScale.connect(pwInput2);
-
-      if (this.vco2PwOffset) {
-        this.vco2PwOffset.connect(pwInput2);
-      }
-
-      const lfo1PwmGain2 = this.ctx.createGain();
-      lfo1PwmGain2.gain.setValueAtTime(this.lfo1.destinations.pwm * 0.35, now);
-      if (this.lfo1Gain) {
-        this.lfo1Gain.connect(lfo1PwmGain2);
-      }
-      lfo1PwmGain2.connect(pwInput2);
-
-      const lfo2PwmGain2 = this.ctx.createGain();
-      lfo2PwmGain2.gain.setValueAtTime(this.lfo2.destinations.pwm * 0.35, now);
-      if (this.lfo2Gain) {
-        this.lfo2Gain.connect(lfo2PwmGain2);
-      }
-      lfo2PwmGain2.connect(pwInput2);
-
-      const pwShaper2 = this.ctx.createWaveShaper();
-      pwShaper2.curve = this.pwmCurve;
-      pwShaper2.oversample = '4x';
-      pwInput2.connect(pwShaper2);
-
-      const osc2PulseGain = this.ctx.createGain();
-      osc2PulseGain.gain.setValueAtTime(this.vco2.wave === 'square' ? 1.0 : 0.0, now);
-      pwShaper2.connect(osc2PulseGain);
-
-      // 2. Mixer Gains
-      const osc1Gain = this.ctx.createGain();
-      osc1Gain.gain.setValueAtTime(this.mixer.vco1Level, now);
-      osc1DirectGain.connect(osc1Gain);
-      osc1PulseGain.connect(osc1Gain);
-
-      const osc2Gain = this.ctx.createGain();
-      osc2Gain.gain.setValueAtTime(this.mixer.vco2Level, now);
-      osc2DirectGain.connect(osc2Gain);
-      osc2PulseGain.connect(osc2Gain);
-
-      const subGain = this.ctx.createGain();
-      subGain.gain.setValueAtTime(this.mixer.subLevel, now);
-
-      const noiseGain = this.ctx.createGain();
-      noiseGain.gain.setValueAtTime(this.mixer.noiseLevel, now);
-
-      const voiceMixerBus = this.ctx.createGain();
-      subOsc.connect(subGain);
-      if (this.sharedNoiseGain) {
-        this.sharedNoiseGain.connect(noiseGain);
-      }
-
-      osc1Gain.connect(voiceMixerBus);
-      osc2Gain.connect(voiceMixerBus);
-      subGain.connect(voiceMixerBus);
-      noiseGain.connect(voiceMixerBus);
-
-      // 3. Filter Drive & 24dB VCF
-      const driveShaper = this.ctx.createWaveShaper();
-      driveShaper.curve = this.makeDistortionCurve(this.vcf.drive);
-      driveShaper.oversample = '2x';
-      voiceMixerBus.connect(driveShaper);
-
-      const vcf1 = this.ctx.createBiquadFilter();
-      const vcf2 = this.ctx.createBiquadFilter();
-      this.configureFilterNodes(vcf1, vcf2, this.vcf.cutoff, this.vcf.resonance, this.vcf.type);
-      driveShaper.connect(vcf1);
-      vcf1.connect(vcf2);
-
-      // 4. VCA (Volume Amp Envelope) & Post-VCA Tremolo Modulation Stage
-      const vca = this.ctx.createGain();
-      vca.gain.setValueAtTime(0.0, now);
-      vcf2.connect(vca);
-
-      const tremoloGain = this.ctx.createGain();
-      tremoloGain.gain.setValueAtTime(1.0, now);
-      vca.connect(tremoloGain);
-      tremoloGain.connect(this.masterVoiceBus);
-
-      // 5. Dual-LFO Modulation Destinations
-      const lfo1PitchGain = this.ctx.createGain();
-      const lfo1VcfGain = this.ctx.createGain();
-      const lfo1AmpGain = this.ctx.createGain();
-      lfo1PitchGain.gain.setValueAtTime(this.lfo1.destinations.pitch * 200, now);
-      lfo1VcfGain.gain.setValueAtTime(this.lfo1.destinations.vcf * 3600, now);
-      lfo1AmpGain.gain.setValueAtTime(this.lfo1.destinations.amp * 0.45, now);
-
-      if (this.lfo1Gain) {
-        this.lfo1Gain.connect(lfo1PitchGain);
-        this.lfo1Gain.connect(lfo1VcfGain);
-        this.lfo1Gain.connect(lfo1AmpGain);
-      }
-      lfo1PitchGain.connect(osc1.detune);
-      lfo1PitchGain.connect(osc2.detune);
-      lfo1VcfGain.connect(vcf1.detune);
-      lfo1VcfGain.connect(vcf2.detune);
-      lfo1AmpGain.connect(tremoloGain.gain);
-
-      const lfo2PitchGain = this.ctx.createGain();
-      const lfo2VcfGain = this.ctx.createGain();
-      const lfo2AmpGain = this.ctx.createGain();
-      lfo2PitchGain.gain.setValueAtTime(this.lfo2.destinations.pitch * 200, now);
-      lfo2VcfGain.gain.setValueAtTime(this.lfo2.destinations.vcf * 3600, now);
-      lfo2AmpGain.gain.setValueAtTime(this.lfo2.destinations.amp * 0.45, now);
-
-      if (this.lfo2Gain) {
-        this.lfo2Gain.connect(lfo2PitchGain);
-        this.lfo2Gain.connect(lfo2VcfGain);
-        this.lfo2Gain.connect(lfo2AmpGain);
-      }
-      lfo2PitchGain.connect(osc1.detune);
-      lfo2PitchGain.connect(osc2.detune);
-      lfo2VcfGain.connect(vcf1.detune);
-      lfo2VcfGain.connect(vcf2.detune);
-      lfo2AmpGain.connect(tremoloGain.gain);
-
-      // Start continuous oscillators
-      osc1.start(0);
-      osc2.start(0);
-      subOsc.start(0);
-
-      this.voicePool.push({
-        id: i,
-        isBusy: false,
-        midiNote: null,
-        startTime: 0,
-        releaseStartTime: 0,
-        baseFreq: 440,
-        voiceCutoff: this.vcf.cutoff,
-        osc1, osc2, subOsc,
-        osc1DirectGain, osc1PulseGain, pwShaper1,
-        osc2DirectGain, osc2PulseGain, pwShaper2,
-        osc1Gain, osc2Gain, subGain, noiseGain,
-        voiceMixerBus, driveShaper, vcf1, vcf2, vca, tremoloGain,
-        lfo1PitchGain, lfo1VcfGain, lfo1PwmGain1, lfo1PwmGain2, lfo1AmpGain,
-        lfo2PitchGain, lfo2VcfGain, lfo2PwmGain1, lfo2PwmGain2, lfo2AmpGain,
-        cleanupTimer: null
-      });
+      this.voicePool.push(new Voice(this, i));
     }
   }
 
-  /**
-   * Builds the Global LFO 1 & LFO 2 Modulation Engines
-   */
+  getLfo(lfoNum) {
+    return lfoNum === 2 ? this.lfo2 : this.lfo1;
+  }
+
   initLfoEngines() {
     const now = this.ctx.currentTime;
+    for (const lfoNum of [1, 2]) {
+      const lfo = this.getLfo(lfoNum);
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = lfo.wave === 'samplehold' ? 'sawtooth' : lfo.wave;
+      osc.frequency.setValueAtTime(lfo.rate, now);
+      gain.gain.setValueAtTime(1.0, now);
+      osc.connect(gain);
+      osc.start();
+      this[`lfo${lfoNum}Osc`] = osc;
+      this[`lfo${lfoNum}Gain`] = gain;
 
-    // --- LFO 1 ---
-    this.lfo1Osc = this.ctx.createOscillator();
-    this.lfo1Gain = this.ctx.createGain();
-    this.lfo1Osc.type = this.lfo1.wave === 'samplehold' ? 'sawtooth' : this.lfo1.wave;
-    this.lfo1Osc.frequency.setValueAtTime(this.lfo1.rate, now);
-    this.lfo1Gain.gain.setValueAtTime(1.0, now);
-    this.lfo1Osc.connect(this.lfo1Gain);
-    this.lfo1Osc.start();
-
-    // --- LFO 2 ---
-    this.lfo2Osc = this.ctx.createOscillator();
-    this.lfo2Gain = this.ctx.createGain();
-    this.lfo2Osc.type = this.lfo2.wave === 'samplehold' ? 'sawtooth' : this.lfo2.wave;
-    this.lfo2Osc.frequency.setValueAtTime(this.lfo2.rate, now);
-    this.lfo2Gain.gain.setValueAtTime(1.0, now);
-    this.lfo2Osc.connect(this.lfo2Gain);
-    this.lfo2Osc.start();
-
-    // Sample & Hold timer loops
-    this.startSampleAndHoldLoop(1);
-    this.startSampleAndHoldLoop(2);
+      // Sample & Hold timer loop
+      this.startSampleAndHoldLoop(lfoNum);
+    }
   }
 
   /**
@@ -534,19 +302,14 @@ class AudioEngine {
    * scale is 1 for continuous waves and the current random value for Sample & Hold.
    */
   applyLfoDepth(lfoNum, dest, scale, now, timeConstant) {
-    const amount = this[`lfo${lfoNum}`].destinations[dest] * LFO_DEPTH[dest] * scale;
-    const nodeKeys = dest === 'pwm'
-      ? [`lfo${lfoNum}PwmGain1`, `lfo${lfoNum}PwmGain2`]
-      : [`lfo${lfoNum}${dest === 'vcf' ? 'Vcf' : dest[0].toUpperCase() + dest.slice(1)}Gain`];
+    const amount = this.getLfo(lfoNum).destinations[dest] * LFO_DEPTH[dest] * scale;
     for (const voice of this.voicePool) {
-      for (const key of nodeKeys) {
-        if (voice[key]) voice[key].gain.setTargetAtTime(amount, now, timeConstant);
-      }
+      voice.setLfoAmount(lfoNum, dest, amount, now, timeConstant);
     }
   }
 
   startSampleAndHoldLoop(lfoNum) {
-    const lfo = this[`lfo${lfoNum}`];
+    const lfo = this.getLfo(lfoNum);
     if (this.lfoShTimers[lfoNum]) clearInterval(this.lfoShTimers[lfoNum]);
     const intervalMs = Math.max(20, Math.min(2000, 1000 / lfo.rate));
     this.lfoShTimers[lfoNum] = setInterval(() => {
@@ -561,141 +324,10 @@ class AudioEngine {
   }
 
   /**
-   * Builds the complete Stereo FX Signal Flow:
-   * VoiceBus -> Juno Chorus -> Tape Delay (Stereo Ping-Pong + LP) -> Studio Reverb -> Analyser
+   * Builds the Stereo FX rack between the voice bus and the analyser (see fx-chain.js)
    */
   initStereoFXChain() {
-    const now = this.ctx.currentTime;
-
-    // -----------------------------------------------------------------------
-    // 1. JUNO STEREO BBD CHORUS
-    // -----------------------------------------------------------------------
-    this.chorusDryGain = this.ctx.createGain();
-    this.chorusWetGain = this.ctx.createGain();
-    this.chorusDryGain.gain.setValueAtTime(1.0, now);
-    this.chorusWetGain.gain.setValueAtTime(this.fx.chorus.mode === 'off' ? 0.0 : this.fx.chorus.mix, now);
-
-    this.chorusDelayL = this.ctx.createDelay(0.1);
-    this.chorusDelayR = this.ctx.createDelay(0.1);
-    this.chorusDelayL.delayTime.setValueAtTime(0.018, now);
-    this.chorusDelayR.delayTime.setValueAtTime(0.018, now);
-
-    // Counter-phase LFO Modulation
-    this.chorusLfo = this.ctx.createOscillator();
-    this.chorusLfo.type = 'sine';
-    this.chorusLfo.frequency.setValueAtTime(0.5, now);
-
-    this.chorusLfoGainL = this.ctx.createGain();
-    this.chorusLfoGainR = this.ctx.createGain();
-    this.chorusLfoGainL.gain.setValueAtTime(0.0035, now);
-    this.chorusLfoGainR.gain.setValueAtTime(-0.0035, now); // 180° inverted phase for extreme stereo width
-
-    this.chorusLfo.connect(this.chorusLfoGainL);
-    this.chorusLfo.connect(this.chorusLfoGainR);
-    this.chorusLfoGainL.connect(this.chorusDelayL.delayTime);
-    this.chorusLfoGainR.connect(this.chorusDelayR.delayTime);
-    this.chorusLfo.start();
-
-    const chorusMerger = this.ctx.createChannelMerger(2);
-    this.chorusDelayL.connect(chorusMerger, 0, 0);
-    this.chorusDelayR.connect(chorusMerger, 0, 1);
-
-    const chorusOutBus = this.ctx.createGain();
-    this.masterVoiceBus.connect(this.chorusDryGain);
-    this.masterVoiceBus.connect(this.chorusDelayL);
-    this.masterVoiceBus.connect(this.chorusDelayR);
-
-    this.chorusDryGain.connect(chorusOutBus);
-    chorusMerger.connect(this.chorusWetGain);
-    this.chorusWetGain.connect(chorusOutBus);
-
-    // -----------------------------------------------------------------------
-    // 2. STEREO TAPE DELAY (Cross-Ping-Pong & High-Cut Feedback Filter)
-    // -----------------------------------------------------------------------
-    this.delayDryGain = this.ctx.createGain();
-    this.delayWetGain = this.ctx.createGain();
-    this.delayDryGain.gain.setValueAtTime(1.0, now);
-    this.delayWetGain.gain.setValueAtTime(this.fx.delay.mix, now);
-
-    this.delayL = this.ctx.createDelay(2.0);
-    this.delayR = this.ctx.createDelay(2.0);
-    this.delayL.delayTime.setValueAtTime(this.fx.delay.time, now);
-    this.delayR.delayTime.setValueAtTime(this.fx.delay.time * 1.333, now); // Spatial stereo ratio
-
-    this.delayFilterL = this.ctx.createBiquadFilter();
-    this.delayFilterR = this.ctx.createBiquadFilter();
-    this.delayFilterL.type = 'lowpass';
-    this.delayFilterR.type = 'lowpass';
-    this.delayFilterL.frequency.setValueAtTime(2800, now);
-    this.delayFilterR.frequency.setValueAtTime(2800, now);
-
-    this.delayFeedbackGainL = this.ctx.createGain();
-    this.delayFeedbackGainR = this.ctx.createGain();
-    this.delayFeedbackGainL.gain.setValueAtTime(this.fx.delay.feedback, now);
-    this.delayFeedbackGainR.gain.setValueAtTime(this.fx.delay.feedback, now);
-
-    // Feedback Loops with Tape High-Cut
-    this.delayL.connect(this.delayFilterL);
-    this.delayFilterL.connect(this.delayFeedbackGainL);
-    this.delayFeedbackGainL.connect(this.delayL);
-
-    this.delayR.connect(this.delayFilterR);
-    this.delayFilterR.connect(this.delayFeedbackGainR);
-    this.delayFeedbackGainR.connect(this.delayR);
-
-    const delayMerger = this.ctx.createChannelMerger(2);
-    this.delayL.connect(delayMerger, 0, 0);
-    this.delayR.connect(delayMerger, 0, 1);
-
-    const delayOutBus = this.ctx.createGain();
-    chorusOutBus.connect(this.delayDryGain);
-    chorusOutBus.connect(this.delayL);
-    chorusOutBus.connect(this.delayR);
-
-    this.delayDryGain.connect(delayOutBus);
-    delayMerger.connect(this.delayWetGain);
-    this.delayWetGain.connect(delayOutBus);
-
-    // -----------------------------------------------------------------------
-    // 3. WARM STUDIO SPACE REVERB
-    // -----------------------------------------------------------------------
-    this.reverbDryGain = this.ctx.createGain();
-    this.reverbWetGain = this.ctx.createGain();
-    this.reverbDryGain.gain.setValueAtTime(1.0, now);
-    this.reverbWetGain.gain.setValueAtTime(this.fx.reverb.mix, now);
-
-    this.reverbConvolver = this.ctx.createConvolver();
-    this.updateReverbImpulse(this.fx.reverb.decay);
-
-    delayOutBus.connect(this.reverbDryGain);
-    delayOutBus.connect(this.reverbConvolver);
-
-    this.reverbDryGain.connect(this.analyser);
-    this.reverbConvolver.connect(this.reverbWetGain);
-    this.reverbWetGain.connect(this.analyser);
-  }
-
-  /**
-   * Generates a warm synthetic stereo reverb impulse response with decaying diffusion.
-   */
-  updateReverbImpulse(decayTime = 3.0) {
-    if (!this.ctx || !this.reverbConvolver) return;
-    const rate = this.ctx.sampleRate;
-    const length = Math.max(0.5, Math.min(8.0, decayTime)) * rate;
-    const impulse = this.ctx.createBuffer(2, length, rate);
-    const left = impulse.getChannelData(0);
-    const right = impulse.getChannelData(1);
-
-    const decayConstant = 3.5 / decayTime;
-
-    for (let i = 0; i < length; i++) {
-      const t = i / rate;
-      const envelope = Math.exp(-t * decayConstant);
-      left[i] = (Math.random() * 2 - 1) * envelope;
-      right[i] = (Math.random() * 2 - 1) * envelope;
-    }
-
-    this.reverbConvolver.buffer = impulse;
+    this.fxChain = new FXChain(this.ctx, this.fx, this.masterVoiceBus, this.analyser);
   }
 
   /**
@@ -872,263 +504,21 @@ class AudioEngine {
     const voice = this.allocateVoice(midiNote);
     if (!voice) return;
 
-    if (voice.cleanupTimer) {
-      clearTimeout(voice.cleanupTimer);
-      voice.cleanupTimer = null;
-    }
-
-    voice.isBusy = true;
-    voice.midiNote = midiNote;
-    voice.startTime = now;
-    voice.releaseStartTime = 0;
-
-    const baseFreq = this.midiNoteToFrequency(midiNote);
-    const vco1Freq = this.getVCO1Frequency(baseFreq);
-    const vco2Freq = this.getVCO2Frequency(baseFreq);
-    const voiceCutoff = this.getVoiceCutoffFrequency(midiNote);
-
-    voice.baseFreq = baseFreq;
-    voice.voiceCutoff = voiceCutoff;
-
-    // --- 1. VCO 1 Frequency & Glide ---
-    voice.osc1.frequency.cancelScheduledValues(now);
-    if (this.glideEnabled && this.lastFrequency) {
-      voice.osc1.frequency.setValueAtTime(this.lastFrequency, now);
-      voice.osc1.frequency.exponentialRampToValueAtTime(vco1Freq, now + this.glideTime);
-    } else {
-      voice.osc1.frequency.setValueAtTime(vco1Freq, now);
-    }
-
-    // --- 2. VCO 2 Frequency & Glide ---
-    voice.osc2.frequency.cancelScheduledValues(now);
-    if (this.glideEnabled && this.lastFrequency) {
-      voice.osc2.frequency.setValueAtTime(this.lastFrequency * (vco2Freq / vco1Freq), now);
-      voice.osc2.frequency.exponentialRampToValueAtTime(vco2Freq, now + this.glideTime);
-    } else {
-      voice.osc2.frequency.setValueAtTime(vco2Freq, now);
-    }
-
-    // --- 3. Sub-Oscillator ---
-    voice.subOsc.frequency.cancelScheduledValues(now);
-    const subFreq = baseFreq * Math.pow(2, this.mixer.subOctave) * this.pitchBendFactor;
-    voice.subOsc.frequency.setValueAtTime(subFreq, now);
-
-    // --- 4. Mixer Levels (Velocity-Scaled) ---
-    voice.osc1Gain.gain.cancelScheduledValues(now);
-    voice.osc1Gain.gain.setValueAtTime(this.mixer.vco1Level * velocity, now);
-
-    voice.osc2Gain.gain.cancelScheduledValues(now);
-    voice.osc2Gain.gain.setValueAtTime(this.mixer.vco2Level * velocity, now);
-
-    voice.subGain.gain.cancelScheduledValues(now);
-    voice.subGain.gain.setValueAtTime(this.mixer.subLevel * velocity, now);
-
-    voice.noiseGain.gain.cancelScheduledValues(now);
-    voice.noiseGain.gain.setValueAtTime(this.mixer.noiseLevel * velocity, now);
-
-    // --- 5. Filter Envelope (VCF ADSR) ---
-    this.configureFilterNodes(voice.vcf1, voice.vcf2, voiceCutoff, this.vcf.resonance, this.vcf.type);
-
-    const envOctaves = this.vcf.envMod * 3.5;
-    const envPeakCutoff = Math.max(20, Math.min(20000, voiceCutoff * Math.pow(2, envOctaves)));
-    const envSustainCutoff = Math.max(20, Math.min(20000, voiceCutoff + ((envPeakCutoff - voiceCutoff) * this.filterEnv.sustain)));
-    
-    const faTime = Math.max(0.004, this.filterEnv.attack);
-    const fdTime = Math.max(0.004, this.filterEnv.decay);
-
-    voice.vcf1.frequency.cancelScheduledValues(now);
-    voice.vcf2.frequency.cancelScheduledValues(now);
-    voice.vcf1.frequency.setValueAtTime(Math.max(20, voiceCutoff), now);
-    voice.vcf2.frequency.setValueAtTime(Math.max(20, voiceCutoff), now);
-
-    voice.vcf1.frequency.exponentialRampToValueAtTime(envPeakCutoff, now + faTime);
-    voice.vcf2.frequency.exponentialRampToValueAtTime(envPeakCutoff, now + faTime);
-    voice.vcf1.frequency.exponentialRampToValueAtTime(envSustainCutoff, now + faTime + fdTime);
-    voice.vcf2.frequency.exponentialRampToValueAtTime(envSustainCutoff, now + faTime + fdTime);
-
-    // --- 6. VCA (Amp Envelope ADSR with De-Clicking) ---
-    const peakGain = Math.max(0.0001, 0.40 * velocity);
-    const sustainGain = Math.max(0.0001, peakGain * this.ampEnv.sustain);
-    const aaTime = Math.max(0.004, this.ampEnv.attack);
-    const adTime = Math.max(0.004, this.ampEnv.decay);
-
-    if (voice.vca.gain.cancelAndHoldAtTime) {
-      voice.vca.gain.cancelAndHoldAtTime(now);
-    } else {
-      voice.vca.gain.cancelScheduledValues(now);
-    }
-    voice.vca.gain.setValueAtTime(0.00001, now);
-    voice.vca.gain.exponentialRampToValueAtTime(peakGain, now + aaTime);
-    voice.vca.gain.exponentialRampToValueAtTime(sustainGain, now + aaTime + adTime);
-
-    // --- 7. LFO Fade-In Modulation ---
-    const lfo1Fade = this.lfo1.fadeIn || 0;
-    const pAmt1 = this.lfo1.destinations.pitch * 200;
-    const vAmt1 = this.lfo1.destinations.vcf * 3600;
-    const pwmAmt1 = this.lfo1.destinations.pwm * 0.35;
-    const aAmt1 = this.lfo1.destinations.amp * 0.45;
-
-    if (lfo1Fade > 0.01) {
-      voice.lfo1PitchGain.gain.setValueAtTime(0, now);
-      voice.lfo1PitchGain.gain.linearRampToValueAtTime(pAmt1, now + lfo1Fade);
-      voice.lfo1VcfGain.gain.setValueAtTime(0, now);
-      voice.lfo1VcfGain.gain.linearRampToValueAtTime(vAmt1, now + lfo1Fade);
-      if (voice.lfo1PwmGain1) {
-        voice.lfo1PwmGain1.gain.setValueAtTime(0, now);
-        voice.lfo1PwmGain1.gain.linearRampToValueAtTime(pwmAmt1, now + lfo1Fade);
-      }
-      if (voice.lfo1PwmGain2) {
-        voice.lfo1PwmGain2.gain.setValueAtTime(0, now);
-        voice.lfo1PwmGain2.gain.linearRampToValueAtTime(pwmAmt1, now + lfo1Fade);
-      }
-      voice.lfo1AmpGain.gain.setValueAtTime(0, now);
-      voice.lfo1AmpGain.gain.linearRampToValueAtTime(aAmt1, now + lfo1Fade);
-    } else {
-      voice.lfo1PitchGain.gain.setValueAtTime(pAmt1, now);
-      voice.lfo1VcfGain.gain.setValueAtTime(vAmt1, now);
-      if (voice.lfo1PwmGain1) voice.lfo1PwmGain1.gain.setValueAtTime(pwmAmt1, now);
-      if (voice.lfo1PwmGain2) voice.lfo1PwmGain2.gain.setValueAtTime(pwmAmt1, now);
-      voice.lfo1AmpGain.gain.setValueAtTime(aAmt1, now);
-    }
-
-    const lfo2Fade = this.lfo2.fadeIn || 0;
-    const pAmt2 = this.lfo2.destinations.pitch * 200;
-    const vAmt2 = this.lfo2.destinations.vcf * 3600;
-    const pwmAmt2 = this.lfo2.destinations.pwm * 0.35;
-    const aAmt2 = this.lfo2.destinations.amp * 0.45;
-
-    if (lfo2Fade > 0.01) {
-      voice.lfo2PitchGain.gain.setValueAtTime(0, now);
-      voice.lfo2PitchGain.gain.linearRampToValueAtTime(pAmt2, now + lfo2Fade);
-      voice.lfo2VcfGain.gain.setValueAtTime(0, now);
-      voice.lfo2VcfGain.gain.linearRampToValueAtTime(vAmt2, now + lfo2Fade);
-      if (voice.lfo2PwmGain1) {
-        voice.lfo2PwmGain1.gain.setValueAtTime(0, now);
-        voice.lfo2PwmGain1.gain.linearRampToValueAtTime(pwmAmt2, now + lfo2Fade);
-      }
-      if (voice.lfo2PwmGain2) {
-        voice.lfo2PwmGain2.gain.setValueAtTime(0, now);
-        voice.lfo2PwmGain2.gain.linearRampToValueAtTime(pwmAmt2, now + lfo2Fade);
-      }
-      voice.lfo2AmpGain.gain.setValueAtTime(0, now);
-      voice.lfo2AmpGain.gain.linearRampToValueAtTime(aAmt2, now + lfo2Fade);
-    } else {
-      voice.lfo2PitchGain.gain.setValueAtTime(pAmt2, now);
-      voice.lfo2VcfGain.gain.setValueAtTime(vAmt2, now);
-      if (voice.lfo2PwmGain1) voice.lfo2PwmGain1.gain.setValueAtTime(pwmAmt2, now);
-      if (voice.lfo2PwmGain2) voice.lfo2PwmGain2.gain.setValueAtTime(pwmAmt2, now);
-      voice.lfo2AmpGain.gain.setValueAtTime(aAmt2, now);
-    }
-
-    this.lastFrequency = vco1Freq;
+    this.lastFrequency = voice.trigger(midiNote, velocity, now);
     this.activeVoices.set(midiNote, voice);
 
     if (this.onVoiceChange) {
-      this.onVoiceChange(this.activeVoices.size, vco1Freq);
+      this.onVoiceChange(this.activeVoices.size, this.lastFrequency);
     }
   }
 
-  /**
-   * Configures BiquadFilter types and resonance Q factors based on selected Filter Mode.
-   * Includes safe Q-scaling and resonance gain balancing to prevent self-oscillation blowouts.
-   */
-  configureFilterNodes(vcf1, vcf2, cutoff, resonance, mode) {
-    const now = this.ctx ? this.ctx.currentTime : 0;
-    const safeCutoff = Math.max(20, Math.min(20000, cutoff));
-    
-    switch (mode) {
-      case 'lowpass24':
-        vcf1.type = 'lowpass';
-        vcf2.type = 'lowpass';
-        vcf1.frequency.setValueAtTime(safeCutoff, now);
-        vcf2.frequency.setValueAtTime(safeCutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(7.5, resonance * 0.38)), now);
-        vcf2.Q.setValueAtTime(Math.max(0.5, Math.min(9.0, resonance * 0.48)), now);
-        break;
-
-      case 'lowpass12':
-        vcf1.type = 'lowpass';
-        vcf2.type = 'allpass';
-        vcf1.frequency.setValueAtTime(safeCutoff, now);
-        vcf2.frequency.setValueAtTime(safeCutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(14.0, resonance * 0.7)), now);
-        vcf2.Q.setValueAtTime(0.1, now);
-        break;
-
-      case 'bandpass':
-        vcf1.type = 'bandpass';
-        vcf2.type = 'bandpass';
-        vcf1.frequency.setValueAtTime(safeCutoff, now);
-        vcf2.frequency.setValueAtTime(safeCutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.6, Math.min(8.0, resonance * 0.42)), now);
-        vcf2.Q.setValueAtTime(Math.max(0.6, Math.min(8.0, resonance * 0.42)), now);
-        break;
-
-      case 'highpass':
-        vcf1.type = 'highpass';
-        vcf2.type = 'highpass';
-        vcf1.frequency.setValueAtTime(safeCutoff, now);
-        vcf2.frequency.setValueAtTime(safeCutoff, now);
-        vcf1.Q.setValueAtTime(Math.max(0.5, Math.min(7.5, resonance * 0.38)), now);
-        vcf2.Q.setValueAtTime(Math.max(0.5, Math.min(9.0, resonance * 0.48)), now);
-        break;
-    }
-  }
-
-  /**
-   * Triggers Note Off (Release phase for both VCA and VCF Envelopes without deleting nodes)
-   */
   noteOff(midiNote) {
     if (!this.ctx) return;
     const voice = this.activeVoices.get(midiNote);
     if (!voice) return;
 
     this.activeVoices.delete(midiNote);
-
-    const now = this.ctx.currentTime;
-    voice.releaseStartTime = now;
-
-    const ampRelTime = Math.max(0.008, this.ampEnv.release);
-    const vcfRelTime = Math.max(0.008, this.filterEnv.release);
-    const maxRelTime = Math.max(ampRelTime, vcfRelTime);
-
-    // 1. VCA Volume Release (Smooth asymptotic exponential decay)
-    try {
-      if (voice.vca && voice.vca.gain) {
-        if (voice.vca.gain.cancelAndHoldAtTime) {
-          voice.vca.gain.cancelAndHoldAtTime(now);
-        } else {
-          voice.vca.gain.cancelScheduledValues(now);
-        }
-        voice.vca.gain.setTargetAtTime(0.0, now, Math.max(0.003, ampRelTime / 3.0));
-      }
-    } catch (e) {}
-
-    // 2. VCF Filter Cutoff Release
-    try {
-      if (voice.vcf1 && voice.vcf2) {
-        if (voice.vcf1.frequency.cancelAndHoldAtTime) {
-          voice.vcf1.frequency.cancelAndHoldAtTime(now);
-          voice.vcf2.frequency.cancelAndHoldAtTime(now);
-        } else {
-          voice.vcf1.frequency.cancelScheduledValues(now);
-          voice.vcf2.frequency.cancelScheduledValues(now);
-        }
-        voice.vcf1.frequency.setTargetAtTime(voice.voiceCutoff, now, Math.max(0.003, vcfRelTime / 3.0));
-        voice.vcf2.frequency.setTargetAtTime(voice.voiceCutoff, now, Math.max(0.003, vcfRelTime / 3.0));
-      }
-    } catch (e) {}
-
-    // Mark voice as idle after full release finishes (Zero GC Churn)
-    const cleanupDelayMs = (maxRelTime * 1.5 + 0.05) * 1000;
-    if (voice.cleanupTimer) clearTimeout(voice.cleanupTimer);
-    voice.cleanupTimer = setTimeout(() => {
-      if (voice.releaseStartTime === now) {
-        voice.isBusy = false;
-        voice.midiNote = null;
-        voice.releaseStartTime = 0;
-      }
-    }, cleanupDelayMs);
+    voice.release(this.ctx.currentTime);
 
     if (this.onVoiceChange) {
       this.onVoiceChange(this.activeVoices.size, this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null);
@@ -1147,20 +537,7 @@ class AudioEngine {
 
   setVCO1Wave(wave) {
     this.vco1.wave = wave;
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        if (wave === 'square') {
-          voice.osc1.type = 'sawtooth';
-          if (voice.osc1DirectGain) voice.osc1DirectGain.gain.setTargetAtTime(0.0, now, 0.005);
-          if (voice.osc1PulseGain) voice.osc1PulseGain.gain.setTargetAtTime(1.0, now, 0.005);
-        } else {
-          voice.osc1.type = wave;
-          if (voice.osc1DirectGain) voice.osc1DirectGain.gain.setTargetAtTime(1.0, now, 0.005);
-          if (voice.osc1PulseGain) voice.osc1PulseGain.gain.setTargetAtTime(0.0, now, 0.005);
-        }
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setWave(1, wave, now));
   }
 
   setVCO1Octave(octave) {
@@ -1178,20 +555,7 @@ class AudioEngine {
 
   setVCO2Wave(wave) {
     this.vco2.wave = wave;
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        if (wave === 'square') {
-          voice.osc2.type = 'sawtooth';
-          if (voice.osc2DirectGain) voice.osc2DirectGain.gain.setTargetAtTime(0.0, now, 0.005);
-          if (voice.osc2PulseGain) voice.osc2PulseGain.gain.setTargetAtTime(1.0, now, 0.005);
-        } else {
-          voice.osc2.type = wave;
-          if (voice.osc2DirectGain) voice.osc2DirectGain.gain.setTargetAtTime(1.0, now, 0.005);
-          if (voice.osc2PulseGain) voice.osc2PulseGain.gain.setTargetAtTime(0.0, now, 0.005);
-        }
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setWave(2, wave, now));
   }
 
   setVCO2Octave(octave) {
@@ -1215,32 +579,17 @@ class AudioEngine {
 
   setMixerVCO1(level) {
     this.mixer.vco1Level = parseFloat(level);
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        voice.osc1Gain.gain.setTargetAtTime(this.mixer.vco1Level, now, 0.015);
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setMixLevel('vco1Level', this.mixer.vco1Level, now));
   }
 
   setMixerVCO2(level) {
     this.mixer.vco2Level = parseFloat(level);
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        voice.osc2Gain.gain.setTargetAtTime(this.mixer.vco2Level, now, 0.015);
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setMixLevel('vco2Level', this.mixer.vco2Level, now));
   }
 
   setMixerSub(level) {
     this.mixer.subLevel = parseFloat(level);
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        voice.subGain.gain.setTargetAtTime(this.mixer.subLevel, now, 0.015);
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setMixLevel('subLevel', this.mixer.subLevel, now));
   }
 
   setMixerSubOctave(oct) {
@@ -1250,12 +599,7 @@ class AudioEngine {
 
   setMixerNoise(level) {
     this.mixer.noiseLevel = parseFloat(level);
-    if (this.ctx && this.voicePool) {
-      const now = this.ctx.currentTime;
-      for (const voice of this.voicePool) {
-        voice.noiseGain.gain.setTargetAtTime(this.mixer.noiseLevel, now, 0.015);
-      }
-    }
+    this.forEachVoice((voice, now) => voice.setMixLevel('noiseLevel', this.mixer.noiseLevel, now));
   }
 
   // --- VCF SETTERS ---
@@ -1277,11 +621,10 @@ class AudioEngine {
 
   setVCFDrive(drive) {
     this.vcf.drive = Math.max(0, Math.min(1, parseFloat(drive)));
-    if (this.ctx && this.voicePool) {
-      const curve = this.makeDistortionCurve(this.vcf.drive);
-      for (const voice of this.voicePool) {
-        voice.driveShaper.curve = curve;
-      }
+    if (!this.ctx) return;
+    const curve = this.makeDistortionCurve(this.vcf.drive);
+    for (const voice of this.voicePool) {
+      voice.driveShaper.curve = curve;
     }
   }
 
@@ -1371,107 +714,54 @@ class AudioEngine {
 
   setChorusMode(mode) {
     this.fx.chorus.mode = mode;
-    if (this.ctx && this.chorusWetGain && this.chorusLfo && this.chorusLfoGainL) {
-      const now = this.ctx.currentTime;
-      let rate = 0.5;
-      let depth = 0.0035;
-      let wet = this.fx.chorus.mix;
-
-      switch (mode) {
-        case 'off':
-          wet = 0.0;
-          break;
-        case 'I':
-          rate = 0.45;
-          depth = 0.003;
-          break;
-        case 'II':
-          rate = 0.85;
-          depth = 0.0045;
-          break;
-        case 'I+II':
-          rate = 1.35;
-          depth = 0.0065;
-          break;
-      }
-
-      this.chorusWetGain.gain.setTargetAtTime(wet, now, 0.02);
-      this.chorusLfo.frequency.setTargetAtTime(rate, now, 0.02);
-      this.chorusLfoGainL.gain.setTargetAtTime(depth, now, 0.02);
-      this.chorusLfoGainR.gain.setTargetAtTime(-depth, now, 0.02);
-    }
+    if (this.fxChain) this.fxChain.applyChorusMode();
   }
 
   setChorusMix(val) {
     this.fx.chorus.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.ctx && this.chorusWetGain && this.fx.chorus.mode !== 'off') {
-      this.chorusWetGain.gain.setTargetAtTime(this.fx.chorus.mix, this.ctx.currentTime, 0.02);
-    }
+    if (this.fxChain) this.fxChain.applyChorusMix();
   }
 
   setDelayTime(val) {
     this.fx.delay.time = Math.max(0.02, Math.min(1.0, parseFloat(val)));
-    if (this.ctx && this.delayL && this.delayR) {
-      const now = this.ctx.currentTime;
-      this.delayL.delayTime.setTargetAtTime(this.fx.delay.time, now, 0.03);
-      this.delayR.delayTime.setTargetAtTime(this.fx.delay.time * 1.333, now, 0.03);
-    }
+    if (this.fxChain) this.fxChain.applyDelayTime();
   }
 
   setDelayFeedback(val) {
     this.fx.delay.feedback = Math.max(0.0, Math.min(0.9, parseFloat(val)));
-    if (this.ctx && this.delayFeedbackGainL && this.delayFeedbackGainR) {
-      const now = this.ctx.currentTime;
-      this.delayFeedbackGainL.gain.setTargetAtTime(this.fx.delay.feedback, now, 0.02);
-      this.delayFeedbackGainR.gain.setTargetAtTime(this.fx.delay.feedback, now, 0.02);
-    }
+    if (this.fxChain) this.fxChain.applyDelayFeedback();
   }
 
   setDelayMix(val) {
     this.fx.delay.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.ctx && this.delayWetGain) {
-      this.delayWetGain.gain.setTargetAtTime(this.fx.delay.mix, this.ctx.currentTime, 0.02);
-    }
+    if (this.fxChain) this.fxChain.applyDelayMix();
   }
 
   setReverbDecay(val) {
     this.fx.reverb.decay = Math.max(0.5, Math.min(10.0, parseFloat(val)));
-    if (this.ctx && this.reverbConvolver) {
-      this.updateReverbImpulse(this.fx.reverb.decay);
-    }
+    if (this.fxChain) this.fxChain.applyReverbDecay();
   }
 
   setReverbMix(val) {
     this.fx.reverb.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.ctx && this.reverbWetGain) {
-      this.reverbWetGain.gain.setTargetAtTime(this.fx.reverb.mix, this.ctx.currentTime, 0.02);
-    }
+    if (this.fxChain) this.fxChain.applyReverbMix();
+  }
+
+  /**
+   * Runs fn(voice, now) for every voice once the audio graph exists
+   */
+  forEachVoice(fn) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    for (const voice of this.voicePool) fn(voice, now);
   }
 
   updateAllVoiceFilters() {
-    if (!this.ctx || !this.voicePool) return;
-    for (const voice of this.voicePool) {
-      const cutoff = voice.midiNote !== null ? this.getVoiceCutoffFrequency(voice.midiNote) : this.vcf.cutoff;
-      voice.voiceCutoff = cutoff;
-      this.configureFilterNodes(voice.vcf1, voice.vcf2, cutoff, this.vcf.resonance, this.vcf.type);
-    }
+    this.forEachVoice((voice) => voice.updateFilter());
   }
 
   updateAllVoiceFrequencies() {
-    if (!this.ctx || !this.voicePool) return;
-    const now = this.ctx.currentTime;
-    for (const voice of this.voicePool) {
-      if (voice.midiNote !== null) {
-        const baseFreq = this.midiNoteToFrequency(voice.midiNote);
-        const vco1Freq = this.getVCO1Frequency(baseFreq);
-        const vco2Freq = this.getVCO2Frequency(baseFreq);
-        const subFreq = baseFreq * Math.pow(2, this.mixer.subOctave) * this.pitchBendFactor;
-
-        voice.osc1.frequency.setTargetAtTime(vco1Freq, now, 0.015);
-        voice.osc2.frequency.setTargetAtTime(vco2Freq, now, 0.015);
-        voice.subOsc.frequency.setTargetAtTime(subFreq, now, 0.015);
-      }
-    }
+    this.forEachVoice((voice, now) => voice.updateFrequencies(now));
   }
 
   setMasterVolume(value) {
