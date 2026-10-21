@@ -1,5 +1,6 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
+const vm = require('node:vm');
 const { loadScripts } = require('./helpers/load-browser-script');
 
 function createEngine() {
@@ -145,6 +146,46 @@ describe('allocateVoice', () => {
     assert.equal(engine.allocateVoice(65), engine.voicePool[1]);
     assert.equal(engine.activeVoices.has(62), false);
   });
+});
+
+describe('sample & hold LFO', () => {
+  // Records the last setTargetAtTime value per gain node
+  function recordingGain() {
+    const node = { value: null };
+    node.gain = { setTargetAtTime: (v) => { node.value = v; }, setValueAtTime() {}, cancelScheduledValues() {} };
+    return node;
+  }
+
+  function engineWithShVoice(lfoNum) {
+    const context = loadScripts('audio-engine.js');
+    vm.runInContext('Math.random = () => 1;', context); // S&H value = 1 * 2 - 1 = +1
+    const engine = new context.AudioEngine();
+    engine.ctx = { currentTime: 0 };
+    const voice = {};
+    for (const n of [1, 2]) {
+      for (const dest of ['PitchGain', 'VcfGain', 'PwmGain1', 'PwmGain2', 'AmpGain']) {
+        voice[`lfo${n}${dest}`] = recordingGain();
+      }
+    }
+    engine.voicePool = [voice];
+    engine.setLFOParam(lfoNum, 'wave', 'samplehold');
+    for (const dest of ['pitch', 'vcf', 'pwm', 'amp']) engine.setLFOParam(lfoNum, dest, 1);
+    engine.startSampleAndHoldLoop(lfoNum);
+    const tick = [...context.__intervals.values()].pop();
+    return { engine, voice, tick };
+  }
+
+  for (const lfoNum of [1, 2]) {
+    test(`LFO${lfoNum} S&H uses the same modulation depths as the continuous LFO`, () => {
+      const { voice, tick } = engineWithShVoice(lfoNum);
+      tick();
+      assert.equal(voice[`lfo${lfoNum}PitchGain`].value, 200);
+      assert.equal(voice[`lfo${lfoNum}VcfGain`].value, 3600);
+      assert.equal(voice[`lfo${lfoNum}PwmGain1`].value, 0.35);
+      assert.equal(voice[`lfo${lfoNum}PwmGain2`].value, 0.35);
+      assert.equal(voice[`lfo${lfoNum}AmpGain`].value, 0.45);
+    });
+  }
 });
 
 describe('preset state', () => {

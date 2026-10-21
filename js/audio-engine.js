@@ -9,6 +9,10 @@
  * Oscilloscope Analyser, Master Gain, and MIDI Integration.
  */
 
+// LFO destination depth at amount 1.0: cents for pitch/vcf, gain units for pwm/amp
+const LFO_DESTINATIONS = ['pitch', 'vcf', 'pwm', 'amp'];
+const LFO_DEPTH = { pitch: 200, vcf: 3600, pwm: 0.35, amp: 0.45 };
+
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -111,13 +115,12 @@ class AudioEngine {
 
     this.lfo1Osc = null;
     this.lfo1Gain = null;
-    this.lfo1ShTimer = null;
-    this.lfo1ShValue = 0;
-
     this.lfo2Osc = null;
     this.lfo2Gain = null;
-    this.lfo2ShTimer = null;
-    this.lfo2ShValue = 0;
+
+    // Sample & Hold state per LFO number (index 0 unused)
+    this.lfoShTimers = [null, null, null];
+    this.lfoShValues = [0, 0, 0];
 
     // Vintage Stereo FX Rack Parameters
     this.fx = {
@@ -526,58 +529,35 @@ class AudioEngine {
     this.startSampleAndHoldLoop(2);
   }
 
-  startSampleAndHoldLoop(lfoNum) {
-    if (lfoNum === 1) {
-      if (this.lfo1ShTimer) clearInterval(this.lfo1ShTimer);
-      const intervalMs = Math.max(20, Math.min(2000, 1000 / this.lfo1.rate));
-      this.lfo1ShTimer = setInterval(() => {
-        if (this.lfo1.wave === 'samplehold') {
-          this.lfo1ShValue = (Math.random() * 2 - 1);
-          if (this.ctx && this.voicePool) {
-            const now = this.ctx.currentTime;
-            for (const voice of this.voicePool) {
-              if (voice.lfo1PitchGain) {
-                voice.lfo1PitchGain.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.pitch * 1200, now, 0.005);
-              }
-              if (voice.lfo1VcfGain) {
-                voice.lfo1VcfGain.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.vcf * 3600, now, 0.005);
-              }
-              if (voice.lfo1PwmGain1) {
-                voice.lfo1PwmGain1.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.pwm * 0.35, now, 0.005);
-              }
-              if (voice.lfo1PwmGain2) {
-                voice.lfo1PwmGain2.gain.setTargetAtTime(this.lfo1ShValue * this.lfo1.destinations.pwm * 0.35, now, 0.005);
-              }
-            }
-          }
-        }
-      }, intervalMs);
-    } else {
-      if (this.lfo2ShTimer) clearInterval(this.lfo2ShTimer);
-      const intervalMs = Math.max(20, Math.min(2000, 1000 / this.lfo2.rate));
-      this.lfo2ShTimer = setInterval(() => {
-        if (this.lfo2.wave === 'samplehold') {
-          this.lfo2ShValue = (Math.random() * 2 - 1);
-          if (this.ctx && this.voicePool) {
-            const now = this.ctx.currentTime;
-            for (const voice of this.voicePool) {
-              if (voice.lfo2PitchGain) {
-                voice.lfo2PitchGain.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.pitch * 1200, now, 0.005);
-              }
-              if (voice.lfo2VcfGain) {
-                voice.lfo2VcfGain.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.vcf * 3600, now, 0.005);
-              }
-              if (voice.lfo2PwmGain1) {
-                voice.lfo2PwmGain1.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.pwm * 0.35, now, 0.005);
-              }
-              if (voice.lfo2PwmGain2) {
-                voice.lfo2PwmGain2.gain.setTargetAtTime(this.lfo2ShValue * this.lfo2.destinations.pwm * 0.35, now, 0.005);
-              }
-            }
-          }
-        }
-      }, intervalMs);
+  /**
+   * Sets one LFO destination depth on every voice: depth * LFO_DEPTH[dest] * scale.
+   * scale is 1 for continuous waves and the current random value for Sample & Hold.
+   */
+  applyLfoDepth(lfoNum, dest, scale, now, timeConstant) {
+    const amount = this[`lfo${lfoNum}`].destinations[dest] * LFO_DEPTH[dest] * scale;
+    const nodeKeys = dest === 'pwm'
+      ? [`lfo${lfoNum}PwmGain1`, `lfo${lfoNum}PwmGain2`]
+      : [`lfo${lfoNum}${dest === 'vcf' ? 'Vcf' : dest[0].toUpperCase() + dest.slice(1)}Gain`];
+    for (const voice of this.voicePool) {
+      for (const key of nodeKeys) {
+        if (voice[key]) voice[key].gain.setTargetAtTime(amount, now, timeConstant);
+      }
     }
+  }
+
+  startSampleAndHoldLoop(lfoNum) {
+    const lfo = this[`lfo${lfoNum}`];
+    if (this.lfoShTimers[lfoNum]) clearInterval(this.lfoShTimers[lfoNum]);
+    const intervalMs = Math.max(20, Math.min(2000, 1000 / lfo.rate));
+    this.lfoShTimers[lfoNum] = setInterval(() => {
+      if (lfo.wave !== 'samplehold') return;
+      this.lfoShValues[lfoNum] = Math.random() * 2 - 1;
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      for (const dest of LFO_DESTINATIONS) {
+        this.applyLfoDepth(lfoNum, dest, this.lfoShValues[lfoNum], now, 0.005);
+      }
+    }, intervalMs);
   }
 
   /**
@@ -1375,59 +1355,13 @@ class AudioEngine {
         break;
 
       case 'pitch':
-        lfo.destinations.pitch = Math.max(0, Math.min(1, parseFloat(val)));
-        if (this.ctx && this.voicePool) {
-          const now = this.ctx.currentTime;
-          for (const voice of this.voicePool) {
-            const node = lfoNum === 2 ? voice.lfo2PitchGain : voice.lfo1PitchGain;
-            if (node) {
-              node.gain.setTargetAtTime(lfo.destinations.pitch * 200, now, 0.02);
-            }
-          }
-        }
-        break;
-
       case 'vcf':
-        lfo.destinations.vcf = Math.max(0, Math.min(1, parseFloat(val)));
-        if (this.ctx && this.voicePool) {
-          const now = this.ctx.currentTime;
-          for (const voice of this.voicePool) {
-            const node = lfoNum === 2 ? voice.lfo2VcfGain : voice.lfo1VcfGain;
-            if (node) {
-              node.gain.setTargetAtTime(lfo.destinations.vcf * 3600, now, 0.02);
-            }
-          }
-        }
-        break;
-
       case 'pwm':
-        lfo.destinations.pwm = Math.max(0, Math.min(1, parseFloat(val)));
-        if (this.ctx && this.voicePool) {
-          const now = this.ctx.currentTime;
-          const amt = lfo.destinations.pwm * 0.35;
-          for (const voice of this.voicePool) {
-            const node1 = lfoNum === 2 ? voice.lfo2PwmGain1 : voice.lfo1PwmGain1;
-            const node2 = lfoNum === 2 ? voice.lfo2PwmGain2 : voice.lfo1PwmGain2;
-            if (node1) {
-              node1.gain.setTargetAtTime(amt, now, 0.02);
-            }
-            if (node2) {
-              node2.gain.setTargetAtTime(amt, now, 0.02);
-            }
-          }
-        }
-        break;
-
       case 'amp':
-        lfo.destinations.amp = Math.max(0, Math.min(1, parseFloat(val)));
-        if (this.ctx && this.voicePool) {
-          const now = this.ctx.currentTime;
-          for (const voice of this.voicePool) {
-            const node = lfoNum === 2 ? voice.lfo2AmpGain : voice.lfo1AmpGain;
-            if (node) {
-              node.gain.setTargetAtTime(lfo.destinations.amp * 0.45, now, 0.02);
-            }
-          }
+        lfo.destinations[param] = Math.max(0, Math.min(1, parseFloat(val)));
+        if (this.ctx) {
+          const shScale = lfo.wave === 'samplehold' ? this.lfoShValues[lfoNum] : 1;
+          this.applyLfoDepth(lfoNum, param, shScale, this.ctx.currentTime, 0.02);
         }
         break;
     }
