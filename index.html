@@ -1242,10 +1242,10 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
             <span class="release-version-number">v1.8.2</span>
-            <span class="release-date-tag">September 2026</span>
+            <span class="release-date-tag">Oktober 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">Preset Overwrite & Save-As-New • Mobile Landscape Poti-Ergonomie • PWM & 909 Studio</p>
+          <p class="modal-subtitle">Sample & Hold Fix • Arpeggiator Latch • Sync-Anzeigen • Neuer Unterbau mit 90 Tests</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1253,30 +1253,27 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
-            <div class="card-icon">💾</div>
+            <div class="card-icon">🎚️</div>
             <div class="card-content">
-              <div class="card-badge perf-badge">PRESET MANAGER & PATCHES</div>
-              <h3>User-Preset In-Place Update & Speichern</h3>
-              <p>Volle Flexibilität beim Erstellen, Anpassen und Verwalten eigener Sounds:</p>
+              <div class="card-badge dsp-badge">LFO & MODULATION</div>
+              <h3>Sample & Hold mit richtiger Tiefe</h3>
+              <p>S&H moduliert jetzt genauso stark wie die anderen LFO-Wellen:</p>
               <ul>
-                <li><strong>In-Place Überschreiben:</strong> Eigene Presets nach Parameter-Änderungen mit einem Klick auf <code>💾 Überschreiben</code> direkt aktualisieren.</li>
-                <li><strong>Als Neu Speichern (Save As):</strong> Soundvarianten blitzschnell als separate neue User-Presets abzweigen.</li>
-                <li><strong>Preset Löschen:</strong> Ungewollte Custom-Presets mit Sicherheitsabfrage direkt aus dem Browser-Speicher entfernen.</li>
-                <li><strong>Keyboard Shortcuts:</strong> <kbd>Enter</kbd> im Dialog speichert sofort, <kbd>Escape</kbd> bricht ab.</li>
+                <li><strong>Pitch-Tiefe korrigiert:</strong> PITCH auf 100% bewegt die Tonhöhe um bis zu ±2 Halbtöne, wie bei Sinus und Dreieck. Bisher waren es bis zu ±1 Oktave.</li>
+                <li><strong>AMP wirkt mit S&H:</strong> Das Lautstärkeziel folgt jetzt auch den Zufallsstufen. Bisher blieb AMP bei S&H ohne Wirkung.</li>
+                <li>Gilt für LFO 1 und LFO 2.</li>
               </ul>
             </div>
           </div>
-          
+
           <div class="changelog-card">
-            <div class="card-icon">📐</div>
+            <div class="card-icon">🔁</div>
             <div class="card-content">
-              <div class="card-badge env-badge">POTI & UI ERGONOMIE</div>
-              <h3>Perfekte Kreisform & Touch-Präzision</h3>
-              <p>Hardware-authentisches Drehregler-Feeling auf allen Geräten & Displays:</p>
+              <div class="card-badge perf-badge">ARPEGGIATOR</div>
+              <h3>Latch übernimmt gehaltene Noten</h3>
+              <p>LATCH lässt sich jetzt auch einschalten, während du schon einen Akkord hältst:</p>
               <ul>
-                <li><strong>100% Circular Knobs:</strong> Durch strikte <code>aspect-ratio: 1 / 1</code> bleiben alle Potis (Cutoff, Resonance, etc.) auch im Landscape-Modus exakt kreisrund.</li>
-                <li><strong>Optimierte Proportionen:</strong> Skalierte Drehregler und Zeiger auf Smartphones und Tablets für ermüdungsfreies Schrauben.</li>
-                <li><strong>Glissando & Multi-Touch:</strong> Unabhängiges Drehen von Reglern während Tasten gehalten oder gedrückt werden.</li>
+                <li><strong>Akkord bleibt stehen:</strong> Die gehaltenen Noten laufen nach dem Loslassen weiter. Bisher blieb die Sequenz in diesem Fall leer.</li>
               </ul>
             </div>
           </div>
@@ -1284,25 +1281,27 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="changelog-card">
             <div class="card-icon">🎛️</div>
             <div class="card-content">
-              <div class="card-badge dsp-badge">AUDIO-DSP & PWM</div>
-              <h3>Audio-Rate PWM & Dual-VCO WaveShaper</h3>
-              <p>Analoge Pulsbreitenmodulation für lebendige Juno- & Solina-Klänge:</p>
+              <div class="card-badge env-badge">BEDIENUNG</div>
+              <h3>Anzeigen zeigen den echten Zustand</h3>
+              <p>Kleine Korrekturen am Panel und am Drum Rack:</p>
               <ul>
-                <li><strong>4x-Oversampled WaveShaper:</strong> Analoge Sägezahn-zu-Puls-Transformation mit de-klickendem Tanh-Komparator.</li>
-                <li><strong>Dual-LFO Modulation:</strong> LFO 1 und LFO 2 modulieren VCO 1 & VCO 2 Pulsbreite stufenlos in Echtzeit.</li>
+                <li><strong>VCO 2 SYNC:</strong> Die Taste passt sich beim Preset-Wechsel an das Preset an.</li>
+                <li><strong>Drum SYNC:</strong> Zeigt beim Start <code>SYNC: OFF</code>, solange der Arpeggiator intern taktet.</li>
+                <li><strong>Tempo:</strong> BPM-Tasten, Tap-Tempo und Kit-Wechsel ziehen einen synchronisierten Arpeggiator mit.</li>
               </ul>
             </div>
           </div>
 
           <div class="changelog-card">
-            <div class="card-icon">🥁</div>
+            <div class="card-icon">🧪</div>
             <div class="card-content">
-              <div class="card-badge env-badge">STUDIO SIDEKICK</div>
-              <h3>RETROBEAT D-909 & Master Clock Sync</h3>
-              <p>Einfahrbares 16-Step Studio Rack mit phasenstarrer Clock:</p>
+              <div class="card-badge env-badge">UNTER DER HAUBE</div>
+              <h3>Aufgeräumter Code & 90 Tests</h3>
+              <p>Klang und Layout bleiben gleich, der Code ist neu sortiert:</p>
               <ul>
-                <li><strong>5 DSP Drum Spuren:</strong> Kick, Snare, Closed Hat, Open Hat mit Choke & Clap.</li>
-                <li><strong>303 Acid Bassline:</strong> Monophoner Bass-Synth mit 24dB Moog-Ladder Filter, Accent & Slide.</li>
+                <li><strong>Kleinere Module:</strong> Stimme, Effekte, Tastatur, Regler, Presets und Oszilloskop liegen in eigenen Dateien.</li>
+                <li><strong>Weniger Last beim Schrauben:</strong> Alle Regler teilen sich 4 Fenster-Listener statt bisher 4 pro Regler.</li>
+                <li><strong>90 automatische Tests</strong> prüfen Stimmen, LFOs, Effekte, Presets und Drums.</li>
               </ul>
             </div>
           </div>
@@ -1314,10 +1313,14 @@ window.addEventListener('DOMContentLoaded', () => {
           <details class="archive-details">
             <summary class="archive-summary">
               <span class="archive-title">📦 Frühere Versionen anzeigen</span>
-              <span class="archive-badge">v1.7.7, v1.3.0, v1.1.0 & v1.0.0</span>
+              <span class="archive-badge">v1.8.0, v1.7.7, v1.3.0, v1.1.0 & v1.0.0</span>
             </summary>
             <div class="archive-content">
               <div class="archive-entry">
+                <h4>Version 1.8.0 – Preset Manager & Poti-Ergonomie</h4>
+                <p>User-Presets überschreiben, als neu speichern und löschen, kreisrunde Potis auf allen Displays, Enter/Escape im Preset-Dialog.</p>
+              </div>
+              <div class="archive-entry" style="margin-top: 10px;">
                 <h4>Version 1.7.7 – Audio-Rate PWM & Dual-VCO WaveShaper</h4>
                 <p>4x-oversampled WaveShaper PWM, Dual-LFO Modulation Matrix, S&H PWM Fade-In und statischer Pulsbreiten-Offset.</p>
               </div>

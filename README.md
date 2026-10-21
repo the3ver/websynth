@@ -10,6 +10,12 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
+### ⚡ NEU in v1.8.2: Sample & Hold Fix, Arpeggiator Latch & neuer Unterbau
+- **🎚️ Sample & Hold:** PITCH auf 100% bewegt die Tonhöhe um bis zu ±2 Halbtöne wie bei den anderen LFO-Wellen (bisher bis zu ±1 Oktave). AMP wirkt jetzt auch mit S&H.
+- **🔁 Arpeggiator Latch:** LATCH übernimmt Noten, die beim Einschalten schon gehalten werden.
+- **🎛️ Anzeigen:** VCO-2-SYNC folgt dem Preset, die Drum-SYNC-Taste zeigt beim Start den echten Zustand, BPM-Tasten und Tap-Tempo ziehen einen synchronisierten Arpeggiator mit.
+- **🧪 Unterbau:** Code in kleinere Module aufgeteilt, 90 automatische Tests (`npm test`).
+
 ### ⚡ NEU in v1.8.0: Preset Manager In-Place Update & Poti-Ergonomie
 - **💾 In-Place Preset Update & Save-As-New:** Eigene Sounds mit `💾 Überschreiben` direkt in-place aktualisieren oder über `Als Neu speichern` Varianten abzweigen.
 - **🗑️ User-Preset Löschen:** Ungewollte User-Patches direkt aus dem Dialog sauber aus dem Browser-Speicher entfernen.
