@@ -34,16 +34,39 @@ class Voice {
   // =========================================================================
 
   buildGraph() {
-    const engine = this.engine;
-    const ctx = engine.ctx;
-    const now = ctx.currentTime;
+    this.buildLfoRouting();
 
-    // LFO routing gains per LFO number (index 0 unused); pwm has one gain per VCO
+    const vco1 = this.buildVcoPath(1);
+    const vco2 = this.buildVcoPath(2);
+    this.osc1 = vco1.osc;
+    this.osc1DirectGain = vco1.directGain;
+    this.osc1PulseGain = vco1.pulseGain;
+    this.osc2 = vco2.osc;
+    this.osc2DirectGain = vco2.directGain;
+    this.osc2PulseGain = vco2.pulseGain;
+
+    const mixerBus = this.buildMixer(vco1, vco2);
+    this.buildFilterAndAmp(mixerBus);
+    this.connectLfoDestinations();
+
+    // Continuous oscillators
+    this.osc1.start(0);
+    this.osc2.start(0);
+    this.subOsc.start(0);
+  }
+
+  /**
+   * LFO routing gains per LFO number (index 0 unused), fed by the engine's global LFOs.
+   * pwm holds one gain per VCO.
+   */
+  buildLfoRouting() {
+    const engine = this.engine;
+    const now = engine.ctx.currentTime;
     this.lfo = [null];
     for (const lfoNum of [1, 2]) {
       const dest = engine.getLfo(lfoNum).destinations;
       const makeGain = (amount) => {
-        const g = ctx.createGain();
+        const g = engine.ctx.createGain();
         g.gain.setValueAtTime(amount, now);
         if (engine[`lfo${lfoNum}Gain`]) engine[`lfo${lfoNum}Gain`].connect(g);
         return g;
@@ -55,22 +78,20 @@ class Voice {
         amp: makeGain(dest.amp * LFO_DEPTH.amp)
       });
     }
+  }
 
-    // 1. Oscillators
-    const vco1 = this.buildVcoPath(1);
-    const vco2 = this.buildVcoPath(2);
-    this.osc1 = vco1.osc;
-    this.osc1DirectGain = vco1.directGain;
-    this.osc1PulseGain = vco1.pulseGain;
-    this.osc2 = vco2.osc;
-    this.osc2DirectGain = vco2.directGain;
-    this.osc2PulseGain = vco2.pulseGain;
+  /**
+   * Sub-oscillator, shared noise and the four mixer level gains summed into one bus
+   */
+  buildMixer(vco1, vco2) {
+    const engine = this.engine;
+    const ctx = engine.ctx;
+    const now = ctx.currentTime;
 
     this.subOsc = ctx.createOscillator();
     this.subOsc.type = 'triangle';
     this.subOsc.frequency.setValueAtTime(220, now);
 
-    // 2. Mixer Gains
     const makeLevel = (level) => {
       const g = ctx.createGain();
       g.gain.setValueAtTime(level, now);
@@ -89,14 +110,23 @@ class Voice {
     this.subOsc.connect(this.subGain);
     if (engine.sharedNoiseGain) engine.sharedNoiseGain.connect(this.noiseGain);
 
-    const voiceMixerBus = ctx.createGain();
-    for (const g of Object.values(this.mixGains)) g.connect(voiceMixerBus);
+    const mixerBus = ctx.createGain();
+    for (const g of Object.values(this.mixGains)) g.connect(mixerBus);
+    return mixerBus;
+  }
 
-    // 3. Filter Drive & cascaded VCF
+  /**
+   * Drive -> cascaded VCF -> VCA -> Tremolo -> engine voice bus
+   */
+  buildFilterAndAmp(mixerBus) {
+    const engine = this.engine;
+    const ctx = engine.ctx;
+    const now = ctx.currentTime;
+
     this.driveShaper = ctx.createWaveShaper();
     this.driveShaper.curve = engine.makeDistortionCurve(engine.vcf.drive);
     this.driveShaper.oversample = '2x';
-    voiceMixerBus.connect(this.driveShaper);
+    mixerBus.connect(this.driveShaper);
 
     this.vcf1 = ctx.createBiquadFilter();
     this.vcf2 = ctx.createBiquadFilter();
@@ -104,7 +134,6 @@ class Voice {
     this.driveShaper.connect(this.vcf1);
     this.vcf1.connect(this.vcf2);
 
-    // 4. VCA & post-VCA Tremolo stage
     this.vca = ctx.createGain();
     this.vca.gain.setValueAtTime(0.0, now);
     this.vcf2.connect(this.vca);
@@ -113,8 +142,9 @@ class Voice {
     this.tremoloGain.gain.setValueAtTime(1.0, now);
     this.vca.connect(this.tremoloGain);
     this.tremoloGain.connect(engine.masterVoiceBus);
+  }
 
-    // 5. LFO destinations
+  connectLfoDestinations() {
     for (const lfoNum of [1, 2]) {
       const route = this.lfo[lfoNum];
       route.pitch.connect(this.osc1.detune);
@@ -123,11 +153,6 @@ class Voice {
       route.vcf.connect(this.vcf2.detune);
       route.amp.connect(this.tremoloGain.gain);
     }
-
-    // Continuous oscillators
-    this.osc1.start(0);
-    this.osc2.start(0);
-    this.subOsc.start(0);
   }
 
   /**

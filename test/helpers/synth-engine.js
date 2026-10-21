@@ -4,7 +4,7 @@
 const { loadScriptsWith } = require('./load-browser-script');
 const { FakeAudioContext } = require('./fake-audio-context');
 
-const ENGINE_SCRIPTS = ['voice.js', 'fx-chain.js', 'audio-engine.js'];
+const ENGINE_SCRIPTS = ['synth-params.js', 'voice.js', 'fx-chain.js', 'audio-engine.js'];
 
 function loadEngineContext(...extraScripts) {
   return loadScriptsWith({ AudioContext: FakeAudioContext, navigator: {} }, ...ENGINE_SCRIPTS, ...extraScripts);

@@ -93,7 +93,13 @@ class DrumUI {
   // =========================================================================
 
   initTransport() {
-    // Play / Stop Button
+    this.initPlayButton();
+    this.initStepLeds();
+    this.initTempoControls();
+    this.initMixControls();
+  }
+
+  initPlayButton() {
     if (this.playBtn) {
       this.playBtn.addEventListener('click', (e) => {
         this.drum.togglePlay();
@@ -109,94 +115,78 @@ class DrumUI {
         if (icon) icon.textContent = isPlaying ? '⏹' : '▶';
         if (text) text.textContent = isPlaying ? 'STOP' : 'START';
       }
-      if (this.drawerTab) {
-        const tabLed = this.drawerTab.querySelector('.tab-pulse-led');
-        if (tabLed) tabLed.classList.toggle('running', isPlaying);
-      }
+      const tabLed = this.drawerTab && this.drawerTab.querySelector('.tab-pulse-led');
+      if (tabLed) tabLed.classList.toggle('running', isPlaying);
     };
+  }
 
-    // Live Step Tracker (LED Running Lights)
+  /**
+   * Running step lights; the drawer tab LED flashes on every beat (steps 0, 4, 8, 12)
+   */
+  initStepLeds() {
     this.drum.onStep = (stepIndex) => {
-      this.stepLeds.forEach((led, idx) => {
-        if (idx === stepIndex) {
-          led.classList.add('active');
-        } else {
-          led.classList.remove('active');
-        }
-      });
-      // Flash tab pulse LED on beat 1 (step 0, 4, 8, 12)
-      if (this.drawerTab && (stepIndex % 4 === 0)) {
-        const tabLed = this.drawerTab.querySelector('.tab-pulse-led');
-        if (tabLed) {
-          tabLed.classList.add('flash');
-          setTimeout(() => tabLed.classList.remove('flash'), 80);
-        }
+      this.stepLeds.forEach((led, idx) => led.classList.toggle('active', idx === stepIndex));
+      const tabLed = this.drawerTab && this.drawerTab.querySelector('.tab-pulse-led');
+      if (tabLed && stepIndex % 4 === 0) {
+        tabLed.classList.add('flash');
+        setTimeout(() => tabLed.classList.remove('flash'), 80);
       }
     };
+  }
 
-    // BPM Display & Adjustment
+  /**
+   * BPM from the last tap timestamps (ms); null until two taps or when outside 40..300 BPM
+   */
+  static bpmFromTaps(tapTimes) {
+    if (tapTimes.length < 2) return null;
+    const avgDiff = (tapTimes[tapTimes.length - 1] - tapTimes[0]) / (tapTimes.length - 1);
+    const bpm = Math.round(60000 / avgDiff);
+    return bpm >= 40 && bpm <= 300 ? bpm : null;
+  }
+
+  /**
+   * Sets the drum tempo, shows it, and keeps an externally synced arpeggiator on the same tempo
+   */
+  setTempo(bpm) {
+    this.drum.setBpm(bpm);
+    if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
+    if (this.arp && this.arp.syncMode === 'external') this.arp.setBpm(this.drum.bpm);
+  }
+
+  initTempoControls() {
     if (this.bpmInput) {
       this.bpmInput.value = this.drum.bpm;
       this.bpmInput.addEventListener('change', (e) => {
-        this.drum.setBpm(e.target.value);
-        this.bpmInput.value = this.drum.bpm;
-        if (this.arp && this.arp.syncMode === 'external') {
-          this.arp.setBpm(this.drum.bpm);
-        }
+        this.setTempo(e.target.value);
         e.target.blur();
       });
     }
 
-    if (this.bpmUpBtn) {
-      this.bpmUpBtn.addEventListener('click', (e) => {
-        this.drum.setBpm(this.drum.bpm + 1);
-        if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
+    const onClick = (btn, handler) => {
+      if (btn) btn.addEventListener('click', (e) => {
+        handler();
         DomUtils.blurTarget(e);
       });
-    }
+    };
+    onClick(this.bpmUpBtn, () => this.setTempo(this.drum.bpm + 1));
+    onClick(this.bpmDownBtn, () => this.setTempo(this.drum.bpm - 1));
+    onClick(this.tapBtn, () => {
+      this.tapTimes.push(Date.now());
+      if (this.tapTimes.length > 4) this.tapTimes.shift();
+      const bpm = DrumUI.bpmFromTaps(this.tapTimes);
+      if (bpm !== null) this.setTempo(bpm);
+    });
+  }
 
-    if (this.bpmDownBtn) {
-      this.bpmDownBtn.addEventListener('click', (e) => {
-        this.drum.setBpm(this.drum.bpm - 1);
-        if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
-        DomUtils.blurTarget(e);
-      });
-    }
-
-    // Tap Tempo
-    if (this.tapBtn) {
-      this.tapBtn.addEventListener('click', (e) => {
-        const now = Date.now();
-        this.tapTimes.push(now);
-        if (this.tapTimes.length > 4) this.tapTimes.shift();
-
-        if (this.tapTimes.length >= 2) {
-          const diffs = [];
-          for (let i = 1; i < this.tapTimes.length; i++) {
-            diffs.push(this.tapTimes[i] - this.tapTimes[i - 1]);
-          }
-          const avgDiff = diffs.reduce((a, b) => a + b, 0) / diffs.length;
-          const calculatedBpm = Math.round(60000 / avgDiff);
-          if (calculatedBpm >= 40 && calculatedBpm <= 300) {
-            this.drum.setBpm(calculatedBpm);
-            if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
-          }
-        }
-        DomUtils.blurTarget(e);
-      });
-    }
-
-    // Swing Knob / Slider
+  initMixControls() {
     if (this.swingKnob) {
       this.swingKnob.addEventListener('input', (e) => {
         this.drum.setSwing(parseFloat(e.target.value));
-        const readout = document.getElementById('drumSwingReadout');
-        if (readout) readout.textContent = `${Math.round(this.drum.swing * 100)}%`;
+        this.renderSwingReadout();
       });
       this.swingKnob.addEventListener('change', (e) => e.target.blur());
     }
 
-    // Master Volume
     if (this.volumeSlider) {
       this.volumeSlider.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
@@ -206,6 +196,11 @@ class DrumUI {
       });
       this.volumeSlider.addEventListener('change', (e) => e.target.blur());
     }
+  }
+
+  renderSwingReadout() {
+    const readout = document.getElementById('drumSwingReadout');
+    if (readout) readout.textContent = `${Math.round(this.drum.swing * 100)}%`;
   }
 
   // =========================================================================
@@ -357,10 +352,9 @@ class DrumUI {
 
       this.kitSelect.addEventListener('change', (e) => {
         this.drum.loadKit(e.target.value);
-        if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
+        this.setTempo(this.drum.bpm);
         if (this.swingKnob) this.swingKnob.value = this.drum.swing;
-        const swingReadout = document.getElementById('drumSwingReadout');
-        if (swingReadout) swingReadout.textContent = `${Math.round(this.drum.swing * 100)}%`;
+        this.renderSwingReadout();
 
         this.refreshMatrixUI();
         DomUtils.blurTarget(e);

@@ -8,11 +8,17 @@ class FXChain {
   constructor(ctx, fx, input, output) {
     this.ctx = ctx;
     this.fx = fx;
-    const now = ctx.currentTime;
+    const chorusOut = this.buildChorus(input);
+    const delayOut = this.buildDelay(chorusOut);
+    this.buildReverb(delayOut, output);
+  }
 
-    // -----------------------------------------------------------------------
-    // 1. JUNO STEREO BBD CHORUS
-    // -----------------------------------------------------------------------
+  /**
+   * JUNO STEREO BBD CHORUS
+   */
+  buildChorus(input) {
+    const now = this.ctx.currentTime;
+
     this.chorusDryGain = this.ctx.createGain();
     this.chorusWetGain = this.ctx.createGain();
     this.chorusDryGain.gain.setValueAtTime(1.0, now);
@@ -51,10 +57,15 @@ class FXChain {
     this.chorusDryGain.connect(chorusOutBus);
     chorusMerger.connect(this.chorusWetGain);
     this.chorusWetGain.connect(chorusOutBus);
+    return chorusOutBus;
+  }
 
-    // -----------------------------------------------------------------------
-    // 2. STEREO TAPE DELAY (Cross-Ping-Pong & High-Cut Feedback Filter)
-    // -----------------------------------------------------------------------
+  /**
+   * STEREO TAPE DELAY (Cross-Ping-Pong & High-Cut Feedback Filter)
+   */
+  buildDelay(input) {
+    const now = this.ctx.currentTime;
+
     this.delayDryGain = this.ctx.createGain();
     this.delayWetGain = this.ctx.createGain();
     this.delayDryGain.gain.setValueAtTime(1.0, now);
@@ -91,17 +102,22 @@ class FXChain {
     this.delayR.connect(delayMerger, 0, 1);
 
     const delayOutBus = this.ctx.createGain();
-    chorusOutBus.connect(this.delayDryGain);
-    chorusOutBus.connect(this.delayL);
-    chorusOutBus.connect(this.delayR);
+    input.connect(this.delayDryGain);
+    input.connect(this.delayL);
+    input.connect(this.delayR);
 
     this.delayDryGain.connect(delayOutBus);
     delayMerger.connect(this.delayWetGain);
     this.delayWetGain.connect(delayOutBus);
+    return delayOutBus;
+  }
 
-    // -----------------------------------------------------------------------
-    // 3. WARM STUDIO SPACE REVERB
-    // -----------------------------------------------------------------------
+  /**
+   * WARM STUDIO SPACE REVERB
+   */
+  buildReverb(input, output) {
+    const now = this.ctx.currentTime;
+
     this.reverbDryGain = this.ctx.createGain();
     this.reverbWetGain = this.ctx.createGain();
     this.reverbDryGain.gain.setValueAtTime(1.0, now);
@@ -110,8 +126,8 @@ class FXChain {
     this.reverbConvolver = this.ctx.createConvolver();
     this.applyReverbDecay();
 
-    delayOutBus.connect(this.reverbDryGain);
-    delayOutBus.connect(this.reverbConvolver);
+    input.connect(this.reverbDryGain);
+    input.connect(this.reverbConvolver);
 
     this.reverbDryGain.connect(output);
     this.reverbConvolver.connect(this.reverbWetGain);

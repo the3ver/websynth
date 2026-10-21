@@ -9,6 +9,14 @@
  * Oscilloscope Analyser, Master Gain, and MIDI Integration.
  */
 
+// ADSR stage limits (attack/decay/release in seconds, sustain as level)
+const ENV_STAGE_RANGE = {
+  attack: [0.001, Infinity],
+  decay: [0.001, Infinity],
+  sustain: [0.0, 1.0],
+  release: [0.005, Infinity]
+};
+
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -639,36 +647,14 @@ class AudioEngine {
 
   // --- ADSR ENVELOPE SETTERS ---
 
-  setFilterEnvAttack(val) {
-    this.filterEnv.attack = Math.max(0.001, parseFloat(val));
-  }
-
-  setFilterEnvDecay(val) {
-    this.filterEnv.decay = Math.max(0.001, parseFloat(val));
-  }
-
-  setFilterEnvSustain(val) {
-    this.filterEnv.sustain = Math.max(0.0, Math.min(1.0, parseFloat(val)));
-  }
-
-  setFilterEnvRelease(val) {
-    this.filterEnv.release = Math.max(0.005, parseFloat(val));
-  }
-
-  setAmpEnvAttack(val) {
-    this.ampEnv.attack = Math.max(0.001, parseFloat(val));
-  }
-
-  setAmpEnvDecay(val) {
-    this.ampEnv.decay = Math.max(0.001, parseFloat(val));
-  }
-
-  setAmpEnvSustain(val) {
-    this.ampEnv.sustain = Math.max(0.0, Math.min(1.0, parseFloat(val)));
-  }
-
-  setAmpEnvRelease(val) {
-    this.ampEnv.release = Math.max(0.005, parseFloat(val));
+  /**
+   * Sets one ADSR stage: setEnvStage('ampEnv' | 'filterEnv', 'attack' | 'decay' | 'sustain' | 'release', value)
+   */
+  setEnvStage(envName, stage, val) {
+    const env = this[envName];
+    if (!env || !(stage in env)) return;
+    const [min, max] = ENV_STAGE_RANGE[stage];
+    env[stage] = Math.max(min, Math.min(max, parseFloat(val)));
   }
 
   // --- DUAL LFO 1 & LFO 2 SETTERS ---
@@ -852,106 +838,11 @@ class AudioEngine {
   // =========================================================================
 
   getPresetState() {
-    return {
-      vco1: { wave: this.vco1.wave, octave: this.vco1.octave, pulseWidth: this.vco1.pulseWidth },
-      vco2: { wave: this.vco2.wave, octave: this.vco2.octave, semitone: this.vco2.semitone, detuneCents: this.vco2.detuneCents, hardSync: this.vco2.hardSync },
-      mixer: { vco1Level: this.mixer.vco1Level, vco2Level: this.mixer.vco2Level, subLevel: this.mixer.subLevel, subOctave: this.mixer.subOctave, noiseLevel: this.mixer.noiseLevel },
-      vcf: { cutoff: this.vcf.cutoff, resonance: this.vcf.resonance, type: this.vcf.type, drive: this.vcf.drive, keyTrack: this.vcf.keyTrack, envMod: this.vcf.envMod },
-      filterEnv: { attack: this.filterEnv.attack, decay: this.filterEnv.decay, sustain: this.filterEnv.sustain, release: this.filterEnv.release },
-      ampEnv: { attack: this.ampEnv.attack, decay: this.ampEnv.decay, sustain: this.ampEnv.sustain, release: this.ampEnv.release },
-      lfo1: { wave: this.lfo1.wave, rate: this.lfo1.rate, fadeIn: this.lfo1.fadeIn, destinations: { ...this.lfo1.destinations } },
-      lfo2: { wave: this.lfo2.wave, rate: this.lfo2.rate, fadeIn: this.lfo2.fadeIn, destinations: { ...this.lfo2.destinations } },
-      fx: {
-        chorus: { mode: this.fx.chorus.mode, mix: this.fx.chorus.mix },
-        delay: { time: this.fx.delay.time, feedback: this.fx.delay.feedback, mix: this.fx.delay.mix },
-        reverb: { decay: this.fx.reverb.decay, mix: this.fx.reverb.mix }
-      },
-      performance: { glide: this.glideEnabled, octaveShift: this.octaveShift }
-    };
+    return SynthParams.readState(this);
   }
 
   loadPresetState(state) {
-    if (!state) return;
-    if (state.vco1) {
-      if (state.vco1.wave) this.setVCO1Wave(state.vco1.wave);
-      if (state.vco1.octave !== undefined) this.setVCO1Octave(state.vco1.octave);
-      if (state.vco1.pulseWidth !== undefined) this.setVCO1PW(state.vco1.pulseWidth);
-    }
-    if (state.vco2) {
-      if (state.vco2.wave) this.setVCO2Wave(state.vco2.wave);
-      if (state.vco2.octave !== undefined) this.setVCO2Octave(state.vco2.octave);
-      if (state.vco2.semitone !== undefined) this.setVCO2Semitone(state.vco2.semitone);
-      if (state.vco2.detuneCents !== undefined) this.setVCO2Detune(state.vco2.detuneCents);
-      if (state.vco2.hardSync !== undefined) this.setVCO2Sync(state.vco2.hardSync);
-    }
-    if (state.mixer) {
-      if (state.mixer.vco1Level !== undefined) this.setMixerVCO1(state.mixer.vco1Level);
-      if (state.mixer.vco2Level !== undefined) this.setMixerVCO2(state.mixer.vco2Level);
-      if (state.mixer.subLevel !== undefined) this.setMixerSub(state.mixer.subLevel);
-      if (state.mixer.subOctave !== undefined) this.setMixerSubOctave(state.mixer.subOctave);
-      if (state.mixer.noiseLevel !== undefined) this.setMixerNoise(state.mixer.noiseLevel);
-    }
-    if (state.vcf) {
-      if (state.vcf.cutoff !== undefined) this.setVCFCutoff(state.vcf.cutoff);
-      if (state.vcf.resonance !== undefined) this.setVCFResonance(state.vcf.resonance);
-      if (state.vcf.type) this.setVCFType(state.vcf.type);
-      if (state.vcf.drive !== undefined) this.setVCFDrive(state.vcf.drive);
-      if (state.vcf.keyTrack !== undefined) this.setVCFKeyTrack(state.vcf.keyTrack);
-      if (state.vcf.envMod !== undefined) this.setVCFEnvMod(state.vcf.envMod);
-    }
-    if (state.filterEnv) {
-      if (state.filterEnv.attack !== undefined) this.setFilterEnvAttack(state.filterEnv.attack);
-      if (state.filterEnv.decay !== undefined) this.setFilterEnvDecay(state.filterEnv.decay);
-      if (state.filterEnv.sustain !== undefined) this.setFilterEnvSustain(state.filterEnv.sustain);
-      if (state.filterEnv.release !== undefined) this.setFilterEnvRelease(state.filterEnv.release);
-    }
-    if (state.ampEnv) {
-      if (state.ampEnv.attack !== undefined) this.setAmpEnvAttack(state.ampEnv.attack);
-      if (state.ampEnv.decay !== undefined) this.setAmpEnvDecay(state.ampEnv.decay);
-      if (state.ampEnv.sustain !== undefined) this.setAmpEnvSustain(state.ampEnv.sustain);
-      if (state.ampEnv.release !== undefined) this.setAmpEnvRelease(state.ampEnv.release);
-    }
-    if (state.lfo1) {
-      if (state.lfo1.wave) this.setLFOParam(1, 'wave', state.lfo1.wave);
-      if (state.lfo1.rate !== undefined) this.setLFOParam(1, 'rate', state.lfo1.rate);
-      if (state.lfo1.fadeIn !== undefined) this.setLFOParam(1, 'fadeIn', state.lfo1.fadeIn);
-      if (state.lfo1.destinations) {
-        if (state.lfo1.destinations.pitch !== undefined) this.setLFOParam(1, 'pitch', state.lfo1.destinations.pitch);
-        if (state.lfo1.destinations.vcf !== undefined) this.setLFOParam(1, 'vcf', state.lfo1.destinations.vcf);
-        if (state.lfo1.destinations.pwm !== undefined) this.setLFOParam(1, 'pwm', state.lfo1.destinations.pwm);
-        if (state.lfo1.destinations.amp !== undefined) this.setLFOParam(1, 'amp', state.lfo1.destinations.amp);
-      }
-    }
-    if (state.lfo2) {
-      if (state.lfo2.wave) this.setLFOParam(2, 'wave', state.lfo2.wave);
-      if (state.lfo2.rate !== undefined) this.setLFOParam(2, 'rate', state.lfo2.rate);
-      if (state.lfo2.fadeIn !== undefined) this.setLFOParam(2, 'fadeIn', state.lfo2.fadeIn);
-      if (state.lfo2.destinations) {
-        if (state.lfo2.destinations.pitch !== undefined) this.setLFOParam(2, 'pitch', state.lfo2.destinations.pitch);
-        if (state.lfo2.destinations.vcf !== undefined) this.setLFOParam(2, 'vcf', state.lfo2.destinations.vcf);
-        if (state.lfo2.destinations.pwm !== undefined) this.setLFOParam(2, 'pwm', state.lfo2.destinations.pwm);
-        if (state.lfo2.destinations.amp !== undefined) this.setLFOParam(2, 'amp', state.lfo2.destinations.amp);
-      }
-    }
-    if (state.fx) {
-      if (state.fx.chorus) {
-        if (state.fx.chorus.mode) this.setChorusMode(state.fx.chorus.mode);
-        if (state.fx.chorus.mix !== undefined) this.setChorusMix(state.fx.chorus.mix);
-      }
-      if (state.fx.delay) {
-        if (state.fx.delay.time !== undefined) this.setDelayTime(state.fx.delay.time);
-        if (state.fx.delay.feedback !== undefined) this.setDelayFeedback(state.fx.delay.feedback);
-        if (state.fx.delay.mix !== undefined) this.setDelayMix(state.fx.delay.mix);
-      }
-      if (state.fx.reverb) {
-        if (state.fx.reverb.decay !== undefined) this.setReverbDecay(state.fx.reverb.decay);
-        if (state.fx.reverb.mix !== undefined) this.setReverbMix(state.fx.reverb.mix);
-      }
-    }
-    if (state.performance) {
-      if (state.performance.glide !== undefined) this.setGlide(state.performance.glide);
-      if (state.performance.octaveShift !== undefined) this.setOctaveShift(state.performance.octaveShift);
-    }
+    if (state) SynthParams.applyState(this, state);
   }
 }
 
