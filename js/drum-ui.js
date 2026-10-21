@@ -97,7 +97,7 @@ class DrumUI {
     if (this.playBtn) {
       this.playBtn.addEventListener('click', (e) => {
         this.drum.togglePlay();
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
 
@@ -141,7 +141,7 @@ class DrumUI {
         this.drum.setBpm(e.target.value);
         this.bpmInput.value = this.drum.bpm;
         if (this.arp && this.arp.syncMode === 'external') {
-          this.arp.bpm = this.drum.bpm;
+          this.arp.setBpm(this.drum.bpm);
         }
         e.target.blur();
       });
@@ -151,7 +151,7 @@ class DrumUI {
       this.bpmUpBtn.addEventListener('click', (e) => {
         this.drum.setBpm(this.drum.bpm + 1);
         if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
 
@@ -159,7 +159,7 @@ class DrumUI {
       this.bpmDownBtn.addEventListener('click', (e) => {
         this.drum.setBpm(this.drum.bpm - 1);
         if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
 
@@ -182,7 +182,7 @@ class DrumUI {
             if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
           }
         }
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
 
@@ -265,24 +265,11 @@ class DrumUI {
         btn.dataset.track = t;
         btn.dataset.step = s;
 
-        // Determine current state
-        let state = 0;
-        if (t < 5) {
-          state = this.drum.patterns.drums[t][s];
-        } else {
-          const bassStep = this.drum.patterns.bass[s];
-          state = bassStep.gate ? (bassStep.accent ? 2 : 1) : 0;
-        }
-
-        if (state === 1) btn.classList.add('active');
-        if (state === 2) btn.classList.add('accent');
+        this.renderStepButton(btn, this.drum.getStepState(t, s));
 
         btn.addEventListener('click', (e) => {
-          const nextState = this.drum.toggleStep(t, s);
-          btn.classList.remove('active', 'accent');
-          if (nextState === 1) btn.classList.add('active');
-          if (nextState === 2) btn.classList.add('accent');
-          if (e.target && e.target.blur) e.target.blur();
+          this.renderStepButton(btn, this.drum.toggleStep(t, s));
+          DomUtils.blurTarget(e);
         });
 
         stepGrid.appendChild(btn);
@@ -300,60 +287,35 @@ class DrumUI {
   // =========================================================================
 
   initTrackControls() {
-    // Mute Buttons
     document.querySelectorAll('.mute-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const trackIdx = parseInt(btn.dataset.track, 10);
-        this.drum.trackMutes[trackIdx] = !this.drum.trackMutes[trackIdx];
-        btn.classList.toggle('active', this.drum.trackMutes[trackIdx]);
-        if (e.target && e.target.blur) e.target.blur();
+        btn.classList.toggle('active', this.drum.toggleTrackMute(parseInt(btn.dataset.track, 10)));
+        DomUtils.blurTarget(e);
       });
     });
 
-    // Solo Buttons
     document.querySelectorAll('.solo-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const trackIdx = parseInt(btn.dataset.track, 10);
-        this.drum.trackSolos[trackIdx] = !this.drum.trackSolos[trackIdx];
-        btn.classList.toggle('active', this.drum.trackSolos[trackIdx]);
-        if (e.target && e.target.blur) e.target.blur();
+        btn.classList.toggle('active', this.drum.toggleTrackSolo(parseInt(btn.dataset.track, 10)));
+        DomUtils.blurTarget(e);
       });
     });
 
-    // Drum Sound Tuning Knobs
-    const bdDecay = document.getElementById('drumBdDecay');
-    if (bdDecay) {
-      bdDecay.addEventListener('input', (e) => {
-        this.drum.params.bd.decay = parseFloat(e.target.value);
-      });
-    }
+    this.bindParamInputs([
+      ['drumBdDecay', 'bd', 'decay'],
+      ['drumBdDrive', 'bd', 'drive'],
+      ['drumSdSnappy', 'sd', 'snappy'],
+      ['drumSdTune', 'sd', 'tune'],
+      ['drumHhDecay', 'hh', 'openDecay']
+    ]);
+  }
 
-    const bdDrive = document.getElementById('drumBdDrive');
-    if (bdDrive) {
-      bdDrive.addEventListener('input', (e) => {
-        this.drum.params.bd.drive = parseFloat(e.target.value);
-      });
-    }
-
-    const sdSnappy = document.getElementById('drumSdSnappy');
-    if (sdSnappy) {
-      sdSnappy.addEventListener('input', (e) => {
-        this.drum.params.sd.snappy = parseFloat(e.target.value);
-      });
-    }
-
-    const sdTune = document.getElementById('drumSdTune');
-    if (sdTune) {
-      sdTune.addEventListener('input', (e) => {
-        this.drum.params.sd.tune = parseFloat(e.target.value);
-      });
-    }
-
-    const hhDecay = document.getElementById('drumHhDecay');
-    if (hhDecay) {
-      hhDecay.addEventListener('input', (e) => {
-        this.drum.params.hh.openDecay = parseFloat(e.target.value);
-      });
+  /**
+   * Binds range inputs to drum engine sound parameters: [elementId, voice, key]
+   */
+  bindParamInputs(bindings) {
+    for (const [id, voice, key] of bindings) {
+      DomUtils.onRangeInput(id, (val) => this.drum.setParam(voice, key, val));
     }
   }
 
@@ -362,35 +324,19 @@ class DrumUI {
   // =========================================================================
 
   initBassControls() {
-    const bassCutoff = document.getElementById('drumBassCutoff');
-    if (bassCutoff) {
-      bassCutoff.addEventListener('input', (e) => {
-        this.drum.params.bass.cutoff = parseFloat(e.target.value);
-      });
-    }
-
-    const bassReso = document.getElementById('drumBassReso');
-    if (bassReso) {
-      bassReso.addEventListener('input', (e) => {
-        this.drum.params.bass.resonance = parseFloat(e.target.value);
-      });
-    }
-
-    const bassEnvMod = document.getElementById('drumBassEnvMod');
-    if (bassEnvMod) {
-      bassEnvMod.addEventListener('input', (e) => {
-        this.drum.params.bass.envMod = parseFloat(e.target.value);
-      });
-    }
+    this.bindParamInputs([
+      ['drumBassCutoff', 'bass', 'cutoff'],
+      ['drumBassReso', 'bass', 'resonance'],
+      ['drumBassEnvMod', 'bass', 'envMod']
+    ]);
 
     const bassWaveBtn = document.getElementById('drumBassWaveBtn');
     if (bassWaveBtn) {
       bassWaveBtn.addEventListener('click', (e) => {
-        const nextWave = this.drum.params.bass.wave === 'sawtooth' ? 'square' : 'sawtooth';
-        this.drum.params.bass.wave = nextWave;
+        const nextWave = this.drum.toggleBassWave();
         bassWaveBtn.textContent = nextWave === 'sawtooth' ? 'SAW' : 'SQR';
         bassWaveBtn.classList.toggle('active', nextWave === 'square');
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
   }
@@ -417,7 +363,7 @@ class DrumUI {
         if (swingReadout) swingReadout.textContent = `${Math.round(this.drum.swing * 100)}%`;
 
         this.refreshMatrixUI();
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
 
@@ -425,30 +371,20 @@ class DrumUI {
       this.clearBtn.addEventListener('click', (e) => {
         this.drum.clearPattern();
         this.refreshMatrixUI();
-        if (e.target && e.target.blur) e.target.blur();
+        DomUtils.blurTarget(e);
       });
     }
   }
 
+  renderStepButton(btn, state) {
+    btn.classList.toggle('active', state === 1);
+    btn.classList.toggle('accent', state === 2);
+  }
+
   refreshMatrixUI() {
-    for (let t = 0; t < 6; t++) {
-      for (let s = 0; s < 16; s++) {
-        const btn = this.stepButtons[t] && this.stepButtons[t][s];
-        if (!btn) continue;
-        btn.classList.remove('active', 'accent');
-
-        let state = 0;
-        if (t < 5) {
-          state = this.drum.patterns.drums[t][s];
-        } else {
-          const bStep = this.drum.patterns.bass[s];
-          state = bStep.gate ? (bStep.accent ? 2 : 1) : 0;
-        }
-
-        if (state === 1) btn.classList.add('active');
-        if (state === 2) btn.classList.add('accent');
-      }
-    }
+    this.stepButtons.forEach((row, t) => {
+      row.forEach((btn, s) => this.renderStepButton(btn, this.drum.getStepState(t, s)));
+    });
   }
 
   // =========================================================================
@@ -462,23 +398,17 @@ class DrumUI {
     }
 
     // Drum Machine Sync Master Status Button
-    if (this.syncToggleBtn) {
+    if (this.syncToggleBtn && this.arp) {
+      const renderSyncBtn = (mode) => {
+        this.syncToggleBtn.classList.toggle('active', mode === 'external');
+        this.syncToggleBtn.textContent = mode === 'external' ? 'SYNC: MASTER' : 'SYNC: OFF';
+      };
+      renderSyncBtn(this.arp.syncMode);
+      this.arp.onSyncModeChange(renderSyncBtn);
+
       this.syncToggleBtn.addEventListener('click', (e) => {
-        if (!this.arp) return;
-        const newMode = this.arp.syncMode === 'external' ? 'internal' : 'external';
-        this.arp.setSyncMode(newMode);
-
-        this.syncToggleBtn.classList.toggle('active', newMode === 'external');
-        this.syncToggleBtn.textContent = newMode === 'external' ? 'SYNC: MASTER' : 'SYNC: OFF';
-
-        // Update Arp Sync Indicator on Synth Panel
-        const synthSyncIndicator = document.getElementById('arpSyncIndicator');
-        if (synthSyncIndicator) {
-          synthSyncIndicator.classList.toggle('active', newMode === 'external');
-          synthSyncIndicator.textContent = newMode === 'external' ? 'CLOCK: DRUM SYNC' : 'CLOCK: INTERNAL';
-        }
-
-        if (e.target && e.target.blur) e.target.blur();
+        this.arp.toggleSyncMode();
+        DomUtils.blurTarget(e);
       });
     }
   }

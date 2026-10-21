@@ -14,7 +14,8 @@ function createSandbox() {
   let nextTimerId = 1;
   const intervals = new Map();
   const sandbox = {
-    console,
+    // No Worker/Blob in Node: engines warn about the timer fallback on every construction
+    console: { ...console, warn() {} },
     __intervals: intervals,
     setInterval: (fn) => {
       const id = nextTimerId++;

@@ -116,6 +116,18 @@ describe('getStepInterval', () => {
   });
 });
 
+describe('sync mode', () => {
+  test('toggleSyncMode notifies every listener with the new mode', () => {
+    const arp = createArp();
+    const seen = [];
+    arp.onSyncModeChange((mode) => seen.push(`a:${mode}`));
+    arp.onSyncModeChange((mode) => seen.push(`b:${mode}`));
+    assert.equal(arp.toggleSyncMode(), 'external');
+    assert.equal(arp.toggleSyncMode(), 'internal');
+    assert.deepEqual(seen, ['a:external', 'b:external', 'a:internal', 'b:internal']);
+  });
+});
+
 describe('step matrix', () => {
   test('toggleStep flips a step and ignores out-of-range indices', () => {
     const arp = createArp();

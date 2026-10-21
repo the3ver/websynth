@@ -33,6 +33,7 @@ class ArpEngine {
     // Master Clock Synchronization
     this.syncMode = 'internal'; // 'internal' or 'external' (Drum Master Sync)
     this.drumEngine = null;
+    this.syncModeListeners = []; // (mode) => void, e.g. synth panel and drum rack sync buttons
 
     // Web Audio Lookahead Clock Timer (Web Worker + Main Thread Fallback)
     this.worker = null;
@@ -135,8 +136,18 @@ class ArpEngine {
   /**
    * Switches Clock Sync Mode ('internal' standalone vs 'external' drum slave)
    */
+  onSyncModeChange(listener) {
+    this.syncModeListeners.push(listener);
+  }
+
+  toggleSyncMode() {
+    this.setSyncMode(this.syncMode === 'external' ? 'internal' : 'external');
+    return this.syncMode;
+  }
+
   setSyncMode(mode) {
     this.syncMode = mode === 'external' ? 'external' : 'internal';
+    this.syncModeListeners.forEach((listener) => listener(this.syncMode));
     if (this.syncMode === 'external') {
       if (this.isRunning) this.stopClock();
     } else {
