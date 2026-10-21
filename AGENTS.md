@@ -39,18 +39,31 @@ websynth/
 │   └── apple-touch-icon.png
 ├── css/
 │   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
-├── js/
-│   ├── app.js              # Application entry, master power, volume & version manager
-│   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
+├── js/                    # Classic scripts, loaded in this order by index.html
+│   ├── dom-utils.js        # blurTarget / onRangeInput helpers
+│   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-│   ├── audio-engine.js     # Web Audio API Engine, 12-Voice Pool, VCF, LFO, FX Rack
-│   ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
-│   ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
-│   ├── presets.js          # Factory Presets library & Patch state serialisation
-│   └── synth-ui.js         # Rotary knobs, ADSR faders, CRT oscilloscope & MIDI handlers
+│   ├── synth-params.js     # Patch parameter table: preset path, setter, knob id (single source of truth)
+│   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
+│   ├── fx-chain.js         # Chorus -> ping-pong delay -> reverb rack
+│   ├── audio-engine.js     # AudioContext, voice pool & allocation, LFOs, setters, MIDI, limiter
+│   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
+│   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
+│   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync
+│   ├── knob-scale.js       # Pure knob math: value <-> ratio, rounding, readout formatting
+│   ├── controls.js         # DragController + Knob, Fader, PerformanceWheel
+│   ├── virtual-keyboard.js # Keybed rendering, mouse glissando, multi-touch, PC keyboard
+│   ├── visualizer.js       # CRT oscilloscope, VU meters, woofers
+│   ├── preset-store.js     # User presets in localStorage (DOM-free)
+│   ├── preset-panel.js     # Preset LCD, prev/next, save / overwrite / delete dialog
+│   ├── synth-ui.js         # Panel composer: knobs/faders/buttons via SynthParams, arp strip, perf bay
+│   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
+│   └── app.js              # Application entry, master power, volume & version manager
 └── test/
     ├── helpers/
-    │   └── load-browser-script.js  # vm sandbox loader for js/ files
+    │   ├── load-browser-script.js  # vm sandbox loader for js/ files (stubbed timers)
+    │   ├── fake-audio-context.js   # Web Audio stand-in: nodes record connections, params record events
+    │   └── synth-engine.js         # createLiveEngine(): AudioEngine with the full graph on the fake context
     └── *.test.js           # node:test unit tests (npm test)
 ```
 
@@ -74,7 +87,7 @@ websynth/
 ## 🎧 Synthesizer Audio Engine Architecture (`js/audio-engine.js`)
 
 ### 1. 12-Voice Persistent Polyphonic Pool
-- **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances initialized on `AudioContext` startup.
+- **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances (`js/voice.js`) initialized on `AudioContext` startup. A voice reads the current patch from its engine; `AudioEngine.forEachVoice()` pushes live parameter changes.
 - **Voice Nodes**:
   - `osc1` & `osc2` (Dual-VCO with native Sine/Triangle/Sawtooth direct paths and 4x-oversampled WaveShaper audio-rate PWM)
   - `subOsc` (Sub-octave triangle wave)
@@ -82,13 +95,17 @@ websynth/
   - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
   - `vcf1` & `vcf2` (24dB/12dB cascaded Moog ladder filter with Q-staging)
   - `vca` (ADSR amplitude envelope gain stage)
-  - `lfoGains` (LFO1/LFO2 modulation routing nodes for Pitch, VCF, PWM, and Amp)
+  - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains; depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
 - **Lifecycle & LRU Voice Stealing**:
   - `noteOn(midiNote, velocity)` searches for an inactive voice in `this.voicePool`.
-  - If all 12 voices are active, the voice with the oldest `timestamp` is stolen using a 2ms soft crossfade (`setTargetAtTime(0, now, 0.002)`).
+  - If all 12 voices are active, the voice with the oldest `startTime` is stolen using a 2ms soft crossfade (`setTargetAtTime(0, now, 0.002)`).
   - `noteOff(midiNote)` initiates the asymptotic ADSR release curve and resets the active voice flag when the release completes.
 
-### 2. Normalized Saturation Curve ($\tanh$)
+### 2. Patch Parameter Table (`js/synth-params.js`)
+- `SYNTH_PARAMS` lists every patch parameter once: preset `path`, `set(engine, value)`, optional engine `field` and the knob id (`data-param`).
+- `getPresetState()` / `loadPresetState()`, knob dispatch and `SynthUI.syncControls()` all run off this table. A new parameter needs one table row, a default in `SYNTH_INIT_PRESET` and (for a knob) the HTML; `test/synth-params.test.js` fails if table, init preset and knobs drift apart.
+
+### 3. Normalized Saturation Curve ($\tanh$)
 ```javascript
 makeDistortionCurve(amount) {
   const n_samples = 512;
@@ -107,7 +124,7 @@ makeDistortionCurve(amount) {
 }
 ```
 
-### 3. Master FX Rack & Limiter
+### 4. Master FX Rack & Limiter (`js/fx-chain.js`)
 - **Signal Flow**:
   $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{Master Analyser} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Master Gain} \longrightarrow \text{Destination}$$
 - **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.002s`, release `0.05s`.
@@ -140,12 +157,16 @@ makeDistortionCurve(amount) {
   - **Right 54%**: 16-Step Arpeggiator Sequencer + Full playable 3D keybed.
 - Studio speakers and wooden side cheeks are hidden (`display: none !important;`) to maximize touch area.
 
-### 4. Keyboard vs Mouse vs Touch Note Separation & Glissando
-- `this.keyboardHeldKeys`: Tracks physical computer keyboard notes.
-- `this.mouseHeldKeys`: Tracks on-screen keybed mouse clicks.
-- `this.touchHeldKeys`: Tracks multi-touch touchpoints using `document.elementFromPoint(x, y)`.
-- `window.addEventListener('mouseup')` **ONLY** releases notes in `this.mouseHeldKeys`, preventing UI parameter tweaking from muting physical keyboard keys.
+### 4. Keyboard vs Mouse vs Touch Note Separation & Glissando (`js/virtual-keyboard.js`)
+- `keyboardHeldKeys`: Tracks physical computer keyboard notes.
+- `pointerHeldKeys`: Tracks on-screen keybed mouse clicks and touchpoints (resolved with `document.elementFromPoint(x, y)`).
+- A note sounds once even when both sources hold it; it stops only when neither does.
+- `window.addEventListener('mouseup')` **ONLY** releases pointer notes, preventing UI parameter tweaking from muting physical keyboard keys.
 - Glissando drag handlers release previous keys instantly on pointer boundary crossings.
+- `SynthUI.playNote()` / `stopNote()` route notes to the arpeggiator when it is on, otherwise to the voices.
+
+### 4b. Drag Controls (`js/controls.js`)
+- Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (4 in total, not 4 per control).
 
 ### 5. Envelope Fader Full-Height Utilization
 - `.env-fader-track` and `.fader-track-housing` use dynamic flex-grow (`flex: 1 1 auto; min-height: 120px; max-height: 240px;`) so ADSR sliders match the full height of neighboring LFO / FX racks while respecting max-height constraints on mobile screens.
@@ -155,7 +176,7 @@ makeDistortionCurve(amount) {
 - `<select>`, range sliders, and buttons must never suppress musical keys.
 - Dropdown selections and button clicks must call `.blur()` immediately after interaction.
 
-### 7. CRT Visualizer Optimization
+### 7. CRT Visualizer Optimization (`js/visualizer.js`)
 - Monitors audio output level via `AnalyserNode`.
 - After 15 silent frames ($< 0.001$ RMS), heavy path computations pause to preserve CPU/GPU battery.
 
@@ -172,7 +193,7 @@ Before committing any modifications:
    ```bash
    npm test
    ```
-   Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. Only logic that works without an `AudioContext` is covered (pitch, cutoff, voice allocation, arp sequences, preset round-trips). New features and bug fixes need a test here.
+   Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. `createLiveEngine()` (`test/helpers/synth-engine.js`) builds the full audio graph on `FakeAudioContext`, so voice envelopes, LFO routing and FX can be asserted on recorded AudioParam events. DOM-heavy UI (keybed, knobs, panel wiring) is not unit tested: check it in the browser. New features and bug fixes need a test here.
 3. Run automated headless visual screenshot suite:
    ```bash
    node scripts/capture-screenshots.js
@@ -185,4 +206,5 @@ Before committing any modifications:
    - `screenshot-phone-landscape.png` (844x390)
 4. Check for zero console warnings / uncaught exceptions.
 5. Ensure no memory leaks or unmanaged event listeners on `window`.
-6. Ensure new parameters have proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
+6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
+7. A new script in `js/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`.

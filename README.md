@@ -173,12 +173,25 @@ websynth/
 │   └── style.css           # Vollständiges High-End Analog-Studio UI & Rack-Styling
 ├── js/
 │   ├── app.js              # Initialisierung, Master Controls & Version State
+│   ├── audio-engine.js     # Web Audio Engine (Voice-Pool, LFOs, Setter, MIDI)
+│   ├── voice.js            # Eine Synth-Stimme (VCOs, VCF, VCA, LFO-Routing)
+│   ├── fx-chain.js         # Chorus, Delay, Reverb
+│   ├── synth-params.js     # Parameter-Tabelle für Presets, Knobs und UI-Sync
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-│   ├── audio-engine.js     # Web Audio API Synthese-Engine (Voice-Pool, VCF, LFO, FX)
 │   ├── drum-engine.js      # DSP Drum & 303 Bass Synthesis, Web Worker Master Clock
+│   ├── drum-kits.js        # Drum Factory Kits
 │   ├── drum-ui.js          # Drum Machine Drawer UI, Step Matrix, Kits & Mutes
-│   ├── presets.js          # Factory Preset Library & State Serializer
-│   └── synth-ui.js         # Interaktives UI (Knobs, Slider, Canvas, MIDI)
+│   ├── presets.js          # Factory Preset Library
+│   ├── preset-store.js     # User-Presets im localStorage
+│   ├── preset-panel.js     # Preset-LCD & Speichern-Dialog
+│   ├── controls.js         # Knobs, Fader, Pitch-/Mod-Wheel
+│   ├── knob-scale.js       # Knob-Skalierung & Anzeigeformate
+│   ├── virtual-keyboard.js # Tastatur, Touch & PC-Hotkeys
+│   ├── visualizer.js       # Oszilloskop, VU-Meter, Woofer
+│   ├── dom-utils.js        # Kleine DOM-Helfer
+│   ├── pwa-manager.js      # PWA-Lebenszyklus & Offline-Status
+│   └── synth-ui.js         # Synth-Panel (verbindet alle Bedienelemente)
+├── test/                   # node:test Unit-Tests (npm test)
 ├── .gitignore              # Git Ignore Konfiguration
 ├── AGENTS.md               # Entwickler- & Agent-Architekturleitfaden
 ├── index.html              # Synthesizer Studio HTML5 Markup
