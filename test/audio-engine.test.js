@@ -165,6 +165,44 @@ describe('sample & hold LFO', () => {
       assert.equal(route.pwm[1].gain.value, 0.35);
       assert.equal(route.amp.gain.value, 0.45);
     });
+
+    test(`LFO${lfoNum} S&H holds a flat step instead of a scaled sawtooth`, () => {
+      const { engine, context } = createLiveEngine();
+      vm.runInContext('Math.random = () => 0.1;', context); // S&H value = 0.1 * 2 - 1 = -0.8
+      engine.setLFOParam(lfoNum, 'wave', 'samplehold');
+      engine.startSampleAndHoldLoop(lfoNum);
+      [...context.__intervals.values()].pop()();
+
+      assert.equal(engine[`lfo${lfoNum}OscGate`].gain.value, 0, 'sawtooth muted');
+      assert.ok(Math.abs(engine[`lfo${lfoNum}ShSource`].offset.value + 0.8) < 1e-9, 'step held on the constant source');
+    });
+
+    test(`LFO${lfoNum} S&H step survives a new note`, () => {
+      const { engine, context } = createLiveEngine();
+      vm.runInContext('Math.random = () => 0.1;', context);
+      engine.setLFOParam(lfoNum, 'wave', 'samplehold');
+      engine.setLFOParam(lfoNum, 'vcf', 0.5);
+      engine.startSampleAndHoldLoop(lfoNum);
+      [...context.__intervals.values()].pop()();
+      const route = engine.voicePool[0].lfo[lfoNum];
+      const before = route.vcf.gain.value;
+
+      engine.voicePool[0].startLfoFadeIn(lfoNum, engine.ctx.currentTime);
+
+      assert.equal(route.vcf.gain.value, before, 'note-on must not jump the depth');
+    });
+
+    test(`LFO${lfoNum} leaving S&H unmutes the oscillator and clears the step`, () => {
+      const { engine, context } = createLiveEngine();
+      vm.runInContext('Math.random = () => 0.1;', context);
+      engine.setLFOParam(lfoNum, 'wave', 'samplehold');
+      engine.startSampleAndHoldLoop(lfoNum);
+      [...context.__intervals.values()].pop()();
+      engine.setLFOParam(lfoNum, 'wave', 'triangle');
+
+      assert.equal(engine[`lfo${lfoNum}OscGate`].gain.value, 1);
+      assert.equal(engine[`lfo${lfoNum}ShSource`].offset.value, 0);
+    });
   }
 });
 

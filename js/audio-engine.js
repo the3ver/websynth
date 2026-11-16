@@ -311,17 +311,17 @@ class AudioEngine {
       this[`lfo${lfoNum}ShSource`] = shSource;
       this[`lfo${lfoNum}Gain`] = gain;
 
+      this.applyLfoSource(lfoNum);
       // Sample & Hold timer loop
       this.startSampleAndHoldLoop(lfoNum);
     }
   }
 
   /**
-   * Sets one LFO destination depth on every voice: depth * LFO_DEPTH[dest] * scale.
-   * scale is 1 for continuous waves and the current random value for Sample & Hold.
+   * Sets one LFO destination depth on every voice: depth * LFO_DEPTH[dest].
    */
-  applyLfoDepth(lfoNum, dest, scale, now, timeConstant) {
-    const amount = this.getLfo(lfoNum).destinations[dest] * LFO_DEPTH[dest] * scale;
+  applyLfoDepth(lfoNum, dest, now, timeConstant) {
+    const amount = this.getLfo(lfoNum).destinations[dest] * LFO_DEPTH[dest];
     for (const voice of this.voicePool) {
       voice.setLfoAmount(lfoNum, dest, amount, now, timeConstant);
     }
@@ -334,12 +334,22 @@ class AudioEngine {
     this.lfoShTimers[lfoNum] = setInterval(() => {
       if (lfo.wave !== 'samplehold') return;
       this.lfoShValues[lfoNum] = Math.random() * 2 - 1;
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      for (const dest of LFO_DESTINATIONS) {
-        this.applyLfoDepth(lfoNum, dest, this.lfoShValues[lfoNum], now, 0.005);
-      }
+      this.applyLfoSource(lfoNum);
     }, intervalMs);
+  }
+
+  /**
+   * Routes the LFO output: oscillator for continuous waves, the held random step for
+   * Sample & Hold. Short ramps keep the step edges free of clicks.
+   */
+  applyLfoSource(lfoNum) {
+    const oscGate = this[`lfo${lfoNum}OscGate`];
+    const shSource = this[`lfo${lfoNum}ShSource`];
+    if (!this.ctx || !oscGate || !shSource) return;
+    const now = this.ctx.currentTime;
+    const sh = this.getLfo(lfoNum).wave === 'samplehold';
+    oscGate.gain.setTargetAtTime(sh ? 0 : 1, now, 0.005);
+    shSource.offset.setTargetAtTime(sh ? this.lfoShValues[lfoNum] : 0, now, 0.005);
   }
 
   /**
@@ -680,6 +690,7 @@ class AudioEngine {
         if (this.ctx && lfoOsc) {
           lfoOsc.type = val === 'samplehold' ? 'sawtooth' : val;
         }
+        this.applyLfoSource(lfoNum);
         break;
 
       case 'rate':
@@ -700,8 +711,7 @@ class AudioEngine {
       case 'amp':
         lfo.destinations[param] = Math.max(0, Math.min(1, parseFloat(val)));
         if (this.ctx) {
-          const shScale = lfo.wave === 'samplehold' ? this.lfoShValues[lfoNum] : 1;
-          this.applyLfoDepth(lfoNum, param, shScale, this.ctx.currentTime, 0.02);
+          this.applyLfoDepth(lfoNum, param, this.ctx.currentTime, 0.02);
         }
         break;
     }
