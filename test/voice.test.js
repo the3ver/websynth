@@ -248,3 +248,25 @@ test('setPitchBend retunes sounding voice frequencies with setTargetAtTime', () 
   assert.ok(bendEvent);
   assert.equal(bendEvent.value, 880);
 });
+
+test('PWM shaper only feeds the mix while its VCO plays square', () => {
+  const { engine, context } = createLiveEngine();
+  const voice = engine.voicePool[0];
+  const plugged = (n) => voice[`osc${n}PwShaper`].connections.includes(voice[`osc${n}PulseGain`]);
+  assert.equal(engine.vco1.wave === 'square', plugged(1));
+
+  engine.setVCO1Wave('square');
+  assert.equal(plugged(1), true);
+
+  engine.setVCO1Wave('sawtooth');
+  assert.equal(plugged(1), true, 'stays plugged while the pulse gain fades out');
+  for (const cb of Array.from(context.__timeouts.values())) cb();
+  assert.equal(plugged(1), false);
+
+  // a pending unplug must not cut a VCO that went back to square
+  engine.setVCO2Wave('square');
+  engine.setVCO2Wave('sawtooth');
+  engine.setVCO2Wave('square');
+  for (const cb of Array.from(context.__timeouts.values())) cb();
+  assert.equal(plugged(2), true);
+});

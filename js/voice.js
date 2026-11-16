@@ -53,9 +53,13 @@ class Voice {
     this.osc1 = vco1.osc;
     this.osc1DirectGain = vco1.directGain;
     this.osc1PulseGain = vco1.pulseGain;
+    this.osc1PwShaper = vco1.pwShaper;
     this.osc2 = vco2.osc;
     this.osc2DirectGain = vco2.directGain;
     this.osc2PulseGain = vco2.pulseGain;
+    this.osc2PwShaper = vco2.pwShaper;
+    this.pwPlugged = [null, vco1.pwPlugged, vco2.pwPlugged];
+    this.pwUnplugTimers = [null, null, null];
 
     const mixerBus = this.buildMixer(vco1, vco2);
     this.buildFilterAndAmp(mixerBus);
@@ -205,9 +209,10 @@ class Voice {
 
     const pulseGain = ctx.createGain();
     pulseGain.gain.setValueAtTime(isSquare ? 1.0 : 0.0, now);
-    pwShaper.connect(pulseGain);
+    // Plugged in only for square: an unplugged shaper is not rendered (4x oversampling is costly)
+    if (isSquare) pwShaper.connect(pulseGain);
 
-    return { osc, directGain, pulseGain };
+    return { osc, directGain, pulseGain, pwShaper, pwPlugged: isSquare };
   }
 
   // =========================================================================
@@ -391,6 +396,23 @@ class Voice {
     this[`osc${vcoNum}`].type = isSquare ? 'sawtooth' : wave;
     this[`osc${vcoNum}DirectGain`].gain.setTargetAtTime(isSquare ? 0.0 : 1.0, now, 0.005);
     this[`osc${vcoNum}PulseGain`].gain.setTargetAtTime(isSquare ? 1.0 : 0.0, now, 0.005);
+
+    clearTimeout(this.pwUnplugTimers[vcoNum]);
+    this.pwUnplugTimers[vcoNum] = null;
+    if (isSquare) {
+      this.setPwPlugged(vcoNum, true);
+    } else if (this.pwPlugged[vcoNum]) {
+      // unplug once the pulse gain has faded out (10 time constants)
+      this.pwUnplugTimers[vcoNum] = setTimeout(() => this.setPwPlugged(vcoNum, false), 50);
+    }
+  }
+
+  setPwPlugged(vcoNum, on) {
+    if (on === this.pwPlugged[vcoNum]) return;
+    const shaper = this[`osc${vcoNum}PwShaper`];
+    if (on) shaper.connect(this[`osc${vcoNum}PulseGain`]);
+    else shaper.disconnect();
+    this.pwPlugged[vcoNum] = on;
   }
 
   setMixLevel(key, level, now) {
