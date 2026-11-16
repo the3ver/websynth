@@ -25,8 +25,20 @@ class Voice {
     this.baseFreq = 440;
     this.voiceCutoff = engine.vcf.cutoff;
     this.cleanupTimer = null;
+    this.outputConnected = false;
 
     this.buildGraph();
+  }
+
+  /**
+   * Idle voices stay off the master bus: the audio thread only renders nodes that feed
+   * the destination, so 12 always-running voices would otherwise cost CPU while silent.
+   */
+  setOutputConnected(on) {
+    if (on === this.outputConnected) return;
+    if (on) this.tremoloGain.connect(this.engine.masterVoiceBus);
+    else this.tremoloGain.disconnect();
+    this.outputConnected = on;
   }
 
   // =========================================================================
@@ -141,7 +153,6 @@ class Voice {
     this.tremoloGain = ctx.createGain();
     this.tremoloGain.gain.setValueAtTime(1.0, now);
     this.vca.connect(this.tremoloGain);
-    this.tremoloGain.connect(engine.masterVoiceBus);
   }
 
   connectLfoDestinations() {
@@ -216,6 +227,7 @@ class Voice {
     }
 
     this.isBusy = true;
+    this.setOutputConnected(true);
     this.midiNote = midiNote;
     this.startTime = now;
     this.releaseStartTime = 0;
@@ -330,14 +342,16 @@ class Voice {
       }
     } catch (e) {}
 
-    // Mark voice as idle after the full release (unless re-triggered meanwhile)
-    const cleanupDelayMs = (Math.max(ampRelTime, vcfRelTime) * 1.5 + 0.05) * 1000;
+    // Mark voice as idle and unplug it once the tail is inaudible (3x release = 9 time
+    // constants, about -78 dB), unless re-triggered meanwhile
+    const cleanupDelayMs = (Math.max(ampRelTime, vcfRelTime) * 3 + 0.05) * 1000;
     if (this.cleanupTimer) clearTimeout(this.cleanupTimer);
     this.cleanupTimer = setTimeout(() => {
       if (this.releaseStartTime === now) {
         this.isBusy = false;
         this.midiNote = null;
         this.releaseStartTime = 0;
+        this.setOutputConnected(false);
       }
     }, cleanupDelayMs);
   }

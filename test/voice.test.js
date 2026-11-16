@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createLiveEngine } = require('./helpers/synth-engine');
 
-test('voice pool has 12 voices with running oscillators connected to master bus', () => {
+test('voice pool has 12 voices with running oscillators, idle voices off the master bus', () => {
   const { engine } = createLiveEngine();
   assert.equal(engine.voicePool.length, 12);
 
@@ -11,8 +11,38 @@ test('voice pool has 12 voices with running oscillators connected to master bus'
     assert.equal(voice.osc1.started, 0);
     assert.equal(voice.osc2.started, 0);
     assert.equal(voice.subOsc.started, 0);
-    assert.ok(voice.tremoloGain.connections.includes(engine.masterVoiceBus));
+    // Idle voices stay unconnected so the audio thread does not render them (CPU on tablets)
+    assert.ok(!voice.tremoloGain.connections.includes(engine.masterVoiceBus));
   }
+});
+
+test('noteOn connects the voice, release cleanup disconnects it again', () => {
+  const { engine, context } = createLiveEngine();
+  engine.noteOn(60, 1.0);
+  const voice = engine.activeVoices.get(60);
+  const toBus = () => voice.tremoloGain.connections.filter((n) => n === engine.masterVoiceBus).length;
+  assert.equal(toBus(), 1);
+
+  engine.noteOn(60, 1.0); // retrigger must not add a second connection
+  assert.equal(toBus(), 1);
+
+  engine.noteOff(60);
+  assert.equal(toBus(), 1, 'release tail still audible');
+  for (const cb of Array.from(context.__timeouts.values())) cb();
+  assert.equal(toBus(), 0);
+});
+
+test('release cleanup waits until the tail is below -70 dB', () => {
+  const { engine, context, ctx } = createLiveEngine();
+  const delays = [];
+  context.setTimeout = (fn, ms) => { delays.push(ms); return 1; };
+  engine.ampEnv.release = 0.3;
+  engine.filterEnv.release = 0.3;
+  engine.noteOn(60, 1.0);
+  engine.noteOff(60);
+  const tau = 0.3 / 3;
+  const residualDb = 20 * Math.log10(Math.exp(-(delays.pop() / 1000) / tau));
+  assert.ok(residualDb < -70, `${residualDb.toFixed(1)} dB`);
 });
 
 test('noteOn sets frequency, VCA envelope ramps to peak and sustain, and updates state', () => {
@@ -136,6 +166,7 @@ test('retrigger before release timeout expires cancels cleanup and keeps voice b
 
   assert.equal(voice.isBusy, true);
   assert.equal(voice.midiNote, 60);
+  assert.ok(voice.tremoloGain.connections.includes(engine.masterVoiceBus));
 });
 
 test('setVCO1Wave switches between direct wave and shaped pulse paths', () => {
