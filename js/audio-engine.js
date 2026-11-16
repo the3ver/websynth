@@ -295,9 +295,20 @@ class AudioEngine {
       osc.type = lfo.wave === 'samplehold' ? 'sawtooth' : lfo.wave;
       osc.frequency.setValueAtTime(lfo.rate, now);
       gain.gain.setValueAtTime(1.0, now);
-      osc.connect(gain);
+      // Two sources sum into the LFO output: the oscillator (via its gate) and a
+      // constant source whose offset carries the held Sample & Hold step.
+      const oscGate = this.ctx.createGain();
+      oscGate.gain.setValueAtTime(1.0, now);
+      osc.connect(oscGate);
+      oscGate.connect(gain);
       osc.start();
+      const shSource = this.ctx.createConstantSource();
+      shSource.offset.setValueAtTime(0, now);
+      shSource.connect(gain);
+      shSource.start();
       this[`lfo${lfoNum}Osc`] = osc;
+      this[`lfo${lfoNum}OscGate`] = oscGate;
+      this[`lfo${lfoNum}ShSource`] = shSource;
       this[`lfo${lfoNum}Gain`] = gain;
 
       // Sample & Hold timer loop
