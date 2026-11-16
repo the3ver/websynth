@@ -517,9 +517,7 @@ class AudioEngine {
       }
     }
     if (oldestReleasedVoice) {
-      if (oldestReleasedVoice.midiNote !== null) {
-        this.activeVoices.delete(oldestReleasedVoice.midiNote);
-      }
+      this.unmapVoice(oldestReleasedVoice);
       return oldestReleasedVoice;
     }
 
@@ -543,10 +541,19 @@ class AudioEngine {
       oldestActiveVoice.vca.gain.setTargetAtTime(0.0, now, 0.002);
     } catch (e) {}
 
-    if (oldestActiveVoice.midiNote !== null) {
-      this.activeVoices.delete(oldestActiveVoice.midiNote);
-    }
+    this.unmapVoice(oldestActiveVoice);
     return oldestActiveVoice;
+  }
+
+  /**
+   * Drops the note -> voice entry only if it still points at this voice. A releasing
+   * voice keeps its midiNote while the same note may already sound on a newer voice;
+   * deleting by note alone orphaned that newer voice (stuck note).
+   */
+  unmapVoice(voice) {
+    if (voice.midiNote !== null && this.activeVoices.get(voice.midiNote) === voice) {
+      this.activeVoices.delete(voice.midiNote);
+    }
   }
 
   /**
@@ -584,6 +591,12 @@ class AudioEngine {
   allNotesOff() {
     for (const midiNote of Array.from(this.activeVoices.keys())) {
       this.noteOff(midiNote);
+    }
+    // Safety net: also release busy voices that are not in the note map
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    for (const voice of this.voicePool) {
+      if (voice.isBusy && voice.releaseStartTime === 0) voice.release(now);
     }
   }
 

@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.6-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.7-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,9 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.7: Keine hängenden Noten
+- **🎹 Hängende Noten:** Gleiten mit mehreren Fingern konnte einen Ton dauerhaft klingen lassen, auch nach Power Off oder Presetwechsel. Die Engine verliert erneut angeschlagene Noten nicht mehr, und Power Off/Presetwechsel lassen jede klingende Stimme los.
 
 ### ⚡ NEU in v1.8.6: Weniger CPU-Last
 - **⚡ Stille Stimmen schlafen:** Stimmen hängen nur noch am Audio-Bus, solange sie klingen, und die PWM-Formung läuft nur für VCOs mit Square. Gehaltene Akkorde brauchen etwa ein Drittel der Rechenzeit, das Knistern durch CPU-Überlast auf Tablets fällt weg.

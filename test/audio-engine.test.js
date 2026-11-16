@@ -187,6 +187,62 @@ describe('allocateVoice', () => {
   });
 });
 
+describe('stuck notes', () => {
+  // Assertions compare voice ids only: a failing assert on Voice objects makes node
+  // diff the whole engine graph and can hang the machine.
+  const idOf = (voice) => (voice ? voice.id : null);
+
+  // Note re-pressed while its old voice still releases, then the pool runs full and
+  // the next note takes that releasing voice.
+  const orphanScenario = () => {
+    const { engine, ctx } = createLiveEngine();
+    ctx.currentTime = 1;
+    engine.noteOn(60, 1.0);
+    const oldId = idOf(engine.activeVoices.get(60));
+    engine.noteOff(60);
+    ctx.currentTime = 1.1;
+    engine.noteOn(60, 1.0);
+    const held = engine.activeVoices.get(60);
+    assert.notEqual(idOf(held), oldId);
+    for (let n = 61; n <= 70; n++) engine.noteOn(n, 1.0);
+    engine.noteOn(71, 1.0);
+    assert.equal(idOf(engine.activeVoices.get(71)), oldId, 'scenario: 71 took the releasing voice');
+    return { engine, ctx, held };
+  };
+
+  test('taking a releasing voice keeps the held voice of the same note mapped', () => {
+    const { engine, held } = orphanScenario();
+    assert.equal(idOf(engine.activeVoices.get(60)), held.id);
+  });
+
+  test('note-off still reaches the re-pressed voice', () => {
+    const { engine, ctx, held } = orphanScenario();
+    ctx.currentTime = 2;
+    engine.noteOff(60);
+    assert.equal(held.releaseStartTime, 2);
+  });
+
+  test('allNotesOff releases every sounding voice, mapped or not', () => {
+    const { engine, ctx } = createLiveEngine();
+    engine.noteOn(60, 1.0);
+    const voice = engine.activeVoices.get(60);
+    engine.activeVoices.clear(); // voice lost its map entry
+    ctx.currentTime = 2;
+    engine.allNotesOff();
+    assert.equal(voice.releaseStartTime, 2);
+  });
+
+  test('power off silences a lost voice', () => {
+    const { engine, ctx } = createLiveEngine();
+    engine.noteOn(60, 1.0);
+    const voice = engine.activeVoices.get(60);
+    engine.activeVoices.clear();
+    ctx.currentTime = 3;
+    engine.setPower(false);
+    assert.equal(voice.releaseStartTime, 3);
+  });
+});
+
 describe('sample & hold LFO', () => {
   for (const lfoNum of [1, 2]) {
     test(`LFO${lfoNum} S&H uses the same modulation depths as the continuous LFO`, () => {
