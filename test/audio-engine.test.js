@@ -11,6 +11,45 @@ function createEngine() {
 // Plain realm-neutral copy, so deepStrictEqual does not trip over vm prototypes
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
+describe('master output stage', () => {
+  // Signal path: limiter -> pre-gain 0.5 -> safety clipper -> destination.
+  // The shaper reads input in [-1, 1], so the curve covers -2..+2 of the limiter output.
+  const masterOut = () => {
+    const { engine, ctx } = createLiveEngine();
+    const feeds = ctx.nodes.filter((n) => n.connections.includes(ctx.destination));
+    return { engine, ctx, feeds };
+  };
+  const throughClipper = (engine, x) => {
+    const curve = engine.safetyClipper.curve;
+    const u = Math.max(-1, Math.min(1, x * engine.safetyClipperPre.gain.value));
+    return curve[Math.round(((u + 1) / 2) * (curve.length - 1))];
+  };
+
+  test('the destination is fed by the safety clipper behind the limiter', () => {
+    const { engine, feeds } = masterOut();
+    assert.ok(feeds.includes(engine.safetyClipper));
+    assert.ok(!feeds.includes(engine.limiter), 'limiter must not reach the destination directly');
+    assert.ok(engine.limiter.connections.includes(engine.safetyClipperPre));
+    assert.ok(engine.safetyClipperPre.connections.includes(engine.safetyClipper));
+  });
+
+  test('limiter overshoot stays below full scale', () => {
+    const { engine } = masterOut();
+    for (const x of [1.0, 1.14, 2.1, 5]) {
+      const y = throughClipper(engine, x);
+      assert.ok(y < 0.99 && y > 0.9, `x=${x} -> ${y}`);
+      assert.ok(Math.abs(throughClipper(engine, -x) + y) < 1e-6, 'symmetric');
+    }
+  });
+
+  test('normal levels pass unchanged', () => {
+    const { engine } = masterOut();
+    for (const x of [0, 0.1, 0.5, 0.75]) {
+      assert.ok(Math.abs(throughClipper(engine, x) - x) < 0.002, `x=${x}`);
+    }
+  });
+});
+
 describe('makeDistortionCurve', () => {
   test('returns a linear identity curve for amount 0', () => {
     const curve = createEngine().makeDistortionCurve(0);

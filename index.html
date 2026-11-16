@@ -131,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.3</span>
+          <span class="version-tag">v1.8.4</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1241,11 +1241,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.3</span>
+            <span class="release-version-number">v1.8.4</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
-          <p class="modal-subtitle">S&H ohne Knacken • Sample & Hold Fix • Arpeggiator Latch • Sync-Anzeigen • Neuer Unterbau mit 90 Tests</p>
+          <p class="modal-subtitle">Kein Übersteuern am Ausgang • S&H ohne Knacken • Sample & Hold Fix • Arpeggiator Latch • Sync-Anzeigen • Neuer Unterbau mit 90 Tests</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1253,6 +1253,19 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
+            <div class="card-icon">🛡️</div>
+            <div class="card-content">
+              <div class="card-badge dsp-badge">MASTER</div>
+              <h3>Kein Kratzen mehr bei lauten Patches</h3>
+              <p>Der Limiter ließ kurze Spitzen über 0 dBFS durch, die der Ausgang hart abschnitt:</p>
+              <ul>
+                <li><strong>Sicherheits-Clipper:</strong> Hinter dem Limiter rundet eine weiche Kennlinie Spitzen ab und bleibt immer unter Vollaussteuerung.</li>
+                <li>Betraf vor allem resonante Patches wie 06 // SCI-FI SAMPLE & HOLD ARP. Normale Pegel laufen unverändert durch.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
             <div class="card-icon">🔇</div>
             <div class="card-content">
               <div class="card-badge dsp-badge">LFO & MODULATION</div>

@@ -219,9 +219,20 @@ class AudioEngine {
       this.limiter.attack.setValueAtTime(0.001, this.ctx.currentTime);
       this.limiter.release.setValueAtTime(0.05, this.ctx.currentTime);
 
+      // Safety clipper: the compressor lets fast peaks overshoot 0 dBFS (up to ~1.15 on
+      // resonant patches), which the output then hard-clips into audible crackle.
+      // Pre-gain 0.5 maps -2..+2 onto the shaper's -1..1 input range.
+      this.safetyClipperPre = this.ctx.createGain();
+      this.safetyClipperPre.gain.setValueAtTime(0.5, this.ctx.currentTime);
+      this.safetyClipper = this.ctx.createWaveShaper();
+      this.safetyClipper.curve = this.makeSafetyClipCurve();
+      this.safetyClipper.oversample = '4x';
+
       this.analyser.connect(this.masterGain);
       this.masterGain.connect(this.limiter);
-      this.limiter.connect(this.ctx.destination);
+      this.limiter.connect(this.safetyClipperPre);
+      this.safetyClipperPre.connect(this.safetyClipper);
+      this.safetyClipper.connect(this.ctx.destination);
 
       // Pre-calculate PWM WaveShaper transfer curve
       this.pwmCurve = this.createPWMShaperCurve();
@@ -410,6 +421,22 @@ class AudioEngine {
   /**
    * Generate soft-clipping saturation curve for Filter Drive (normalized with smooth unity ceiling)
    */
+  /**
+   * Safety clipper curve over the input range -2..+2: unity up to 0.8, then a tanh knee
+   * that approaches 0.98 so the output never reaches full scale.
+   */
+  makeSafetyClipCurve() {
+    const n = 4096, knee = 0.8, ceiling = 0.98;
+    const curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = (i / (n - 1)) * 4 - 2;
+      const a = Math.abs(x);
+      const y = a <= knee ? a : knee + (ceiling - knee) * Math.tanh((a - knee) / (ceiling - knee));
+      curve[i] = Math.sign(x) * y;
+    }
+    return curve;
+  }
+
   makeDistortionCurve(amount) {
     const n_samples = 512;
     const curve = new Float32Array(n_samples);
