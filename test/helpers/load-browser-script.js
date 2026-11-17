@@ -17,6 +17,7 @@ function createSandbox(globals = {}) {
   const sandbox = {
     // No Worker/Blob in Node: engines warn about the timer fallback on every construction
     console: { ...console, warn() {} },
+    URLSearchParams,
     __intervals: intervals,
     setInterval: (fn) => {
       const id = nextTimerId++;

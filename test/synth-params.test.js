@@ -1,8 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 const { loadEngineContext } = require('./helpers/synth-engine');
+const { knobsOf } = require('./helpers/panel-markup');
 
 const context = loadEngineContext('presets.js');
 const { SynthParams, SYNTH_INIT_PRESET, AudioEngine } = context;
@@ -21,9 +20,8 @@ test('the table covers exactly the parameters of a preset state', () => {
   assert.deepEqual(tablePaths, leafPaths(SYNTH_INIT_PRESET.state));
 });
 
-test('every knob in index.html is a patch parameter or an arpeggiator knob', () => {
-  const html = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
-  const knobIds = [...html.matchAll(/class="synth-knob-housing"[^>]*data-param="([^"]+)"/g)].map((m) => m[1]);
+test('every SUB-1 knob in index.html is a patch parameter or an arpeggiator knob', () => {
+  const knobIds = knobsOf('sub1');
   assert.ok(knobIds.length > 20, 'found the knobs');
   const arpKnobs = ['arp-bpm', 'arp-gate', 'arp-swing'];
   for (const id of knobIds) {

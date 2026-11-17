@@ -1,6 +1,9 @@
 /**
  * SYNTH REGISTRY
- * One definition per playable synth. app.js builds the engine and SynthUI from the active one.
+ * One definition per playable synth. app.js picks the active one at page load (resolveId), removes
+ * the markup of the others ([data-synth] in index.html) and builds the engine and SynthUI from it.
+ * Switching synths reloads the page with ?synth=<id>.
+ *   label              entry in the header synth selector
  *   createEngine()     a PolySynthEngine subclass
  *   params             its SynthBlocks.ParamTable
  *   buttonGroups       radio button rows: { path (string | ui => string), selector, key, parse? }
@@ -15,6 +18,7 @@ const SYNTH_DEFINITIONS = {
   sub1: {
     id: 'sub1',
     name: 'RETROVOX SUB-1',
+    label: 'SUB-1 • ANALOG LAB',
     createEngine: () => new AudioEngine(),
     params: SynthParams,
     buttonGroups: [
@@ -35,6 +39,7 @@ const SYNTH_DEFINITIONS = {
   fm: {
     id: 'fm',
     name: 'RETROVOX FM-4',
+    label: 'FM-4 • DIGITAL LAB',
     createEngine: () => new FmEngine(),
     params: FmParams,
     buttonGroups: [
@@ -54,6 +59,17 @@ const SynthRegistry = {
 
   get(id) {
     return SYNTH_DEFINITIONS[id] || SYNTH_DEFINITIONS.sub1;
+  },
+
+  /**
+   * Active synth id: ?synth=<id> in the URL, else the stored choice, else the SUB-1
+   */
+  resolveId(search, storedId) {
+    const fromUrl = new URLSearchParams(search || '').get('synth');
+    for (const id of [fromUrl, storedId]) {
+      if (id && Object.prototype.hasOwnProperty.call(SYNTH_DEFINITIONS, id)) return id;
+    }
+    return 'sub1';
   }
 };
 

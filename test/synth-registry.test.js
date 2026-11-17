@@ -1,4 +1,4 @@
-const { test } = require('node:test');
+const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadEngineContext, FM_SCRIPTS } = require('./helpers/synth-engine');
 const context = loadEngineContext('presets.js', ...FM_SCRIPTS, 'synth-registry.js');
@@ -42,6 +42,44 @@ for (const synth of definitions) {
     }
   });
 }
+
+describe('panel markup per synth', () => {
+  const { readPanelMarkup, knobsOf } = require('./helpers/panel-markup');
+  const arpKnobs = ['arp-bpm', 'arp-gate', 'arp-swing'];
+
+  for (const synth of definitions) {
+    test(`${synth.id}: every knob it shows is one of its parameters or an arpeggiator knob`, () => {
+      const knobs = knobsOf(synth.id);
+      assert.ok(knobs.length > 10, 'found the knobs');
+      for (const id of knobs) {
+        assert.ok(synth.params.byKnob(id, 1) || arpKnobs.includes(id), `no ${synth.id} parameter for knob ${id}`);
+      }
+    });
+
+    test(`${synth.id}: envelope tabs match its envelope targets`, () => {
+      const tabs = readPanelMarkup().envTabs.filter((t) => t.synth === synth.id).map((t) => t.target);
+      assert.deepEqual(tabs, Object.keys(synth.envTargets));
+    });
+  }
+
+  test('every element outside data-synth regions is shared, so no envelope tab is unassigned', () => {
+    assert.equal(readPanelMarkup().envTabs.filter((t) => t.synth === null).length, 0);
+  });
+});
+
+describe('resolveId', () => {
+  test('the URL wins over the stored choice', () => {
+    assert.equal(SynthRegistry.resolveId('?synth=fm', 'sub1'), 'fm');
+    assert.equal(SynthRegistry.resolveId('?foo=1&synth=sub1', 'fm'), 'sub1');
+  });
+
+  test('falls back to the stored choice, then to the SUB-1', () => {
+    assert.equal(SynthRegistry.resolveId('', 'fm'), 'fm');
+    assert.equal(SynthRegistry.resolveId('?synth=nope', 'also-nope'), 'sub1');
+    assert.equal(SynthRegistry.resolveId('', null), 'sub1');
+    assert.equal(SynthRegistry.resolveId('?synth=toString', null), 'sub1');
+  });
+});
 
 test('preset storage keys are distinct per synth', () => {
   const keys = definitions.map((s) => s.presetStorageKey);

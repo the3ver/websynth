@@ -18,7 +18,8 @@ const READOUT_FORMATTERS = {
   },
   res: (val) => `${val.toFixed(1)} Q`,
   time: (val) => (val < 1.0 ? `${Math.round(val * 1000)} ms` : `${val.toFixed(2)} s`),
-  bpm: (val) => `${Math.round(val)}`
+  bpm: (val) => `${Math.round(val)}`,
+  ratio: (val) => `${Number.isInteger(val) ? val : val.toFixed(2).replace(/0$/, '')}:1`
 };
 
 // Audio-range frequency knobs use a logarithmic travel
@@ -50,6 +51,7 @@ const KnobScale = {
    */
   quantizeDrag(spec, val) {
     if (isLogHzKnob(spec)) return roundKnobHz(val);
+    if (spec.type === 'ratio') return Math.round(val / spec.step) * spec.step;
     if (spec.type === 'hz') return Math.round(val * 20) / 20;
     if (spec.type === 'bpm' || spec.step >= 1) return Math.round(val / spec.step) * spec.step;
     if (spec.type === 'res') return Math.round(val * 10) / 10;
@@ -61,6 +63,7 @@ const KnobScale = {
    */
   quantizeWheel(spec, val) {
     if (isLogHzKnob(spec)) return roundKnobHz(val);
+    if (spec.type === 'ratio') return Math.round(val / spec.step) * spec.step;
     if (spec.step >= 1) return Math.round(val);
     return val;
   }

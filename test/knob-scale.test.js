@@ -139,3 +139,13 @@ test('quantizeWheel rules', () => {
   const defaultSpec = { type: 'percent', step: 0.01 };
   assert.equal(KnobScale.quantizeWheel(defaultSpec, 0.12345), 0.12345);
 });
+
+test('FM ratio knobs snap to their step and read as N:1', () => {
+  const ratioSpec = { type: 'ratio', min: 0.5, max: 16, step: 0.5 };
+  assert.equal(KnobScale.quantizeDrag(ratioSpec, 3.3), 3.5);
+  assert.equal(KnobScale.quantizeDrag(ratioSpec, 0.7), 0.5);
+  assert.equal(KnobScale.quantizeWheel(ratioSpec, 13.8), 14);
+  assert.equal(KnobScale.formatReadout('ratio', 1), '1:1');
+  assert.equal(KnobScale.formatReadout('ratio', 3.5), '3.5:1');
+  assert.equal(KnobScale.formatReadout('ratio', 0.5), '0.5:1');
+});

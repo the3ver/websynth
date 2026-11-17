@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.7), scripts & metadata
+├── package.json            # Versioning (v1.8.8), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -110,6 +110,16 @@ Instrument-neutral parts every synth on the page composes: a synth engine wires 
 - **Wiring**: `input` / `output` nodes; modulation targets as AudioParam fields (`vco.detune`, `vca.tremoloGain`) or arrays (`filter.frequencyParams`). `Vco` has two output paths and offers `connect(dest)` instead of `output`.
 - **Zero GC**: blocks are built once per voice or page; trigger, `set*` and `apply*` methods only schedule AudioParams or swap curves.
 - **Tests**: `test/<file>.test.js` per block, loading only the lib files it needs (`loadScripts('lib/curves.js', 'lib/vco.js')`). Arrays created inside the vm sandbox fail `deepEqual` against Node arrays: compare `Array.from(...)`.
+
+---
+
+## 🎛️ Synth Selection (`js/synth-registry.js`)
+
+One synth plays per page load; switching reloads with `?synth=<id>` (stored in `localStorage` as `retrovox_synth`).
+
+- **Engine**: a `PolySynthEngine` subclass (`js/poly-synth-engine.js` lists the hooks: `initInstrument`, `createVoice`, `onOctaveChange`, `onModWheelChange`). Arpeggiator, drums, UI and PWA manager use only the base interface.
+- **Definition**: one entry in `SYNTH_DEFINITIONS` (engine factory, `ParamTable`, button rows, toggles, envelope tabs, presets, preset storage key, LFO LED rate).
+- **Markup**: synth-specific slides, tabs and labels carry `data-synth="<id>"` in `index.html`; `app.js` removes the other synths' elements before `SynthUI` binds controls. Elements without `data-synth` (ADSR faders, FX rack, keyboard, arp) are shared, so shared knob ids (`fx-*`) need a row in every table. `test/synth-registry.test.js` checks knobs and envelope tabs per synth.
 
 ---
 
@@ -219,7 +229,7 @@ Before committing any modifications:
    - `screenshot-mobile.png` (750x1334)
    - `screenshot-phone-portrait.png` (360x780)
    - `screenshot-phone-landscape.png` (844x390)
-4. Check for zero console warnings / uncaught exceptions.
+4. Check for zero console warnings / uncaught exceptions for every synth (`?synth=sub1`, `?synth=fm`). Serve over HTTP (`PORT=3917 node scripts/serve.js`): headless Chromium on `file://` silently skips one of the 40+ scripts.
 5. Ensure no memory leaks or unmanaged event listeners on `window`.
 6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
 7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`.

@@ -1,5 +1,5 @@
 /**
- * RETROVOX SUB-1 • MAIN APPLICATION ENTRY POINT
+ * RETROVOX • MAIN APPLICATION ENTRY POINT
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,8 +9,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const DrumUI = window.DrumUI;
   const PWAManager = window.PWAManager;
 
+  // Active synth: chosen at page load, switching reloads with ?synth=<id>
+  const STORAGE_KEY_SYNTH = 'retrovox_synth';
+  let storedSynthId = null;
+  try {
+    storedSynthId = localStorage.getItem(STORAGE_KEY_SYNTH);
+  } catch (e) {}
+  const synth = window.SynthRegistry.get(window.SynthRegistry.resolveId(window.location.search, storedSynthId));
+  try {
+    localStorage.setItem(STORAGE_KEY_SYNTH, synth.id);
+  } catch (e) {}
+  // Panels, tabs and labels of the other synths leave the DOM before the UI binds its controls
+  document.querySelectorAll('[data-synth]').forEach((el) => {
+    if (el.dataset.synth !== synth.id) el.remove();
+  });
+
+  const synthSelect = document.getElementById('synthSelect');
+  if (synthSelect) {
+    synthSelect.innerHTML = '';
+    for (const def of Object.values(window.SynthRegistry.definitions)) {
+      synthSelect.appendChild(new Option(def.label, def.id, false, def.id === synth.id));
+    }
+    synthSelect.addEventListener('change', (e) => {
+      try {
+        localStorage.setItem(STORAGE_KEY_SYNTH, e.target.value);
+      } catch (err) {}
+      const params = new URLSearchParams(window.location.search);
+      params.set('synth', e.target.value);
+      window.location.search = params.toString();
+    });
+  }
+
   // Initialize Core Engines
-  const synth = window.SynthRegistry.get('sub1');
   const audioEngine = synth.createEngine();
   const arpEngine = new ArpEngine(audioEngine);
   const synthUI = new SynthUI(audioEngine, arpEngine, synth);
@@ -31,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.8.7';
+  const CURRENT_APP_VERSION = '1.8.8';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -225,5 +255,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  console.log(`⚡ RETROVOX SUB-1 Synthesizer v${CURRENT_APP_VERSION} Initialized Successfully.`);
+  console.log(`⚡ ${synth.name} Synthesizer v${CURRENT_APP_VERSION} Initialized Successfully.`);
 });

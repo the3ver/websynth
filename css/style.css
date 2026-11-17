@@ -172,6 +172,32 @@ body {
   color: var(--led-amber);
 }
 
+/* Synth selector in the brand badge: reads like the model line, opens a native dropdown */
+.synth-select {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(255, 176, 0, 0.45);
+  padding: 0 2px 0 0;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.synth-select option {
+  background: #0d1016;
+  color: var(--led-amber);
+}
+
+/* FM-4 algorithm routing list */
+.fm-algorithm-legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  color: #8a94a8;
+  letter-spacing: 0.3px;
+}
+
 .status-pill {
   display: flex;
   align-items: center;

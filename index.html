@@ -76,7 +76,9 @@ window.addEventListener('DOMContentLoaded', () => {
           <span class="brand-icon">⚡</span>
           <div class="brand-text">
             <span class="brand-name">RETROVOX</span>
-            <span class="brand-model">SUB-1 • ANALOG LAB</span>
+            <select class="brand-model synth-select" id="synthSelect" title="Synthesizer wählen (lädt die Seite neu)" aria-label="Synthesizer wählen">
+              <option value="sub1">SUB-1 • ANALOG LAB</option>
+            </select>
           </div>
         </div>
         <div class="status-pill" id="audioStatusBadge">
@@ -131,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.7</span>
+          <span class="version-tag">v1.8.8</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -198,8 +200,10 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="synth-top-panel">
             <div class="panel-header-strip">
               <div class="synth-logo-badge">
-                <span class="badge-title">RETROVOX SUB-1</span>
-                <span class="badge-tech">DUAL-VCO • 24dB VCF • DUAL-LFO • STEREO FX</span>
+                <span class="badge-title" data-synth="sub1">RETROVOX SUB-1</span>
+                <span class="badge-tech" data-synth="sub1">DUAL-VCO • 24dB VCF • DUAL-LFO • STEREO FX</span>
+                <span class="badge-title" data-synth="fm">RETROVOX FM-4</span>
+                <span class="badge-tech" data-synth="fm">4-OP FM • 8 ALGORITHMS • VIBRATO • STEREO FX</span>
               </div>
 
               <!-- Center: Hardware LCD Preset Manager Bay -->
@@ -230,13 +234,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
             <!-- Mobile Module Section Tabs (Visible on screens < 900px) -->
             <div class="mobile-synth-tabs-bar" id="mobileSynthTabsBar">
-              <button class="mobile-tab-btn active" data-tab="osc-mix" data-slide-index="0">
+              <button class="mobile-tab-btn active" data-synth="sub1" data-tab="osc-mix" data-slide-index="0">
                 <span class="tab-icon">🎛️</span>
                 <span class="mobile-tab-title">OSC &amp; MIX</span>
               </button>
-              <button class="mobile-tab-btn" data-tab="vcf-lfo" data-slide-index="1">
+              <button class="mobile-tab-btn" data-synth="sub1" data-tab="vcf-lfo" data-slide-index="1">
                 <span class="tab-icon">🔊</span>
                 <span class="mobile-tab-title">VCF &amp; LFO</span>
+              </button>
+              <button class="mobile-tab-btn active" data-synth="fm" data-tab="fm-ops-a" data-slide-index="0">
+                <span class="tab-icon">🎛️</span>
+                <span class="mobile-tab-title">OP 1-2 &amp; ALG</span>
+              </button>
+              <button class="mobile-tab-btn" data-synth="fm" data-tab="fm-ops-b" data-slide-index="1">
+                <span class="tab-icon">🔊</span>
+                <span class="mobile-tab-title">OP 3-4 &amp; VIB</span>
               </button>
               <button class="mobile-tab-btn" data-tab="env-fx" data-slide-index="2">
                 <span class="tab-icon">⚡</span>
@@ -248,7 +260,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="modular-control-surface" id="modularControlSurface">
               
               <!-- Slide 1: OSC & MIX (VCO 1/2 + Mixer & Noise) -->
-              <div class="module-slide" data-slide="osc-mix" data-slide-index="0">
+              <div class="module-slide" data-synth="sub1" data-slide="osc-mix" data-slide-index="0">
                 <!-- Module 1: Dual-VCO (Oscillators) -->
                 <div class="module-bay vco-module active-module" data-tab-group="osc-mix">
                   <div class="module-title">
@@ -445,7 +457,7 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <!-- Slide 2: VCF & LFO (24dB Ladder Filter + Dual LFO & Mod) -->
-            <div class="module-slide" data-slide="vcf-lfo" data-slide-index="1">
+            <div class="module-slide" data-synth="sub1" data-slide="vcf-lfo" data-slide-index="1">
               <!-- Module 3: 24dB Ladder VCF Filter (Centerpiece) -->
               <div class="module-bay vcf-module active-module highlight-module" data-tab-group="vcf-lfo">
                 <div class="module-title">
@@ -627,20 +639,286 @@ window.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
+            <!-- FM-4 Slide 1: Operators 1 & 2 + Algorithm -->
+            <div class="module-slide" data-synth="fm" data-slide="fm-ops-a" data-slide-index="0">
+                <div class="module-bay vco-module active-module" data-tab-group="fm-ops-a">
+                  <div class="module-title">
+                    <span>01 // OPERATORS 1 &amp; 2</span>
+                    <span class="module-led cyan"></span>
+                  </div>
+                <div class="vco-subgrid">
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OPERATOR 1</span>
+                      <span class="tag">SINE</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op1-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">RATIO</span>
+                        <span class="knob-readout-badge" id="fm-op1-ratio-readout">1:1</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op1-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="fm-op1-detune-readout">0 CT</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op1-level" data-min="0" data-max="1" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">LEVEL</span>
+                        <span class="knob-readout-badge" id="fm-op1-level-readout">50%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OPERATOR 2</span>
+                      <span class="tag">SINE</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op2-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">RATIO</span>
+                        <span class="knob-readout-badge" id="fm-op2-ratio-readout">1:1</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op2-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="fm-op2-detune-readout">0 CT</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op2-level" data-min="0" data-max="1" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">LEVEL</span>
+                        <span class="knob-readout-badge" id="fm-op2-level-readout">50%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+                <div class="module-bay mixer-module active-module" data-tab-group="fm-ops-a">
+                  <div class="module-title">
+                    <span>02 // ALGORITHM</span>
+                    <span class="module-led amber"></span>
+                  </div>
+                <div class="vco-subgrid" id="fmAlgorithmRow">
+                  <div class="filter-mode-row">
+                    <button class="filter-mode-btn fm-alg-btn active" data-alg="1" title="Algorithmus 1: 4→3→2→1">ALG 1</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="2" title="Algorithmus 2: (4+3)→2→1">ALG 2</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="3" title="Algorithmus 3: 4→1, 3→2→1">ALG 3</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="4" title="Algorithmus 4: 4→3→1, 2→1">ALG 4</button>
+                  </div>
+                  <div class="filter-mode-row">
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="5" title="Algorithmus 5: 4→3, 2→1 · Träger 1+3">ALG 5</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="6" title="Algorithmus 6: 4→1, 4→2, 4→3 · Träger 1+2+3">ALG 6</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="7" title="Algorithmus 7: 4→3 · Träger 1+2+3">ALG 7</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="8" title="Algorithmus 8: alle vier parallel (additiv)">ALG 8</button>
+                  </div>
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>ROUTING</span>
+                      <span class="tag">MOD → CARRIER</span>
+                    </div>
+                    <div class="fm-algorithm-legend">
+                      <span>1: 4→3→2→1</span>
+                      <span>2: (4+3)→2→1</span>
+                      <span>3: 4→1, 3→2→1</span>
+                      <span>4: 4→3→1, 2→1</span>
+                      <span>5: 4→3, 2→1 · Träger 1+3</span>
+                      <span>6: 4→1, 4→2, 4→3 · Träger 1+2+3</span>
+                      <span>7: 4→3 · Träger 1+2+3</span>
+                      <span>8: alle vier parallel (additiv)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FM-4 Slide 2: Operators 3 & 4 + Vibrato -->
+            <div class="module-slide" data-synth="fm" data-slide="fm-ops-b" data-slide-index="1">
+                <div class="module-bay vco-module active-module" data-tab-group="fm-ops-b">
+                  <div class="module-title">
+                    <span>03 // OPERATORS 3 &amp; 4</span>
+                    <span class="module-led cyan"></span>
+                  </div>
+                <div class="vco-subgrid">
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OPERATOR 3</span>
+                      <span class="tag">SINE</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op3-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">RATIO</span>
+                        <span class="knob-readout-badge" id="fm-op3-ratio-readout">1:1</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op3-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="fm-op3-detune-readout">0 CT</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op3-level" data-min="0" data-max="1" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">LEVEL</span>
+                        <span class="knob-readout-badge" id="fm-op3-level-readout">50%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OPERATOR 4</span>
+                      <span class="tag">SINE</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op4-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">RATIO</span>
+                        <span class="knob-readout-badge" id="fm-op4-ratio-readout">1:1</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op4-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="fm-op4-detune-readout">0 CT</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-op4-level" data-min="0" data-max="1" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">LEVEL</span>
+                        <span class="knob-readout-badge" id="fm-op4-level-readout">50%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+                <div class="module-bay lfo-module active-module" data-tab-group="fm-ops-b">
+                  <div class="module-title">
+                    <span>04 // VIBRATO &amp; MOD</span>
+                    <span class="module-led amber"></span>
+                  </div>
+                <div class="vco-subgrid">
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>SINE VIBRATO</span>
+                      <span class="tag">MOD WHEEL ADDS DEPTH</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-vib-rate" data-min="0.1" data-max="12" data-step="0.05" data-default="5" data-type="hz">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">RATE <span class="lfo-rate-led" id="lfoRateLed"></span></span>
+                        <span class="knob-readout-badge" id="fm-vib-rate-readout">5.0 Hz</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-vib-depth" data-min="0" data-max="1" data-step="0.01" data-default="0" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DEPTH</span>
+                        <span class="knob-readout-badge" id="fm-vib-depth-readout">0%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Slide 3: ENV & FX (Dual ADSR Envelopes + Vintage Stereo FX) -->
             <div class="module-slide" data-slide="env-fx" data-slide-index="2">
               <!-- Module 5: Dual ADSR Envelopes (VCA & VCF) -->
               <div class="module-bay env-module active-module" id="adsrModuleBay" data-tab-group="env-fx">
                 <div class="module-title">
-                  <span>05 // DUAL ADSR ENVELOPES</span>
+                  <span data-synth="sub1">05 // DUAL ADSR ENVELOPES</span>
+                  <span data-synth="fm">05 // OPERATOR ENVELOPES</span>
                   <span class="module-led cyan"></span>
                 </div>
 
                 <div class="vco-subgrid">
                   <!-- Envelope Target Selector Tabs -->
                   <div class="env-tab-group" id="envTabGroup">
-                    <button class="env-tab-btn active" data-target="amp" title="VCA Lautstärke-Hüllkurve">VCA (AMP)</button>
-                    <button class="env-tab-btn" data-target="filter" title="VCF Filter Cutoff-Hüllkurve">VCF (FILTER)</button>
+                    <button class="env-tab-btn active" data-synth="sub1" data-target="amp" title="VCA Lautstärke-Hüllkurve">VCA (AMP)</button>
+                    <button class="env-tab-btn" data-synth="sub1" data-target="filter" title="VCF Filter Cutoff-Hüllkurve">VCF (FILTER)</button>
+                    <button class="env-tab-btn active" data-synth="fm" data-target="op1" title="Hüllkurve Operator 1">OP 1</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op2" title="Hüllkurve Operator 2">OP 2</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op3" title="Hüllkurve Operator 3">OP 3</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op4" title="Hüllkurve Operator 4">OP 4</button>
                   </div>
 
                   <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
@@ -1241,7 +1519,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.7</span>
+            <span class="release-version-number">v1.8.8</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues im RETROVOX SUB-1</h2>
