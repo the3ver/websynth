@@ -31,7 +31,7 @@ function setup() {
     isPowered: true,
     activeVoices: { size: 1 },
     signal: 60,
-    analyser: { getByteTimeDomainData(a) { for (let i = 0; i < a.length; i++) a[i] = 128 + Math.round(engine.signal * Math.sin(i / 8)); } }
+    master: { analyser: { getByteTimeDomainData(a) { for (let i = 0; i < a.length; i++) a[i] = 128 + Math.round(engine.signal * Math.sin(i / 8)); } } }
   };
   const elements = {
     canvas: { width: 360, height: 120, getContext: () => ctx2d },

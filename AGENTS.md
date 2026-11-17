@@ -47,6 +47,7 @@ websynth/
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
+│   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
 │   │   └── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
@@ -117,10 +118,11 @@ websynth/
 - `SynthBlocks.driveCurve(amount)`: identity at amount 0, otherwise `tanhCurve(1 + 4 * amount, 512)`.
 - `SynthBlocks.tanhCurve(gain, n)`: $\tanh(g x) / \tanh(g)$, edges stay at $\pm 1$. The drum kick and 303 bass use it with 256 samples.
 
-### 4. Master FX Rack & Limiter (`js/fx-chain.js`)
+### 4. FX Rack (`js/fx-chain.js`) & Master Bus (`js/lib/master-bus.js`)
 - **Signal Flow**:
-  $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{Master Analyser} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Master Gain} \longrightarrow \text{Destination}$$
-- **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.002s`, release `0.05s`.
+  $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{MasterBus: Analyser} \longrightarrow \text{Volume} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Safety Clipper} \longrightarrow \text{Destination}$$
+- **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.001s`, release `0.05s`; the 4x-oversampled safety clipper catches its overshoot below 0.98.
+- `engine.master` (`SynthBlocks.MasterBus`) is the shared output: the drum bus connects to `master.input`, the visualizer reads `master.analyser`.
 
 ---
 

@@ -20,17 +20,17 @@ describe('master output stage', () => {
     return { engine, ctx, feeds };
   };
   const throughClipper = (engine, x) => {
-    const curve = engine.safetyClipper.curve;
-    const u = Math.max(-1, Math.min(1, x * engine.safetyClipperPre.gain.value));
+    const curve = engine.master.clipper.curve;
+    const u = Math.max(-1, Math.min(1, x * engine.master.clipperPre.gain.value));
     return curve[Math.round(((u + 1) / 2) * (curve.length - 1))];
   };
 
   test('the destination is fed by the safety clipper behind the limiter', () => {
     const { engine, feeds } = masterOut();
-    assert.ok(feeds.includes(engine.safetyClipper));
-    assert.ok(!feeds.includes(engine.limiter), 'limiter must not reach the destination directly');
-    assert.ok(engine.limiter.connections.includes(engine.safetyClipperPre));
-    assert.ok(engine.safetyClipperPre.connections.includes(engine.safetyClipper));
+    assert.ok(feeds.includes(engine.master.clipper));
+    assert.ok(!feeds.includes(engine.master.limiter), 'limiter must not reach the destination directly');
+    assert.ok(engine.master.limiter.connections.includes(engine.master.clipperPre));
+    assert.ok(engine.master.clipperPre.connections.includes(engine.master.clipper));
   });
 
   test('limiter overshoot stays below full scale', () => {
@@ -47,6 +47,24 @@ describe('master output stage', () => {
     for (const x of [0, 0.1, 0.5, 0.75]) {
       assert.ok(Math.abs(throughClipper(engine, x) - x) < 0.002, `x=${x}`);
     }
+  });
+
+  test('master volume ramps the gain between analyser and limiter', () => {
+    const { engine, ctx } = masterOut();
+    const { master } = engine;
+    assert.ok(master.analyser.connections.includes(master.volume));
+    assert.ok(master.volume.connections.includes(master.limiter));
+    assert.equal(master.volume.gain.value, engine.masterVolume);
+    ctx.currentTime = 4;
+    engine.setMasterVolume(1.5);
+    assert.deepEqual(master.volume.gain.events.at(-1), { type: 'setTargetAtTime', value: 1, time: 4, timeConstant: 0.02 });
+  });
+
+  test('the drum machine joins the master bus input', () => {
+    const { engine, context } = createLiveEngine('drum-kits.js', 'drum-engine.js');
+    const drum = new context.DrumEngine(engine);
+    drum.initAudio();
+    assert.ok(drum.outputBus.connections.includes(engine.master.input));
   });
 });
 

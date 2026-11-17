@@ -113,9 +113,9 @@ class DrumEngine {
       this.outputBus = this.ctx.createGain();
       this.outputBus.gain.setValueAtTime(this.volume, this.ctx.currentTime);
 
-      // Connect Drum Bus directly to Synthesizer Analyser Bus (so speakers/visualizers bounce!)
-      if (this.synthAudio.analyser) {
-        this.outputBus.connect(this.synthAudio.analyser);
+      // Drum bus joins the master bus in front of the analyser (so speakers/visualizers bounce!)
+      if (this.synthAudio.master) {
+        this.outputBus.connect(this.synthAudio.master.input);
       } else {
         this.outputBus.connect(this.ctx.destination);
       }

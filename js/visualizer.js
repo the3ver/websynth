@@ -76,8 +76,9 @@ class Visualizer {
   }
 
   readRms() {
-    if (!this.engine.analyser || !this.engine.isPowered) return 0;
-    this.engine.analyser.getByteTimeDomainData(this.timeData);
+    const master = this.engine.master;
+    if (!master || !this.engine.isPowered) return 0;
+    master.analyser.getByteTimeDomainData(this.timeData);
 
     let sum = 0;
     for (let i = 0; i < this.bufferLength; i++) {
@@ -103,7 +104,7 @@ class Visualizer {
   drawFrame(rms) {
     this.drawGrid();
 
-    if (this.engine.analyser && this.engine.isPowered) {
+    if (this.engine.master && this.engine.isPowered) {
       this.drawWaveform();
     } else {
       this.drawFlatLine();

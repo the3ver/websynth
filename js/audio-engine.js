@@ -20,9 +20,7 @@ const ENV_STAGE_RANGE = {
 class AudioEngine {
   constructor() {
     this.ctx = null;
-    this.limiter = null;
-    this.masterGain = null;
-    this.analyser = null;
+    this.master = null; // SynthBlocks.MasterBus: analyser -> volume -> limiter -> clipper
     this.masterVoiceBus = null;
     this.maxVoices = 12;
     this.voicePool = []; // Persistent 12-Voice Polyphonic Pool (Zero GC Churn)
@@ -197,36 +195,8 @@ class AudioEngine {
       // Master Voice Bus
       this.masterVoiceBus = this.ctx.createGain();
 
-      // Setup Master Analyser & Master Gain (optimized fftSize 512 for CPU relief)
-      this.analyser = this.ctx.createAnalyser();
-      this.analyser.fftSize = 512;
-      this.analyser.smoothingTimeConstant = 0.8;
-
-      this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(this.masterVolume, this.ctx.currentTime);
-
-      // Brickwall Peak Limiter / DynamicsCompressor to prevent digital clipping (0 dBFS ceiling)
-      this.limiter = this.ctx.createDynamicsCompressor();
-      this.limiter.threshold.setValueAtTime(-0.5, this.ctx.currentTime);
-      this.limiter.knee.setValueAtTime(0.0, this.ctx.currentTime);
-      this.limiter.ratio.setValueAtTime(20.0, this.ctx.currentTime);
-      this.limiter.attack.setValueAtTime(0.001, this.ctx.currentTime);
-      this.limiter.release.setValueAtTime(0.05, this.ctx.currentTime);
-
-      // Safety clipper: the compressor lets fast peaks overshoot 0 dBFS (up to ~1.15 on
-      // resonant patches), which the output then hard-clips into audible crackle.
-      // Pre-gain 0.5 maps -2..+2 onto the shaper's -1..1 input range.
-      this.safetyClipperPre = this.ctx.createGain();
-      this.safetyClipperPre.gain.setValueAtTime(0.5, this.ctx.currentTime);
-      this.safetyClipper = this.ctx.createWaveShaper();
-      this.safetyClipper.curve = SynthBlocks.safetyClipCurve();
-      this.safetyClipper.oversample = '4x';
-
-      this.analyser.connect(this.masterGain);
-      this.masterGain.connect(this.limiter);
-      this.limiter.connect(this.safetyClipperPre);
-      this.safetyClipperPre.connect(this.safetyClipper);
-      this.safetyClipper.connect(this.ctx.destination);
+      // Analyser, volume, limiter and safety clipper (shared with the drum machine)
+      this.master = new SynthBlocks.MasterBus(this.ctx, { volume: this.masterVolume });
 
       // Pre-calculate PWM WaveShaper transfer curve
       this.pwmCurve = SynthBlocks.pwmComparatorCurve();
@@ -309,10 +279,10 @@ class AudioEngine {
   }
 
   /**
-   * Builds the Stereo FX rack between the voice bus and the analyser (see fx-chain.js)
+   * Builds the Stereo FX rack between the voice bus and the master bus (see fx-chain.js)
    */
   initStereoFXChain() {
-    this.fxChain = new FXChain(this.ctx, this.fx, this.masterVoiceBus, this.analyser);
+    this.fxChain = new FXChain(this.ctx, this.fx, this.masterVoiceBus, this.master.input);
   }
 
   /**
@@ -691,9 +661,7 @@ class AudioEngine {
 
   setMasterVolume(value) {
     this.masterVolume = Math.max(0, Math.min(1, value));
-    if (this.masterGain && this.ctx) {
-      this.masterGain.gain.setTargetAtTime(this.masterVolume, this.ctx.currentTime, 0.02);
-    }
+    if (this.master) this.master.setVolume(this.masterVolume);
   }
 
   setOctaveShift(shift) {

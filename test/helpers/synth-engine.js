@@ -4,7 +4,7 @@
 const { loadScriptsWith } = require('./load-browser-script');
 const { FakeAudioContext } = require('./fake-audio-context');
 
-const ENGINE_SCRIPTS = ['lib/curves.js', 'lib/envelope.js', 'lib/filter.js', 'lib/vco.js', 'lib/lfo.js', 'lib/effects.js', 'lib/gain-stages.js', 'synth-params.js', 'voice.js', 'fx-chain.js', 'audio-engine.js'];
+const ENGINE_SCRIPTS = ['lib/curves.js', 'lib/envelope.js', 'lib/filter.js', 'lib/vco.js', 'lib/lfo.js', 'lib/effects.js', 'lib/gain-stages.js', 'lib/master-bus.js', 'synth-params.js', 'voice.js', 'fx-chain.js', 'audio-engine.js'];
 
 function loadEngineContext(...extraScripts) {
   return loadScriptsWith({ AudioContext: FakeAudioContext, navigator: {} }, ...ENGINE_SCRIPTS, ...extraScripts);

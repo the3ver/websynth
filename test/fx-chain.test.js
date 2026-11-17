@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createLiveEngine } = require('./helpers/synth-engine');
 
-test('FX chain runs voice bus -> chorus -> delay -> reverb -> analyser', () => {
+test('FX chain runs voice bus -> chorus -> delay -> reverb -> master bus', () => {
   const { engine } = createLiveEngine();
   const { chorus, delay, reverb } = engine.fxChain;
   assert.ok(engine.masterVoiceBus.connections.includes(chorus.input));
@@ -11,7 +11,7 @@ test('FX chain runs voice bus -> chorus -> delay -> reverb -> analyser', () => {
   assert.ok(delay.output.connections.includes(reverb.input));
   assert.ok(reverb.dryGain.connections.includes(reverb.output));
   assert.ok(reverb.wetGain.connections.includes(reverb.output));
-  assert.ok(reverb.output.connections.includes(engine.analyser));
+  assert.ok(reverb.output.connections.includes(engine.master.input));
 });
 
 test('every effect splits its input into a dry and a wet path', () => {
