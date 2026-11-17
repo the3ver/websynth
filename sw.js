@@ -19,6 +19,7 @@ const PRECACHE_ASSETS = [
   './js/lib/filter.js',
   './js/lib/gain-stages.js',
   './js/lib/vco.js',
+  './js/lib/voice-pool.js',
   './js/lib/lfo.js',
   './js/lib/master-bus.js',
   './js/lib/effects.js',

@@ -48,7 +48,8 @@ websynth/
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
-│   │   └── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
+│   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
+│   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
@@ -96,7 +97,7 @@ websynth/
 ## 🎧 Synthesizer Audio Engine Architecture (`js/audio-engine.js`)
 
 ### 1. 12-Voice Persistent Polyphonic Pool
-- **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances (`js/voice.js`) initialized on `AudioContext` startup. A voice reads the current patch from its engine; `AudioEngine.forEachVoice()` pushes live parameter changes.
+- **Structure**: `this.pool` (`SynthBlocks.VoicePool`) holds 12 pre-allocated `Voice` instances (`js/voice.js`) initialized on `AudioContext` startup; `voicePool` and `activeVoices` are the pool's array and note map. A voice reads the current patch from its engine; `AudioEngine.forEachVoice()` pushes live parameter changes.
 - **Voice Nodes**:
   - `vco[1]` & `vco[2]` (`SynthBlocks.Vco`: native Sine/Triangle/Sawtooth direct path and 4x-oversampled WaveShaper audio-rate PWM)
   - `subOsc` (Sub-octave triangle wave)
@@ -106,8 +107,8 @@ websynth/
   - `vca` (`SynthBlocks.Vca`: ADSR amplitude gain `vca.gain` -> tremolo gain `vca.tremoloGain` for LFO amp)
   - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains fed by `engine.lfos[n].output` (`SynthBlocks.Lfo`, oscillator + S&H source); depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
 - **Lifecycle & LRU Voice Stealing**:
-  - `noteOn(midiNote, velocity)` searches for an inactive voice in `this.voicePool`.
-  - If all 12 voices are active, the voice with the oldest `startTime` is stolen using a 2ms soft crossfade (`setTargetAtTime(0, now, 0.002)`).
+  - `noteOn(midiNote, velocity)` asks `pool.allocate()`: same note (retrigger), then a free voice, then the oldest releasing voice.
+  - If all 12 voices are active, the voice with the oldest `startTime` is stolen via `voice.choke()` (2ms fade, `Vca.choke`).
   - `noteOff(midiNote)` initiates the asymptotic ADSR release curve and resets the active voice flag when the release completes.
 
 ### 2. Patch Parameter Table (`js/synth-params.js`)

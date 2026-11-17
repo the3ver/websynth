@@ -23,8 +23,10 @@ class AudioEngine {
     this.master = null; // SynthBlocks.MasterBus: analyser -> volume -> limiter -> clipper
     this.masterVoiceBus = null;
     this.maxVoices = 12;
-    this.voicePool = []; // Persistent 12-Voice Polyphonic Pool (Zero GC Churn)
-    this.activeVoices = new Map(); // noteNumber -> Voice
+    // Persistent 12-voice pool (Zero GC Churn); voicePool / activeVoices are the pool's own array and map
+    this.pool = new SynthBlocks.VoicePool();
+    this.voicePool = this.pool.voices;
+    this.activeVoices = this.pool.active; // midiNote -> Voice
     this.isPowered = true;
     this.masterVolume = 0.8;
     this.octaveShift = 0; // -2 to +2
@@ -253,7 +255,7 @@ class AudioEngine {
     }
 
     for (let i = 0; i < count; i++) {
-      this.voicePool.push(new Voice(this, i));
+      this.pool.add(new Voice(this, i));
     }
   }
 
@@ -348,69 +350,6 @@ class AudioEngine {
   }
 
   /**
-   * Allocates a persistent voice from the voice pool (LRU Voice Stealing)
-   */
-  allocateVoice(midiNote) {
-    const now = this.ctx ? this.ctx.currentTime : 0;
-
-    // 1. If voice is already allocated to this note, reuse it (smooth retrigger)
-    const existing = this.activeVoices.get(midiNote);
-    if (existing) {
-      return existing;
-    }
-
-    // 2. Find first completely free voice
-    for (const voice of this.voicePool) {
-      if (!voice.isBusy) {
-        return voice;
-      }
-    }
-
-    // 3. Find a voice that is currently in release phase (oldest releaseStartTime)
-    let oldestReleasedVoice = null;
-    let minReleaseTime = Infinity;
-    for (const voice of this.voicePool) {
-      if (voice.releaseStartTime > 0 && voice.releaseStartTime < minReleaseTime) {
-        minReleaseTime = voice.releaseStartTime;
-        oldestReleasedVoice = voice;
-      }
-    }
-    if (oldestReleasedVoice) {
-      this.unmapVoice(oldestReleasedVoice);
-      return oldestReleasedVoice;
-    }
-
-    // 4. All voices busy: Steal oldest active voice (LRU)
-    let oldestActiveVoice = this.voicePool[0];
-    let minStartTime = this.voicePool[0].startTime;
-    for (let i = 1; i < this.voicePool.length; i++) {
-      if (this.voicePool[i].startTime < minStartTime) {
-        minStartTime = this.voicePool[i].startTime;
-        oldestActiveVoice = this.voicePool[i];
-      }
-    }
-
-    // Fast 2ms crossfade down on stolen voice to avoid click
-    try {
-      oldestActiveVoice.vca.choke(now);
-    } catch (e) {}
-
-    this.unmapVoice(oldestActiveVoice);
-    return oldestActiveVoice;
-  }
-
-  /**
-   * Drops the note -> voice entry only if it still points at this voice. A releasing
-   * voice keeps its midiNote while the same note may already sound on a newer voice;
-   * deleting by note alone orphaned that newer voice (stuck note).
-   */
-  unmapVoice(voice) {
-    if (voice.midiNote !== null && this.activeVoices.get(voice.midiNote) === voice) {
-      this.activeVoices.delete(voice.midiNote);
-    }
-  }
-
-  /**
    * Triggers Note On with Persistent Voice Pool (Zero Node Allocations / Zero GC)
    */
   noteOn(midiNote, velocity = 1.0) {
@@ -418,11 +357,11 @@ class AudioEngine {
     this.ensureAudioRunning();
 
     const now = this.ctx ? this.ctx.currentTime : 0;
-    const voice = this.allocateVoice(midiNote);
+    const voice = this.pool.allocate(midiNote, now);
     if (!voice) return;
 
     this.lastFrequency = voice.trigger(midiNote, velocity, now);
-    this.activeVoices.set(midiNote, voice);
+    this.pool.assign(midiNote, voice);
 
     if (this.onVoiceChange) {
       this.onVoiceChange(this.activeVoices.size, this.lastFrequency);
@@ -431,10 +370,9 @@ class AudioEngine {
 
   noteOff(midiNote) {
     if (!this.ctx) return;
-    const voice = this.activeVoices.get(midiNote);
+    const voice = this.pool.take(midiNote);
     if (!voice) return;
 
-    this.activeVoices.delete(midiNote);
     voice.release(this.ctx.currentTime);
 
     if (this.onVoiceChange) {

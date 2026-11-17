@@ -273,6 +273,13 @@ class Voice {
     }, cleanupDelayMs);
   }
 
+  /**
+   * Fast fade to silence when the voice pool steals this voice
+   */
+  choke(now) {
+    this.vca.choke(now);
+  }
+
   // =========================================================================
   // LIVE PARAMETER UPDATES
   // =========================================================================

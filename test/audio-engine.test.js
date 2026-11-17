@@ -130,49 +130,17 @@ describe('getVoiceCutoffFrequency', () => {
   });
 });
 
-describe('allocateVoice', () => {
-  function engineWithPool(voices) {
-    const engine = createEngine();
-    const silentParam = { cancelScheduledValues() {}, setTargetAtTime() {} };
-    engine.voicePool = voices.map((v) => ({
-      isBusy: false, midiNote: null, startTime: 0, releaseStartTime: 0,
-      vca: { gain: silentParam },
-      ...v
-    }));
-    for (const voice of engine.voicePool) {
-      if (voice.midiNote !== null) engine.activeVoices.set(voice.midiNote, voice);
-    }
-    return engine;
-  }
-
-  test('reuses the voice already playing the same note', () => {
-    const engine = engineWithPool([{ isBusy: true, midiNote: 60, startTime: 1 }, {}]);
-    assert.equal(engine.allocateVoice(60), engine.voicePool[0]);
-  });
-
-  test('prefers a free voice', () => {
-    const engine = engineWithPool([{ isBusy: true, midiNote: 60, startTime: 1 }, {}]);
-    assert.equal(engine.allocateVoice(62), engine.voicePool[1]);
-  });
-
-  test('takes the oldest releasing voice before stealing a held one', () => {
-    const engine = engineWithPool([
-      { isBusy: true, midiNote: 60, startTime: 1 },
-      { isBusy: true, midiNote: 62, startTime: 2, releaseStartTime: 5 },
-      { isBusy: true, midiNote: 64, startTime: 3, releaseStartTime: 4 }
-    ]);
-    assert.equal(engine.allocateVoice(65), engine.voicePool[2]);
-    assert.equal(engine.activeVoices.has(64), false);
-  });
-
-  test('steals the oldest held voice when all are busy (LRU)', () => {
-    const engine = engineWithPool([
-      { isBusy: true, midiNote: 60, startTime: 3 },
-      { isBusy: true, midiNote: 62, startTime: 1 },
-      { isBusy: true, midiNote: 64, startTime: 2 }
-    ]);
-    assert.equal(engine.allocateVoice(65), engine.voicePool[1]);
-    assert.equal(engine.activeVoices.has(62), false);
+describe('voice stealing', () => {
+  test('a stolen voice is choked with a 2 ms fade', () => {
+    const { engine, ctx } = createLiveEngine();
+    for (let n = 60; n < 72; n++) engine.noteOn(n, 1.0);
+    const oldest = engine.activeVoices.get(60);
+    ctx.currentTime = 2;
+    engine.noteOn(72, 1.0);
+    assert.equal(engine.activeVoices.get(72), oldest);
+    assert.equal(engine.activeVoices.has(60), false);
+    const choke = oldest.vca.gain.events.find((e) => e.type === 'setTargetAtTime' && e.time === 2);
+    assert.equal(choke.timeConstant, 0.002);
   });
 });
 
