@@ -117,7 +117,7 @@ test('noteOn triggers filter envelope attack and decay exponential ramps', () =>
 
   engine.noteOn(60, 1.0);
   const voice = engine.activeVoices.get(60);
-  const ramps = voice.vcf1.frequency.events.filter((e) => e.type === 'exponentialRampToValueAtTime');
+  const ramps = voice.filter.stage1.frequency.events.filter((e) => e.type === 'exponentialRampToValueAtTime');
 
   assert.equal(ramps.length >= 2, true);
   assert.equal(ramps[0].time, 1 + 0.03);
@@ -130,7 +130,7 @@ test('amp and filter envelopes schedule exactly this event sequence over note on
   Object.assign(engine.filterEnv, { attack: 0.03, decay: 0.07, sustain: 0.4, release: 0.6 });
   Object.assign(engine.vcf, { cutoff: 1000, envMod: 0.5, keyTrack: 0 });
   const voice = engine.voicePool[0];
-  const params = [voice.vca.gain, voice.vcf1.frequency, voice.vcf2.frequency];
+  const params = [voice.vca.gain, voice.filter.stage1.frequency, voice.filter.stage2.frequency];
   const marks = params.map((p) => p.events.length);
 
   ctx.currentTime = 10;
@@ -272,21 +272,21 @@ test('configureFilter stages filter types and Q factor for lowpass12 and lowpass
 
   engine.setVCFResonance(10);
   engine.setVCFType('lowpass12');
-  assert.equal(voice.vcf1.type, 'lowpass');
-  assert.equal(voice.vcf2.type, 'allpass');
-  assert.equal(voice.vcf2.Q.value, 0.1);
+  assert.equal(voice.filter.stage1.type, 'lowpass');
+  assert.equal(voice.filter.stage2.type, 'allpass');
+  assert.equal(voice.filter.stage2.Q.value, 0.1);
 
   engine.setVCFType('lowpass24');
-  assert.equal(voice.vcf1.type, 'lowpass');
-  assert.equal(voice.vcf2.type, 'lowpass');
-  assert.equal(voice.vcf1.Q.value, 3.8);
-  assert.equal(voice.vcf2.Q.value, 4.8);
+  assert.equal(voice.filter.stage1.type, 'lowpass');
+  assert.equal(voice.filter.stage2.type, 'lowpass');
+  assert.equal(voice.filter.stage1.Q.value, 3.8);
+  assert.equal(voice.filter.stage2.Q.value, 4.8);
 });
 
 test('filter modes: stage types and clamped Q for every mode and resonance', () => {
   const { engine } = createLiveEngine();
   const voice = engine.voicePool[0];
-  const stages = () => [voice.vcf1.type, voice.vcf2.type, voice.vcf1.Q.value, voice.vcf2.Q.value];
+  const stages = () => [voice.filter.stage1.type, voice.filter.stage2.type, voice.filter.stage1.Q.value, voice.filter.stage2.Q.value];
   const expected = {
     lowpass24: { 0: ['lowpass', 'lowpass', 0.5, 0.5], 10: ['lowpass', 'lowpass', 3.8, 4.8], 30: ['lowpass', 'lowpass', 7.5, 9.0] },
     lowpass12: { 0: ['lowpass', 'allpass', 0.5, 0.1], 10: ['lowpass', 'allpass', 7.0, 0.1], 30: ['lowpass', 'allpass', 14.0, 0.1] },
@@ -301,8 +301,8 @@ test('filter modes: stage types and clamped Q for every mode and resonance', () 
       const got = stages();
       assert.deepEqual(got.slice(0, 2), want.slice(0, 2), `${type} res ${res}`);
       assert.ok(Math.abs(got[2] - want[2]) < 1e-9 && Math.abs(got[3] - want[3]) < 1e-9, `${type} res ${res}: ${got}`);
-      assert.equal(voice.vcf1.frequency.value, 800);
-      assert.equal(voice.vcf2.frequency.value, 800);
+      assert.equal(voice.filter.stage1.frequency.value, 800);
+      assert.equal(voice.filter.stage2.frequency.value, 800);
     }
   }
 });
@@ -311,15 +311,15 @@ test('filter cutoff is clamped to 20..20000 Hz, unknown types leave the stages a
   const { engine } = createLiveEngine();
   const voice = engine.voicePool[0];
   voice.configureFilter(5);
-  assert.equal(voice.vcf1.frequency.value, 20);
+  assert.equal(voice.filter.stage1.frequency.value, 20);
   voice.configureFilter(30000);
-  assert.equal(voice.vcf2.frequency.value, 20000);
+  assert.equal(voice.filter.stage2.frequency.value, 20000);
 
-  const before = voice.vcf1.frequency.events.length;
+  const before = voice.filter.stage1.frequency.events.length;
   engine.vcf.type = 'notch';
   voice.configureFilter(800);
-  assert.equal(voice.vcf1.frequency.events.length, before);
-  assert.equal(voice.vcf1.type, 'lowpass');
+  assert.equal(voice.filter.stage1.frequency.events.length, before);
+  assert.equal(voice.filter.stage1.type, 'lowpass');
 });
 
 test('setPitchBend retunes sounding voice frequencies with setTargetAtTime', () => {

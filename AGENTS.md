@@ -42,7 +42,8 @@ websynth/
 ├── js/                    # Classic scripts, loaded in this order by index.html
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
-│   │   └── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
+│   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
+│   │   └── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
@@ -96,7 +97,7 @@ websynth/
   - `subOsc` (Sub-octave triangle wave)
   - `noiseGain` (White noise buffer input)
   - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
-  - `vcf1` & `vcf2` (24dB/12dB cascaded Moog ladder filter with Q-staging)
+  - `filter` (`SynthBlocks.Filter`: stage1 & stage2, 24dB/12dB cascaded ladder filter with Q-staging)
   - `vca` (ADSR amplitude envelope gain stage)
   - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains; depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
 - **Lifecycle & LRU Voice Stealing**:

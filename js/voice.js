@@ -142,15 +142,13 @@ class Voice {
     this.driveShaper.oversample = '2x';
     mixerBus.connect(this.driveShaper);
 
-    this.vcf1 = ctx.createBiquadFilter();
-    this.vcf2 = ctx.createBiquadFilter();
+    this.filter = new SynthBlocks.Filter(ctx);
     this.configureFilter(engine.vcf.cutoff);
-    this.driveShaper.connect(this.vcf1);
-    this.vcf1.connect(this.vcf2);
+    this.driveShaper.connect(this.filter.input);
 
     this.vca = ctx.createGain();
     this.vca.gain.setValueAtTime(0.0, now);
-    this.vcf2.connect(this.vca);
+    this.filter.output.connect(this.vca);
 
     this.tremoloGain = ctx.createGain();
     this.tremoloGain.gain.setValueAtTime(1.0, now);
@@ -158,9 +156,9 @@ class Voice {
 
     // VCA holds its running level on retrigger (no click), the filter jumps back to cutoff
     this.ampEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, Infinity], holdOnTrigger: true });
-    this.filterEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [20, 20000] });
+    this.filterEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [SynthBlocks.Filter.MIN_CUTOFF, SynthBlocks.Filter.MAX_CUTOFF] });
     this.ampParams = [this.vca.gain];
-    this.filterParams = [this.vcf1.frequency, this.vcf2.frequency];
+    this.filterParams = this.filter.frequencyParams;
   }
 
   connectLfoDestinations() {
@@ -168,8 +166,7 @@ class Voice {
       const route = this.lfo[lfoNum];
       route.pitch.connect(this.osc1.detune);
       route.pitch.connect(this.osc2.detune);
-      route.vcf.connect(this.vcf1.detune);
-      route.vcf.connect(this.vcf2.detune);
+      for (const detune of this.filter.detuneParams) route.vcf.connect(detune);
       route.amp.connect(this.tremoloGain.gain);
     }
   }
@@ -410,29 +407,11 @@ class Voice {
   }
 
   /**
-   * Sets filter types and Q staging for the selected VCF mode (24dB = two cascaded 12dB stages)
+   * Applies the patch's VCF mode and resonance at the given cutoff
    */
   configureFilter(cutoff) {
-    const { resonance, type } = this.engine.vcf;
-    const now = this.engine.ctx.currentTime;
-    const safeCutoff = Math.max(20, Math.min(20000, cutoff));
-    const clampQ = (lo, hi, factor) => Math.max(lo, Math.min(hi, resonance * factor));
-    const modes = {
-      lowpass24: ['lowpass', 'lowpass', clampQ(0.5, 7.5, 0.38), clampQ(0.5, 9.0, 0.48)],
-      lowpass12: ['lowpass', 'allpass', clampQ(0.5, 14.0, 0.7), 0.1],
-      bandpass: ['bandpass', 'bandpass', clampQ(0.6, 8.0, 0.42), clampQ(0.6, 8.0, 0.42)],
-      highpass: ['highpass', 'highpass', clampQ(0.5, 7.5, 0.38), clampQ(0.5, 9.0, 0.48)]
-    };
-    const mode = modes[type];
-    if (!mode) return;
-    const [type1, type2, q1, q2] = mode;
-
-    this.vcf1.type = type1;
-    this.vcf2.type = type2;
-    this.vcf1.frequency.setValueAtTime(safeCutoff, now);
-    this.vcf2.frequency.setValueAtTime(safeCutoff, now);
-    this.vcf1.Q.setValueAtTime(q1, now);
-    this.vcf2.Q.setValueAtTime(q2, now);
+    const { type, resonance } = this.engine.vcf;
+    this.filter.configure(type, resonance, cutoff);
   }
 }
 
