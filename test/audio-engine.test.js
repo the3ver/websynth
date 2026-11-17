@@ -310,7 +310,7 @@ describe('shared curves and noise buffer', () => {
     const pwm = context.SynthBlocks.pwmComparatorCurve();
     const drive = context.SynthBlocks.driveCurve(engine.vcf.drive);
     for (const voice of engine.voicePool) {
-      assert.deepEqual(Array.from(voice.osc1PwShaper.curve), Array.from(pwm));
+      assert.deepEqual(Array.from(voice.vco[1].pwShaper.curve), Array.from(pwm));
       assert.deepEqual(Array.from(voice.driveShaper.curve), Array.from(drive));
     }
     engine.setVCFDrive(0.8);

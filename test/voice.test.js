@@ -8,8 +8,8 @@ test('voice pool has 12 voices with running oscillators, idle voices off the mas
 
   for (const voice of engine.voicePool) {
     // started holds the start time (null = never started)
-    assert.equal(voice.osc1.started, 0);
-    assert.equal(voice.osc2.started, 0);
+    assert.equal(voice.vco[1].osc.started, 0);
+    assert.equal(voice.vco[2].osc.started, 0);
     assert.equal(voice.subOsc.started, 0);
     // Idle voices stay unconnected so the audio thread does not render them (CPU on tablets)
     assert.ok(!voice.tremoloGain.connections.includes(engine.masterVoiceBus));
@@ -58,7 +58,7 @@ test('noteOn sets frequency, VCA envelope ramps to peak and sustain, and updates
   assert.ok(voice);
   assert.equal(voice.isBusy, true);
   assert.equal(voice.midiNote, 69);
-  assert.equal(voice.osc1.frequency.value, 440);
+  assert.equal(voice.vco[1].osc.frequency.value, 440);
 
   const vcaEvents = voice.vca.gain.events;
   const peakEvent = vcaEvents.find((e) => e.type === 'exponentialRampToValueAtTime' && Math.abs(e.value - 0.4) < 1e-4);
@@ -90,12 +90,12 @@ test('glide ramps oscillator frequency from previous note frequency to target', 
   ctx.currentTime = 1;
   engine.noteOn(69, 1.0);
   const firstVoice = engine.activeVoices.get(69);
-  const f1 = firstVoice.osc1.frequency.value;
+  const f1 = firstVoice.vco[1].osc.frequency.value;
 
   ctx.currentTime = 2;
   engine.noteOn(81, 1.0);
   const secondVoice = engine.activeVoices.get(81);
-  const osc1Events = secondVoice.osc1.frequency.events;
+  const osc1Events = secondVoice.vco[1].osc.frequency.events;
 
   // Skip the 440 Hz init event from graph construction at t=0
   const startEvent = osc1Events.find((e) => e.type === 'setValueAtTime' && e.time === 2);
@@ -223,14 +223,14 @@ test('setVCO1Wave switches between direct wave and shaped pulse paths', () => {
   const voice = engine.voicePool[0];
 
   engine.setVCO1Wave('square');
-  assert.equal(voice.osc1.type, 'sawtooth');
-  assert.equal(voice.osc1DirectGain.gain.value, 0);
-  assert.equal(voice.osc1PulseGain.gain.value, 1);
+  assert.equal(voice.vco[1].osc.type, 'sawtooth');
+  assert.equal(voice.vco[1].directGain.gain.value, 0);
+  assert.equal(voice.vco[1].pulseGain.gain.value, 1);
 
   engine.setVCO1Wave('triangle');
-  assert.equal(voice.osc1.type, 'triangle');
-  assert.equal(voice.osc1DirectGain.gain.value, 1);
-  assert.equal(voice.osc1PulseGain.gain.value, 0);
+  assert.equal(voice.vco[1].osc.type, 'triangle');
+  assert.equal(voice.vco[1].directGain.gain.value, 1);
+  assert.equal(voice.vco[1].pulseGain.gain.value, 0);
 });
 
 test('setLFOParam updates pitch depth and both PWM gains on voices', () => {
@@ -330,7 +330,7 @@ test('setPitchBend retunes sounding voice frequencies with setTargetAtTime', () 
 
   ctx.currentTime = 6;
   engine.setPitchBend(2);
-  const osc1Events = voice.osc1.frequency.events;
+  const osc1Events = voice.vco[1].osc.frequency.events;
   const bendEvent = osc1Events.find((e) => e.type === 'setTargetAtTime' && e.time === 6);
 
   assert.ok(bendEvent);
@@ -340,7 +340,7 @@ test('setPitchBend retunes sounding voice frequencies with setTargetAtTime', () 
 test('PWM shaper only feeds the mix while its VCO plays square', () => {
   const { engine, context } = createLiveEngine();
   const voice = engine.voicePool[0];
-  const plugged = (n) => voice[`osc${n}PwShaper`].connections.includes(voice[`osc${n}PulseGain`]);
+  const plugged = (n) => voice.vco[n].pwShaper.connections.includes(voice.vco[n].pulseGain);
   assert.equal(engine.vco1.wave === 'square', plugged(1));
 
   engine.setVCO1Wave('square');

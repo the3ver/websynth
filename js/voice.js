@@ -46,26 +46,16 @@ class Voice {
   buildGraph() {
     this.buildLfoRouting();
 
-    const vco1 = this.buildVcoPath(1);
-    const vco2 = this.buildVcoPath(2);
-    this.osc1 = vco1.osc;
-    this.osc1DirectGain = vco1.directGain;
-    this.osc1PulseGain = vco1.pulseGain;
-    this.osc1PwShaper = vco1.pwShaper;
-    this.osc2 = vco2.osc;
-    this.osc2DirectGain = vco2.directGain;
-    this.osc2PulseGain = vco2.pulseGain;
-    this.osc2PwShaper = vco2.pwShaper;
-    this.pwPlugged = [null, vco1.pwPlugged, vco2.pwPlugged];
-    this.pwUnplugTimers = [null, null, null];
+    // VCOs by number (index 0 unused, like the LFO routing)
+    this.vco = [null, this.buildVco(1), this.buildVco(2)];
 
-    const mixerBus = this.buildMixer(vco1, vco2);
+    const mixerBus = this.buildMixer(this.vco[1], this.vco[2]);
     this.buildFilterAndAmp(mixerBus);
     this.connectLfoDestinations();
 
     // Continuous oscillators
-    this.osc1.start(0);
-    this.osc2.start(0);
+    this.vco[1].start(0);
+    this.vco[2].start(0);
     this.subOsc.start(0);
   }
 
@@ -117,10 +107,8 @@ class Voice {
     this.noiseGain = makeLevel(engine.mixer.noiseLevel);
     this.mixGains = { vco1Level: this.osc1Gain, vco2Level: this.osc2Gain, subLevel: this.subGain, noiseLevel: this.noiseGain };
 
-    vco1.directGain.connect(this.osc1Gain);
-    vco1.pulseGain.connect(this.osc1Gain);
-    vco2.directGain.connect(this.osc2Gain);
-    vco2.pulseGain.connect(this.osc2Gain);
+    vco1.connect(this.osc1Gain);
+    vco2.connect(this.osc2Gain);
     this.subOsc.connect(this.subGain);
     if (engine.sharedNoiseGain) engine.sharedNoiseGain.connect(this.noiseGain);
 
@@ -164,56 +152,26 @@ class Voice {
   connectLfoDestinations() {
     for (const lfoNum of [1, 2]) {
       const route = this.lfo[lfoNum];
-      route.pitch.connect(this.osc1.detune);
-      route.pitch.connect(this.osc2.detune);
+      route.pitch.connect(this.vco[1].detune);
+      route.pitch.connect(this.vco[2].detune);
       for (const detune of this.filter.detuneParams) route.vcf.connect(detune);
       route.amp.connect(this.tremoloGain.gain);
     }
   }
 
   /**
-   * VCO dual path: direct for Saw/Tri/Sine, WaveShaper comparator for Square/PWM
+   * One VCO with the engine's static pulse width offset and both LFO PWM routes on its PW input
    */
-  buildVcoPath(vcoNum) {
+  buildVco(vcoNum) {
     const engine = this.engine;
-    const ctx = engine.ctx;
-    const now = ctx.currentTime;
-    const wave = engine[`vco${vcoNum}`].wave;
-    const isSquare = wave === 'square';
-
-    const osc = ctx.createOscillator();
-    osc.type = isSquare ? 'sawtooth' : wave;
-    osc.frequency.setValueAtTime(440, now);
-
-    const directGain = ctx.createGain();
-    directGain.gain.setValueAtTime(isSquare ? 0.0 : 1.0, now);
-    osc.connect(directGain);
-
-    const pwScale = ctx.createGain();
-    pwScale.gain.setValueAtTime(0.4, now);
-    osc.connect(pwScale);
-
-    const pwInput = ctx.createGain();
-    pwInput.gain.setValueAtTime(1.0, now);
-    pwScale.connect(pwInput);
+    const vco = new SynthBlocks.Vco(engine.ctx, { wave: engine[`vco${vcoNum}`].wave, pwmCurve: engine.pwmCurve });
 
     const pwOffset = engine[`vco${vcoNum}PwOffset`];
-    if (pwOffset) pwOffset.connect(pwInput);
+    if (pwOffset) pwOffset.connect(vco.pwInput);
     for (const lfoNum of [1, 2]) {
-      this.lfo[lfoNum].pwm[vcoNum - 1].connect(pwInput);
+      this.lfo[lfoNum].pwm[vcoNum - 1].connect(vco.pwInput);
     }
-
-    const pwShaper = ctx.createWaveShaper();
-    pwShaper.curve = engine.pwmCurve;
-    pwShaper.oversample = '4x';
-    pwInput.connect(pwShaper);
-
-    const pulseGain = ctx.createGain();
-    pulseGain.gain.setValueAtTime(isSquare ? 1.0 : 0.0, now);
-    // Plugged in only for square: an unplugged shaper is not rendered (4x oversampling is costly)
-    if (isSquare) pwShaper.connect(pulseGain);
-
-    return { osc, directGain, pulseGain, pwShaper, pwPlugged: isSquare };
+    return vco;
   }
 
   // =========================================================================
@@ -246,8 +204,8 @@ class Voice {
 
     // VCO 1 & 2 with Glide (VCO 2 keeps its interval to VCO 1 while gliding)
     const glideFrom = engine.glideEnabled && engine.lastFrequency ? engine.lastFrequency : null;
-    this.startPitch(this.osc1, vco1Freq, glideFrom, now);
-    this.startPitch(this.osc2, vco2Freq, glideFrom && glideFrom * (vco2Freq / vco1Freq), now);
+    this.startPitch(this.vco[1], vco1Freq, glideFrom, now);
+    this.startPitch(this.vco[2], vco2Freq, glideFrom && glideFrom * (vco2Freq / vco1Freq), now);
 
     this.subOsc.frequency.cancelScheduledValues(now);
     this.subOsc.frequency.setValueAtTime(this.getSubFrequency(baseFreq), now);
@@ -266,13 +224,13 @@ class Voice {
     return vco1Freq;
   }
 
-  startPitch(osc, targetFreq, glideFromFreq, now) {
-    osc.frequency.cancelScheduledValues(now);
+  startPitch(vco, targetFreq, glideFromFreq, now) {
+    vco.frequency.cancelScheduledValues(now);
     if (glideFromFreq) {
-      osc.frequency.setValueAtTime(glideFromFreq, now);
-      osc.frequency.exponentialRampToValueAtTime(targetFreq, now + this.engine.glideTime);
+      vco.frequency.setValueAtTime(glideFromFreq, now);
+      vco.frequency.exponentialRampToValueAtTime(targetFreq, now + this.engine.glideTime);
     } else {
-      osc.frequency.setValueAtTime(targetFreq, now);
+      vco.frequency.setValueAtTime(targetFreq, now);
     }
   }
 
@@ -353,8 +311,8 @@ class Voice {
     if (this.midiNote === null) return;
     const engine = this.engine;
     const baseFreq = engine.midiNoteToFrequency(this.midiNote);
-    this.osc1.frequency.setTargetAtTime(engine.getVCO1Frequency(baseFreq), now, 0.015);
-    this.osc2.frequency.setTargetAtTime(engine.getVCO2Frequency(baseFreq), now, 0.015);
+    this.vco[1].frequency.setTargetAtTime(engine.getVCO1Frequency(baseFreq), now, 0.015);
+    this.vco[2].frequency.setTargetAtTime(engine.getVCO2Frequency(baseFreq), now, 0.015);
     this.subOsc.frequency.setTargetAtTime(this.getSubFrequency(baseFreq), now, 0.015);
   }
 
@@ -368,27 +326,7 @@ class Voice {
    * Switches a VCO between the direct path and the PWM pulse path
    */
   setWave(vcoNum, wave, now) {
-    const isSquare = wave === 'square';
-    this[`osc${vcoNum}`].type = isSquare ? 'sawtooth' : wave;
-    this[`osc${vcoNum}DirectGain`].gain.setTargetAtTime(isSquare ? 0.0 : 1.0, now, 0.005);
-    this[`osc${vcoNum}PulseGain`].gain.setTargetAtTime(isSquare ? 1.0 : 0.0, now, 0.005);
-
-    clearTimeout(this.pwUnplugTimers[vcoNum]);
-    this.pwUnplugTimers[vcoNum] = null;
-    if (isSquare) {
-      this.setPwPlugged(vcoNum, true);
-    } else if (this.pwPlugged[vcoNum]) {
-      // unplug once the pulse gain has faded out (10 time constants)
-      this.pwUnplugTimers[vcoNum] = setTimeout(() => this.setPwPlugged(vcoNum, false), 50);
-    }
-  }
-
-  setPwPlugged(vcoNum, on) {
-    if (on === this.pwPlugged[vcoNum]) return;
-    const shaper = this[`osc${vcoNum}PwShaper`];
-    if (on) shaper.connect(this[`osc${vcoNum}PulseGain`]);
-    else shaper.disconnect();
-    this.pwPlugged[vcoNum] = on;
+    this.vco[vcoNum].setWave(wave, now);
   }
 
   setMixLevel(key, level, now) {

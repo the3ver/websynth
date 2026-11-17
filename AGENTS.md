@@ -43,7 +43,8 @@ websynth/
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
-│   │   └── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
+│   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
+│   │   └── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
@@ -93,7 +94,7 @@ websynth/
 ### 1. 12-Voice Persistent Polyphonic Pool
 - **Structure**: `this.voicePool` contains 12 pre-allocated `Voice` instances (`js/voice.js`) initialized on `AudioContext` startup. A voice reads the current patch from its engine; `AudioEngine.forEachVoice()` pushes live parameter changes.
 - **Voice Nodes**:
-  - `osc1` & `osc2` (Dual-VCO with native Sine/Triangle/Sawtooth direct paths and 4x-oversampled WaveShaper audio-rate PWM)
+  - `vco[1]` & `vco[2]` (`SynthBlocks.Vco`: native Sine/Triangle/Sawtooth direct path and 4x-oversampled WaveShaper audio-rate PWM)
   - `subOsc` (Sub-octave triangle wave)
   - `noiseGain` (White noise buffer input)
   - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
