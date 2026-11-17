@@ -10,6 +10,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
+### ⚡ NEU in v1.8.8: FM-4, der zweite Synthesizer
+- **🎛️ Synth-Auswahl:** Die Modellzeile oben links ist jetzt ein Auswahlfeld. Neben dem SUB-1 gibt es den RETROVOX FM-4; die Wahl lädt die Seite neu und bleibt gespeichert (direkt per `?synth=fm`).
+- **📡 FM-4:** 4 Sinus-Operatoren mit Ratio, Feinverstimmung, Pegel und eigener ADSR, 8 Algorithmen, Vibrato (Mod Wheel vertieft es), dieselben Stereo-Effekte. 6 Factory-Presets: Tine Piano, Glass Bell, Slap Bass, FM Brass, Drawbar Organ, Marimba. User-Presets speichert jeder Synth getrennt.
+
 ### ⚡ NEU in v1.8.7: Keine hängenden Noten
 - **🎹 Hängende Noten:** Gleiten mit mehreren Fingern konnte einen Ton dauerhaft klingen lassen, auch nach Power Off oder Presetwechsel. Die Engine verliert erneut angeschlagene Noten nicht mehr, und Power Off/Presetwechsel lassen jede klingende Stimme los.
 
