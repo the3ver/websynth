@@ -2,51 +2,71 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createLiveEngine } = require('./helpers/synth-engine');
 
-test('FX chain sits between the voice bus and the analyser', () => {
+test('FX chain runs voice bus -> chorus -> delay -> reverb -> analyser', () => {
   const { engine } = createLiveEngine();
-  const fx = engine.fxChain;
-  assert.ok(engine.masterVoiceBus.connections.includes(fx.chorusDryGain));
-  assert.ok(fx.reverbDryGain.connections.includes(engine.analyser));
-  assert.ok(fx.reverbWetGain.connections.includes(engine.analyser));
+  const { chorus, delay, reverb } = engine.fxChain;
+  assert.ok(engine.masterVoiceBus.connections.includes(chorus.input));
+  assert.ok(chorus.input.connections.includes(chorus.dryGain));
+  assert.ok(chorus.output.connections.includes(delay.input));
+  assert.ok(delay.output.connections.includes(reverb.input));
+  assert.ok(reverb.dryGain.connections.includes(reverb.output));
+  assert.ok(reverb.wetGain.connections.includes(reverb.output));
+  assert.ok(reverb.output.connections.includes(engine.analyser));
+});
+
+test('every effect splits its input into a dry and a wet path', () => {
+  const { engine } = createLiveEngine();
+  const { chorus, delay, reverb } = engine.fxChain;
+  for (const fx of [chorus, delay]) {
+    assert.ok(fx.input.connections.includes(fx.dryGain));
+    assert.ok(fx.input.connections.includes(fx.delayL));
+    assert.ok(fx.input.connections.includes(fx.delayR));
+    assert.ok(fx.dryGain.connections.includes(fx.output));
+    assert.ok(fx.wetGain.connections.includes(fx.output));
+  }
+  assert.ok(reverb.input.connections.includes(reverb.convolver));
+  assert.ok(reverb.convolver.connections.includes(reverb.wetGain));
 });
 
 test('chorus modes set wet level, LFO rate and counter-phase depth', () => {
   const { engine } = createLiveEngine();
-  const fx = engine.fxChain;
+  const { chorus } = engine.fxChain;
   engine.setChorusMix(0.6);
   engine.setChorusMode('II');
-  assert.equal(fx.chorusWetGain.gain.value, 0.6);
-  assert.equal(fx.chorusLfo.frequency.value, 0.85);
-  assert.equal(fx.chorusLfoGainL.gain.value, 0.0045);
-  assert.equal(fx.chorusLfoGainR.gain.value, -0.0045);
+  assert.equal(chorus.wetGain.gain.value, 0.6);
+  assert.equal(chorus.lfo.frequency.value, 0.85);
+  assert.equal(chorus.lfoGainL.gain.value, 0.0045);
+  assert.equal(chorus.lfoGainR.gain.value, -0.0045);
 
   engine.setChorusMode('off');
-  assert.equal(fx.chorusWetGain.gain.value, 0);
+  assert.equal(chorus.wetGain.gain.value, 0);
+  assert.equal(chorus.lfo.frequency.value, 0.5);
+  assert.equal(chorus.lfoGainL.gain.value, 0.0035);
 });
 
 test('chorus mix does not open the wet path while chorus is off', () => {
   const { engine } = createLiveEngine();
   engine.setChorusMode('off');
   engine.setChorusMix(0.9);
-  assert.equal(engine.fxChain.chorusWetGain.gain.value, 0);
+  assert.equal(engine.fxChain.chorus.wetGain.gain.value, 0);
   assert.equal(engine.fx.chorus.mix, 0.9);
 });
 
 test('delay keeps the 4:3 stereo ratio and clamps feedback', () => {
   const { engine } = createLiveEngine();
-  const fx = engine.fxChain;
+  const { delay } = engine.fxChain;
   engine.setDelayTime(0.3);
-  assert.equal(fx.delayL.delayTime.value, 0.3);
-  assert.ok(Math.abs(fx.delayR.delayTime.value - 0.3 * 1.333) < 1e-12);
+  assert.equal(delay.delayL.delayTime.value, 0.3);
+  assert.ok(Math.abs(delay.delayR.delayTime.value - 0.3 * 1.333) < 1e-12);
   engine.setDelayFeedback(5);
-  assert.equal(fx.delayFeedbackGainL.gain.value, 0.9);
-  assert.equal(fx.delayFeedbackGainR.gain.value, 0.9);
+  assert.equal(delay.feedbackGainL.gain.value, 0.9);
+  assert.equal(delay.feedbackGainR.gain.value, 0.9);
 });
 
 test('reverb decay regenerates a stereo impulse of matching length', () => {
   const { engine, ctx } = createLiveEngine();
   engine.setReverbDecay(2);
-  const buffer = engine.fxChain.reverbConvolver.buffer;
+  const buffer = engine.fxChain.reverb.convolver.buffer;
   assert.equal(buffer.numberOfChannels, 2);
   assert.equal(buffer.length, 2 * ctx.sampleRate);
 });

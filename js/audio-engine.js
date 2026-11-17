@@ -644,37 +644,37 @@ class AudioEngine {
 
   setChorusMode(mode) {
     this.fx.chorus.mode = mode;
-    if (this.fxChain) this.fxChain.applyChorusMode();
+    if (this.fxChain) this.fxChain.chorus.applyMode();
   }
 
   setChorusMix(val) {
     this.fx.chorus.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyChorusMix();
+    if (this.fxChain) this.fxChain.chorus.applyMix();
   }
 
   setDelayTime(val) {
     this.fx.delay.time = Math.max(0.02, Math.min(1.0, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyDelayTime();
+    if (this.fxChain) this.fxChain.delay.applyTime();
   }
 
   setDelayFeedback(val) {
     this.fx.delay.feedback = Math.max(0.0, Math.min(0.9, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyDelayFeedback();
+    if (this.fxChain) this.fxChain.delay.applyFeedback();
   }
 
   setDelayMix(val) {
     this.fx.delay.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyDelayMix();
+    if (this.fxChain) this.fxChain.delay.applyMix();
   }
 
   setReverbDecay(val) {
     this.fx.reverb.decay = Math.max(0.5, Math.min(10.0, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyReverbDecay();
+    if (this.fxChain) this.fxChain.reverb.applyDecay();
   }
 
   setReverbMix(val) {
     this.fx.reverb.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.applyReverbMix();
+    if (this.fxChain) this.fxChain.reverb.applyMix();
   }
 
   /**

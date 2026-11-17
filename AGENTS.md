@@ -42,6 +42,7 @@ websynth/
 ├── js/                    # Classic scripts, loaded in this order by index.html
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
+│   │   ├── effects.js      # Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
@@ -51,7 +52,7 @@ websynth/
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
 │   ├── synth-params.js     # Patch parameter table: preset path, setter, knob id (single source of truth)
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
-│   ├── fx-chain.js         # Chorus -> ping-pong delay -> reverb rack
+│   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
 │   ├── audio-engine.js     # AudioContext, voice pool & allocation, LFOs, setters, MIDI, limiter
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
