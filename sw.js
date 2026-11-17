@@ -18,6 +18,7 @@ const PRECACHE_ASSETS = [
   './js/lib/envelope.js',
   './js/lib/filter.js',
   './js/lib/vco.js',
+  './js/lib/lfo.js',
   './js/dom-utils.js',
   './js/pwa-manager.js',
   './js/synth-params.js',

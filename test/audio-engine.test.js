@@ -221,7 +221,7 @@ describe('sample & hold LFO', () => {
       vm.runInContext('Math.random = () => 1;', context); // S&H value = 1 * 2 - 1 = +1
       engine.setLFOParam(lfoNum, 'wave', 'samplehold');
       for (const dest of ['pitch', 'vcf', 'pwm', 'amp']) engine.setLFOParam(lfoNum, dest, 1);
-      engine.startSampleAndHoldLoop(lfoNum);
+      engine.lfos[lfoNum].startSampleAndHold();
       [...context.__intervals.values()].pop()();
 
       const route = engine.voicePool[0].lfo[lfoNum];
@@ -236,11 +236,11 @@ describe('sample & hold LFO', () => {
       const { engine, context } = createLiveEngine();
       vm.runInContext('Math.random = () => 0.1;', context); // S&H value = 0.1 * 2 - 1 = -0.8
       engine.setLFOParam(lfoNum, 'wave', 'samplehold');
-      engine.startSampleAndHoldLoop(lfoNum);
+      engine.lfos[lfoNum].startSampleAndHold();
       [...context.__intervals.values()].pop()();
 
-      assert.equal(engine[`lfo${lfoNum}OscGate`].gain.value, 0, 'sawtooth muted');
-      assert.ok(Math.abs(engine[`lfo${lfoNum}ShSource`].offset.value + 0.8) < 1e-9, 'step held on the constant source');
+      assert.equal(engine.lfos[lfoNum].oscGate.gain.value, 0, 'sawtooth muted');
+      assert.ok(Math.abs(engine.lfos[lfoNum].shSource.offset.value + 0.8) < 1e-9, 'step held on the constant source');
     });
 
     test(`LFO${lfoNum} S&H step survives a new note`, () => {
@@ -248,7 +248,7 @@ describe('sample & hold LFO', () => {
       vm.runInContext('Math.random = () => 0.1;', context);
       engine.setLFOParam(lfoNum, 'wave', 'samplehold');
       engine.setLFOParam(lfoNum, 'vcf', 0.5);
-      engine.startSampleAndHoldLoop(lfoNum);
+      engine.lfos[lfoNum].startSampleAndHold();
       [...context.__intervals.values()].pop()();
       const route = engine.voicePool[0].lfo[lfoNum];
       const before = route.vcf.gain.value;
@@ -262,12 +262,12 @@ describe('sample & hold LFO', () => {
       const { engine, context } = createLiveEngine();
       vm.runInContext('Math.random = () => 0.1;', context);
       engine.setLFOParam(lfoNum, 'wave', 'samplehold');
-      engine.startSampleAndHoldLoop(lfoNum);
+      engine.lfos[lfoNum].startSampleAndHold();
       [...context.__intervals.values()].pop()();
       engine.setLFOParam(lfoNum, 'wave', 'triangle');
 
-      assert.equal(engine[`lfo${lfoNum}OscGate`].gain.value, 1);
-      assert.equal(engine[`lfo${lfoNum}ShSource`].offset.value, 0);
+      assert.equal(engine.lfos[lfoNum].oscGate.gain.value, 1);
+      assert.equal(engine.lfos[lfoNum].shSource.offset.value, 0);
     });
   }
 });

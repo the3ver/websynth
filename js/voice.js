@@ -69,10 +69,11 @@ class Voice {
     this.lfo = [null];
     for (const lfoNum of [1, 2]) {
       const dest = engine.getLfo(lfoNum).destinations;
+      const source = engine.lfos[lfoNum];
       const makeGain = (amount) => {
         const g = engine.ctx.createGain();
         g.gain.setValueAtTime(amount, now);
-        if (engine[`lfo${lfoNum}Gain`]) engine[`lfo${lfoNum}Gain`].connect(g);
+        if (source) source.output.connect(g);
         return g;
       };
       this.lfo.push({

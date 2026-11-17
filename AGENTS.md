@@ -44,6 +44,7 @@ websynth/
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
+│   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   └── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
@@ -100,7 +101,7 @@ websynth/
   - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
   - `filter` (`SynthBlocks.Filter`: stage1 & stage2, 24dB/12dB cascaded ladder filter with Q-staging)
   - `vca` (ADSR amplitude envelope gain stage)
-  - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains; depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
+  - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains fed by `engine.lfos[n].output` (`SynthBlocks.Lfo`, oscillator + S&H source); depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
 - **Lifecycle & LRU Voice Stealing**:
   - `noteOn(midiNote, velocity)` searches for an inactive voice in `this.voicePool`.
   - If all 12 voices are active, the voice with the oldest `startTime` is stolen using a 2ms soft crossfade (`setTargetAtTime(0, now, 0.002)`).

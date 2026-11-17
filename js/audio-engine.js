@@ -117,14 +117,8 @@ class AudioEngine {
       }
     };
 
-    this.lfo1Osc = null;
-    this.lfo1Gain = null;
-    this.lfo2Osc = null;
-    this.lfo2Gain = null;
-
-    // Sample & Hold state per LFO number (index 0 unused)
-    this.lfoShTimers = [null, null, null];
-    this.lfoShValues = [0, 0, 0];
+    // SynthBlocks.Lfo per LFO number (index 0 unused), built with the AudioContext
+    this.lfos = [null, null, null];
 
     // Vintage Stereo FX Rack Parameters
     this.fx = {
@@ -298,33 +292,9 @@ class AudioEngine {
   }
 
   initLfoEngines() {
-    const now = this.ctx.currentTime;
     for (const lfoNum of [1, 2]) {
-      const lfo = this.getLfo(lfoNum);
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = lfo.wave === 'samplehold' ? 'sawtooth' : lfo.wave;
-      osc.frequency.setValueAtTime(lfo.rate, now);
-      gain.gain.setValueAtTime(1.0, now);
-      // Two sources sum into the LFO output: the oscillator (via its gate) and a
-      // constant source whose offset carries the held Sample & Hold step.
-      const oscGate = this.ctx.createGain();
-      oscGate.gain.setValueAtTime(1.0, now);
-      osc.connect(oscGate);
-      oscGate.connect(gain);
-      osc.start();
-      const shSource = this.ctx.createConstantSource();
-      shSource.offset.setValueAtTime(0, now);
-      shSource.connect(gain);
-      shSource.start();
-      this[`lfo${lfoNum}Osc`] = osc;
-      this[`lfo${lfoNum}OscGate`] = oscGate;
-      this[`lfo${lfoNum}ShSource`] = shSource;
-      this[`lfo${lfoNum}Gain`] = gain;
-
-      this.applyLfoSource(lfoNum);
-      // Sample & Hold timer loop
-      this.startSampleAndHoldLoop(lfoNum);
+      const { wave, rate } = this.getLfo(lfoNum);
+      this.lfos[lfoNum] = new SynthBlocks.Lfo(this.ctx, { wave, rate });
     }
   }
 
@@ -336,31 +306,6 @@ class AudioEngine {
     for (const voice of this.voicePool) {
       voice.setLfoAmount(lfoNum, dest, amount, now, timeConstant);
     }
-  }
-
-  startSampleAndHoldLoop(lfoNum) {
-    const lfo = this.getLfo(lfoNum);
-    if (this.lfoShTimers[lfoNum]) clearInterval(this.lfoShTimers[lfoNum]);
-    const intervalMs = Math.max(20, Math.min(2000, 1000 / lfo.rate));
-    this.lfoShTimers[lfoNum] = setInterval(() => {
-      if (lfo.wave !== 'samplehold') return;
-      this.lfoShValues[lfoNum] = Math.random() * 2 - 1;
-      this.applyLfoSource(lfoNum);
-    }, intervalMs);
-  }
-
-  /**
-   * Routes the LFO output: oscillator for continuous waves, the held random step for
-   * Sample & Hold. Short ramps keep the step edges free of clicks.
-   */
-  applyLfoSource(lfoNum) {
-    const oscGate = this[`lfo${lfoNum}OscGate`];
-    const shSource = this[`lfo${lfoNum}ShSource`];
-    if (!this.ctx || !oscGate || !shSource) return;
-    const now = this.ctx.currentTime;
-    const sh = this.getLfo(lfoNum).wave === 'samplehold';
-    oscGate.gain.setTargetAtTime(sh ? 0 : 1, now, 0.005);
-    shSource.offset.setTargetAtTime(sh ? this.lfoShValues[lfoNum] : 0, now, 0.005);
   }
 
   /**
@@ -665,24 +610,18 @@ class AudioEngine {
   // --- DUAL LFO 1 & LFO 2 SETTERS ---
 
   setLFOParam(lfoNum, param, val) {
-    const lfo = lfoNum === 2 ? this.lfo2 : this.lfo1;
-    const lfoOsc = lfoNum === 2 ? this.lfo2Osc : this.lfo1Osc;
+    const lfo = this.getLfo(lfoNum);
+    const lfoEngine = this.lfos[lfoNum];
 
     switch (param) {
       case 'wave':
         lfo.wave = val;
-        if (this.ctx && lfoOsc) {
-          lfoOsc.type = val === 'samplehold' ? 'sawtooth' : val;
-        }
-        this.applyLfoSource(lfoNum);
+        if (lfoEngine) lfoEngine.setWave(val);
         break;
 
       case 'rate':
         lfo.rate = Math.max(0.05, Math.min(30.0, parseFloat(val)));
-        if (this.ctx && lfoOsc) {
-          lfoOsc.frequency.setTargetAtTime(lfo.rate, this.ctx.currentTime, 0.02);
-        }
-        this.startSampleAndHoldLoop(lfoNum);
+        if (lfoEngine) lfoEngine.setRate(lfo.rate);
         break;
 
       case 'fadeIn':
