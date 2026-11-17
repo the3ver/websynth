@@ -124,6 +124,55 @@ test('noteOn triggers filter envelope attack and decay exponential ramps', () =>
   assert.equal(ramps[1].time, 1 + 0.03 + 0.07);
 });
 
+test('amp and filter envelopes schedule exactly this event sequence over note on and off', () => {
+  const { engine, ctx } = createLiveEngine();
+  Object.assign(engine.ampEnv, { attack: 0.02, decay: 0.05, sustain: 0.5, release: 0.3 });
+  Object.assign(engine.filterEnv, { attack: 0.03, decay: 0.07, sustain: 0.4, release: 0.6 });
+  Object.assign(engine.vcf, { cutoff: 1000, envMod: 0.5, keyTrack: 0 });
+  const voice = engine.voicePool[0];
+  const params = [voice.vca.gain, voice.vcf1.frequency, voice.vcf2.frequency];
+  const marks = params.map((p) => p.events.length);
+
+  ctx.currentTime = 10;
+  engine.noteOn(69, 0.5);
+  ctx.currentTime = 11;
+  engine.noteOff(69);
+
+  const strip = (e) => Object.fromEntries(Object.entries(e).filter(([, x]) => x !== undefined));
+  const [amp, vcf1, vcf2] = params.map((p, i) => p.events.slice(marks[i]).map(strip));
+  const near = (actual, expected) => {
+    assert.equal(actual.length, expected.length);
+    actual.forEach((e, i) => {
+      assert.equal(e.type, expected[i].type, `event ${i}`);
+      for (const key of ['value', 'time', 'timeConstant']) {
+        if (expected[i][key] === undefined) assert.equal(e[key], undefined);
+        else assert.ok(Math.abs(e[key] - expected[i][key]) < 1e-9, `event ${i} ${key}: ${e[key]}`);
+      }
+    });
+  };
+
+  near(amp, [
+    { type: 'cancelAndHoldAtTime', time: 10 },
+    { type: 'setValueAtTime', value: 0.00001, time: 10 },
+    { type: 'exponentialRampToValueAtTime', value: 0.2, time: 10.02 },
+    { type: 'exponentialRampToValueAtTime', value: 0.1, time: 10.07 },
+    { type: 'cancelAndHoldAtTime', time: 11 },
+    { type: 'setTargetAtTime', value: 0, time: 11, timeConstant: 0.1 }
+  ]);
+  const peak = 1000 * Math.pow(2, 0.5 * 3.5);
+  const filterEvents = [
+    { type: 'setValueAtTime', value: 1000, time: 10 },
+    { type: 'cancelScheduledValues', time: 10 },
+    { type: 'setValueAtTime', value: 1000, time: 10 },
+    { type: 'exponentialRampToValueAtTime', value: peak, time: 10.03 },
+    { type: 'exponentialRampToValueAtTime', value: 1000 + (peak - 1000) * 0.4, time: 10.1 },
+    { type: 'cancelAndHoldAtTime', time: 11 },
+    { type: 'setTargetAtTime', value: 1000, time: 11, timeConstant: 0.2 }
+  ];
+  near(vcf1, filterEvents);
+  near(vcf2, filterEvents);
+});
+
 test('noteOff starts VCA release and timeout callback frees voice', () => {
   const { engine, context, ctx } = createLiveEngine();
   ctx.currentTime = 3;
