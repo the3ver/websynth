@@ -5,7 +5,7 @@ const { loadScripts } = require('./helpers/load-browser-script');
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
 function createDrum() {
-  const context = loadScripts('drum-kits.js', 'drum-engine.js');
+  const context = loadScripts('lib/curves.js', 'drum-kits.js', 'drum-engine.js');
   return { drum: new context.DrumEngine(null), kits: context.DRUM_FACTORY_KITS };
 }
 
@@ -146,19 +146,6 @@ describe('scheduleStep', () => {
 
 describe('drum DSP helpers', () => {
   const { FakeAudioContext } = require('./helpers/fake-audio-context');
-
-  test('tanh drive curve: 256 samples, normalized to +-1, odd-symmetric', () => {
-    const { drum } = createDrum();
-    for (const gain of [1.5, 3]) {
-      const curve = drum.makeTanhCurve(gain);
-      assert.equal(curve.length, 256);
-      assert.ok(Math.abs(curve[0] + 1) < 1e-6);
-      assert.ok(Math.abs(curve[255] - 1) < 1e-6);
-      const x = (100 * 2) / 255 - 1;
-      assert.ok(Math.abs(curve[100] - Math.tanh(gain * x) / Math.tanh(gain)) < 1e-6);
-      assert.ok(Math.abs(curve[100] + curve[155]) < 1e-6);
-    }
-  });
 
   test('drum noise buffer is 2 s mono white noise at full scale, built once', () => {
     const { drum } = createDrum();

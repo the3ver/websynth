@@ -40,6 +40,8 @@ websynth/
 ├── css/
 │   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
 ├── js/                    # Classic scripts, loaded in this order by index.html
+│   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
+│   │   └── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
@@ -105,24 +107,9 @@ websynth/
 - `SYNTH_PARAMS` lists every patch parameter once: preset `path`, `set(engine, value)`, optional engine `field` and the knob id (`data-param`).
 - `getPresetState()` / `loadPresetState()`, knob dispatch and `SynthUI.syncControls()` all run off this table. A new parameter needs one table row, a default in `SYNTH_INIT_PRESET` and (for a knob) the HTML; `test/synth-params.test.js` fails if table, init preset and knobs drift apart.
 
-### 3. Normalized Saturation Curve ($\tanh$)
-```javascript
-makeDistortionCurve(amount) {
-  const n_samples = 512;
-  const curve = new Float32Array(n_samples);
-  if (amount <= 0.001) {
-    for (let i = 0; i < n_samples; ++i) curve[i] = (i * 2) / (n_samples - 1) - 1;
-    return curve;
-  }
-  const gain = 1.0 + amount * 4.0;
-  const norm = Math.tanh(gain);
-  for (let i = 0; i < n_samples; ++i) {
-    const x = (i * 2) / (n_samples - 1) - 1;
-    curve[i] = Math.tanh(gain * x) / norm;
-  }
-  return curve;
-}
-```
+### 3. Normalized Saturation Curve ($\tanh$, `js/lib/curves.js`)
+- `SynthBlocks.driveCurve(amount)`: identity at amount 0, otherwise `tanhCurve(1 + 4 * amount, 512)`.
+- `SynthBlocks.tanhCurve(gain, n)`: $\tanh(g x) / \tanh(g)$, edges stay at $\pm 1$. The drum kick and 303 bass use it with 256 samples.
 
 ### 4. Master FX Rack & Limiter (`js/fx-chain.js`)
 - **Signal Flow**:
@@ -187,7 +174,7 @@ makeDistortionCurve(amount) {
 Before committing any modifications:
 1. Run syntax verification (`node -c` checks only one file per call):
    ```bash
-   for f in js/*.js sw.js; do node --check "$f" || echo "FAIL $f"; done
+   for f in js/*.js js/lib/*.js sw.js; do node --check "$f" || echo "FAIL $f"; done
    ```
 2. Run the unit tests (Node built-in test runner, no dependencies). All must pass before every push:
    ```bash
@@ -207,4 +194,4 @@ Before committing any modifications:
 4. Check for zero console warnings / uncaught exceptions.
 5. Ensure no memory leaks or unmanaged event listeners on `window`.
 6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
-7. A new script in `js/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`.
+7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`.

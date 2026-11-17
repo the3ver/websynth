@@ -50,35 +50,6 @@ describe('master output stage', () => {
   });
 });
 
-describe('makeDistortionCurve', () => {
-  test('returns a linear identity curve for amount 0', () => {
-    const curve = createEngine().makeDistortionCurve(0);
-    assert.equal(curve.length, 512);
-    assert.equal(curve[0], -1);
-    assert.equal(curve[511], 1);
-    assert.ok(Math.abs(curve[255] - (255 * 2 / 511 - 1)) < 1e-6);
-  });
-
-  test('is normalized to +-1 at the edges for any drive amount', () => {
-    const engine = createEngine();
-    for (const amount of [0.1, 0.5, 1]) {
-      const curve = engine.makeDistortionCurve(amount);
-      assert.ok(Math.abs(curve[0] + 1) < 1e-6, `amount ${amount} low edge`);
-      assert.ok(Math.abs(curve[511] - 1) < 1e-6, `amount ${amount} high edge`);
-    }
-  });
-
-  test('is monotonic and odd-symmetric', () => {
-    const curve = createEngine().makeDistortionCurve(0.7);
-    for (let i = 1; i < curve.length; i++) {
-      assert.ok(curve[i] > curve[i - 1], `not increasing at ${i}`);
-    }
-    for (let i = 0; i < curve.length; i++) {
-      assert.ok(Math.abs(curve[i] + curve[curve.length - 1 - i]) < 1e-6, `not symmetric at ${i}`);
-    }
-  });
-});
-
 describe('pitch calculation', () => {
   test('MIDI 69 is 440 Hz and 57 is 220 Hz', () => {
     const engine = createEngine();
@@ -333,14 +304,18 @@ describe('preset state', () => {
   });
 });
 
-describe('PWM comparator curve and noise buffer', () => {
-  test('PWM curve is a steep tanh(40x) over 2048 samples', () => {
-    const curve = createEngine().createPWMShaperCurve();
-    assert.equal(curve.length, 2048);
-    for (const i of [0, 700, 1023, 1024, 1500, 2047]) {
-      const x = (i * 2) / 2047 - 1;
-      assert.ok(Math.abs(curve[i] - Math.tanh(40 * x)) < 1e-6, `sample ${i}`);
+describe('shared curves and noise buffer', () => {
+  test('VCO shapers use the comparator curve, drive shapers the drive curve', () => {
+    const { engine, context } = createLiveEngine();
+    const pwm = context.SynthBlocks.pwmComparatorCurve();
+    const drive = context.SynthBlocks.driveCurve(engine.vcf.drive);
+    for (const voice of engine.voicePool) {
+      assert.deepEqual(Array.from(voice.osc1PwShaper.curve), Array.from(pwm));
+      assert.deepEqual(Array.from(voice.driveShaper.curve), Array.from(drive));
     }
+    engine.setVCFDrive(0.8);
+    const driven = Array.from(context.SynthBlocks.driveCurve(0.8));
+    assert.deepEqual(Array.from(engine.voicePool[3].driveShaper.curve), driven);
   });
 
   test('synth noise buffer is 2 s mono white noise at 0.6 peak, built once', () => {

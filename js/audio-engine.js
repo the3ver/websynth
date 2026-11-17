@@ -225,7 +225,7 @@ class AudioEngine {
       this.safetyClipperPre = this.ctx.createGain();
       this.safetyClipperPre.gain.setValueAtTime(0.5, this.ctx.currentTime);
       this.safetyClipper = this.ctx.createWaveShaper();
-      this.safetyClipper.curve = this.makeSafetyClipCurve();
+      this.safetyClipper.curve = SynthBlocks.safetyClipCurve();
       this.safetyClipper.oversample = '4x';
 
       this.analyser.connect(this.masterGain);
@@ -235,7 +235,7 @@ class AudioEngine {
       this.safetyClipper.connect(this.ctx.destination);
 
       // Pre-calculate PWM WaveShaper transfer curve
-      this.pwmCurve = this.createPWMShaperCurve();
+      this.pwmCurve = SynthBlocks.pwmComparatorCurve();
 
       // Static Pulse Width Offset Constant Sources
       if (this.ctx.createConstantSource) {
@@ -375,12 +375,7 @@ class AudioEngine {
    */
   getNoiseBuffer() {
     if (!this.noiseBuffer && this.ctx) {
-      const bufferSize = this.ctx.sampleRate * 2;
-      this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const output = this.noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * 0.6;
-      }
+      this.noiseBuffer = SynthBlocks.whiteNoiseBuffer(this.ctx, 2, 0.6);
     }
     return this.noiseBuffer;
   }
@@ -402,57 +397,6 @@ class AudioEngine {
     }
 
     return this.ctx.createPeriodicWave(real, imag, { disableNormalization: false });
-  }
-
-  /**
-   * Generates a steep analog comparator sigmoid curve for 4x-oversampled Pulse Width Modulation
-   */
-  createPWMShaperCurve() {
-    const n_samples = 2048;
-    const curve = new Float32Array(n_samples);
-    const k = 40;
-    for (let i = 0; i < n_samples; i++) {
-      const x = (i * 2) / (n_samples - 1) - 1;
-      curve[i] = Math.tanh(k * x);
-    }
-    return curve;
-  }
-
-  /**
-   * Generate soft-clipping saturation curve for Filter Drive (normalized with smooth unity ceiling)
-   */
-  /**
-   * Safety clipper curve over the input range -2..+2: unity up to 0.8, then a tanh knee
-   * that approaches 0.98 so the output never reaches full scale.
-   */
-  makeSafetyClipCurve() {
-    const n = 4096, knee = 0.8, ceiling = 0.98;
-    const curve = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      const x = (i / (n - 1)) * 4 - 2;
-      const a = Math.abs(x);
-      const y = a <= knee ? a : knee + (ceiling - knee) * Math.tanh((a - knee) / (ceiling - knee));
-      curve[i] = Math.sign(x) * y;
-    }
-    return curve;
-  }
-
-  makeDistortionCurve(amount) {
-    const n_samples = 512;
-    const curve = new Float32Array(n_samples);
-    if (amount <= 0.001) {
-      for (let i = 0; i < n_samples; ++i) {
-        curve[i] = (i * 2) / (n_samples - 1) - 1;
-      }
-      return curve;
-    }
-    const gain = 1.0 + amount * 4.0;
-    const norm = Math.tanh(gain);
-    for (let i = 0; i < n_samples; ++i) {
-      const x = (i * 2) / (n_samples - 1) - 1;
-      curve[i] = Math.tanh(gain * x) / norm;
-    }
-    return curve;
   }
 
   /**
@@ -691,7 +635,7 @@ class AudioEngine {
   setVCFDrive(drive) {
     this.vcf.drive = Math.max(0, Math.min(1, parseFloat(drive)));
     if (!this.ctx) return;
-    const curve = this.makeDistortionCurve(this.vcf.drive);
+    const curve = SynthBlocks.driveCurve(this.vcf.drive);
     for (const voice of this.voicePool) {
       voice.driveShaper.curve = curve;
     }

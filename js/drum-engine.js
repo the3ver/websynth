@@ -360,7 +360,7 @@ class DrumEngine {
 
     // Soft Saturation Drive
     const drive = this.ctx.createWaveShaper();
-    drive.curve = this.makeTanhCurve(1.0 + this.params.bd.drive * 3.5);
+    drive.curve = SynthBlocks.tanhCurve(1.0 + this.params.bd.drive * 3.5, 256);
 
     osc.connect(gain);
     clickOsc.connect(clickGain);
@@ -570,7 +570,7 @@ class DrumEngine {
 
     // Overdrive Shaper (Classic Acid Saturation)
     const drive = this.ctx.createWaveShaper();
-    drive.curve = this.makeTanhCurve(1.0 + this.params.bass.drive * 4.0);
+    drive.curve = SynthBlocks.tanhCurve(1.0 + this.params.bass.drive * 4.0, 256);
 
     osc.connect(filter);
     filter.connect(gain);
@@ -608,29 +608,13 @@ class DrumEngine {
 
   getNoiseBuffer() {
     if (!this.metallicNoiseBuffer && this.ctx) {
-      const bufferSize = this.ctx.sampleRate * 2;
-      this.metallicNoiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const output = this.metallicNoiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
+      this.metallicNoiseBuffer = SynthBlocks.whiteNoiseBuffer(this.ctx, 2, 1);
     }
     return this.metallicNoiseBuffer;
   }
 
   createMetallicNoiseBuffer() {
     this.getNoiseBuffer();
-  }
-
-  makeTanhCurve(gain) {
-    const n = 256;
-    const curve = new Float32Array(n);
-    const norm = Math.tanh(gain);
-    for (let i = 0; i < n; ++i) {
-      const x = (i * 2) / (n - 1) - 1;
-      curve[i] = Math.tanh(gain * x) / norm;
-    }
-    return curve;
   }
 
   // =========================================================================

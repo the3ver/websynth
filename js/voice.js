@@ -140,7 +140,7 @@ class Voice {
     const now = ctx.currentTime;
 
     this.driveShaper = ctx.createWaveShaper();
-    this.driveShaper.curve = engine.makeDistortionCurve(engine.vcf.drive);
+    this.driveShaper.curve = SynthBlocks.driveCurve(engine.vcf.drive);
     this.driveShaper.oversample = '2x';
     mixerBus.connect(this.driveShaper);
 
