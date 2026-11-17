@@ -94,6 +94,17 @@ websynth/
 
 ---
 
+## 🧱 Synth Building Blocks (`js/lib/`)
+
+Instrument-neutral parts every synth on the page composes: a synth engine wires blocks into a voice and a patch, the blocks themselves know no engine. Contract for every block:
+
+- **Shape**: classic script, attaches to `window.SynthBlocks`; constructor takes the `AudioContext` first, then values or a live settings object (`Envelope` reads `engine.ampEnv`, effects read `engine.fx.*`). Engines mutate settings objects in place, so a block holding one sees knob changes.
+- **Wiring**: `input` / `output` nodes; modulation targets as AudioParam fields (`vco.detune`, `vca.tremoloGain`) or arrays (`filter.frequencyParams`). `Vco` has two output paths and offers `connect(dest)` instead of `output`.
+- **Zero GC**: blocks are built once per voice or page; trigger, `set*` and `apply*` methods only schedule AudioParams or swap curves.
+- **Tests**: `test/<file>.test.js` per block, loading only the lib files it needs (`loadScripts('lib/curves.js', 'lib/vco.js')`). Arrays created inside the vm sandbox fail `deepEqual` against Node arrays: compare `Array.from(...)`.
+
+---
+
 ## 🎧 Synthesizer Audio Engine Architecture (`js/audio-engine.js`)
 
 ### 1. 12-Voice Persistent Polyphonic Pool
