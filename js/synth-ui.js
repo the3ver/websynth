@@ -1,29 +1,22 @@
 /**
- * RETROVOX SUB-1 • SYNTHESIZER PANEL
+ * SYNTHESIZER PANEL
  * Wires the panel to the engines: rotary knobs and ADSR faders (controls.js), button rows and tabs,
  * the 16-step arpeggiator strip, performance bay (wheels, octave, glide), mobile module tabs,
  * keybed (virtual-keyboard.js), preset LCD (preset-panel.js) and CRT visualizer (visualizer.js).
- * Every patch control reads and writes the engine through the SynthParams table, and
- * syncControls() redraws all of them from the engine state (after preset loads and tab switches).
+ * Everything synth-specific comes from the synth definition (synth-registry.js): the parameter
+ * table, radio button rows, toggle buttons, envelope tabs, presets and the LFO rate for the LED.
+ * syncControls() redraws every control from the engine state (after preset loads and tab switches).
  */
 
-// Radio-style button rows: patch path, buttons, and the data-* key that holds each button's value
-const BUTTON_GROUPS = [
-  { path: 'vco1.wave', selector: '.wave-btn-row[data-vco="1"] .wave-btn', key: 'wave' },
-  { path: 'vco2.wave', selector: '.wave-btn-row[data-vco="2"] .wave-btn', key: 'wave' },
-  { path: 'mixer.subOctave', selector: '#subOctSelector .sub-oct-btn', key: 'suboct', parse: (v) => parseInt(v, 10) },
-  { path: 'vcf.type', selector: '#filterModeRow .filter-mode-btn', key: 'filter' },
-  { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' },
-  { path: (ui) => `lfo${ui.currentLfoTarget}.wave`, selector: '#lfoWaveRow .lfo-wave-btn', key: 'wave' }
-];
-
 class SynthUI {
-  constructor(audioEngine, arpEngine) {
+  constructor(audioEngine, arpEngine, synth) {
     this.engine = audioEngine;
     this.arp = arpEngine || new window.ArpEngine(audioEngine);
+    this.synth = synth;
+    this.params = synth.params;
 
-    // Which envelope the ADSR faders edit ('amp' | 'filter') and which LFO the LFO knobs edit (1 | 2)
-    this.currentEnvTarget = 'amp';
+    // Which envelope the ADSR faders edit (key of synth.envTargets) and which LFO the shared LFO knobs edit
+    this.currentEnvTarget = Object.keys(synth.envTargets)[0];
     this.currentLfoTarget = 1;
 
     // Knobs that are not patch parameters
@@ -46,7 +39,7 @@ class SynthUI {
     this.initMobileTabs();
     this.initPerformanceControls();
     this.initArpeggiatorControls();
-    this.presetPanel = new PresetPanel(this.engine, new PresetStore(), () => this.syncControls());
+    this.presetPanel = new PresetPanel(this.engine, new PresetStore({ key: synth.presetStorageKey }), synth.presets, () => this.syncControls());
 
     this.visualizer = new Visualizer(this.engine, {
       canvas: document.getElementById('scopeCanvas'),
@@ -55,7 +48,7 @@ class SynthUI {
       wooferRight: document.getElementById('wooferRight'),
       vuMeterL: document.getElementById('vuMeterL'),
       vuMeterR: document.getElementById('vuMeterR')
-    }, () => this.engine.getLfo(this.currentLfoTarget).rate);
+    }, () => synth.lfoRate(this.engine, this));
     this.visualizer.start();
   }
 
@@ -89,7 +82,7 @@ class SynthUI {
   }
 
   dispatchKnob(knobId, val) {
-    const param = SynthParams.byKnob(knobId, this.currentLfoTarget);
+    const param = this.params.byKnob(knobId, this.currentLfoTarget);
     if (param) {
       param.set(this.engine, val);
     } else if (this.arpKnobActions[knobId]) {
@@ -98,15 +91,15 @@ class SynthUI {
   }
 
   envPath(stage) {
-    return `${this.currentEnvTarget === 'amp' ? 'ampEnv' : 'filterEnv'}.${stage}`;
+    return `${this.synth.envTargets[this.currentEnvTarget]}.${stage}`;
   }
 
   initFaders() {
     this.faders = Array.from(document.querySelectorAll('.synth-fader-track-housing')).map((housing) => {
       const stage = housing.dataset.fader;
       return new Fader(housing, {
-        read: () => SynthParams.getPath(this.engine, this.envPath(stage)),
-        onChange: (val) => SynthParams.set(this.engine, this.envPath(stage), val)
+        read: () => this.params.getPath(this.engine, this.envPath(stage)),
+        onChange: (val) => this.params.set(this.engine, this.envPath(stage), val)
       });
     });
 
@@ -138,7 +131,7 @@ class SynthUI {
   }
 
   renderButtonGroup(group) {
-    const value = SynthParams.getPath(this.engine, this.groupPath(group));
+    const value = this.params.getPath(this.engine, this.groupPath(group));
     const parse = group.parse || ((v) => v);
     document.querySelectorAll(group.selector).forEach((btn) => {
       btn.classList.toggle('active', parse(btn.dataset[group.key]) === value);
@@ -146,21 +139,24 @@ class SynthUI {
   }
 
   initModuleControls() {
-    for (const group of BUTTON_GROUPS) {
+    for (const group of this.synth.buttonGroups) {
       const parse = group.parse || ((v) => v);
       document.querySelectorAll(group.selector).forEach((btn) => {
         btn.addEventListener('click', () => {
-          SynthParams.set(this.engine, this.groupPath(group), parse(btn.dataset[group.key]));
+          this.params.set(this.engine, this.groupPath(group), parse(btn.dataset[group.key]));
           this.renderButtonGroup(group);
         });
       });
     }
 
-    this.vco2SyncBtn = document.getElementById('vco2SyncBtn');
-    if (this.vco2SyncBtn) {
-      this.vco2SyncBtn.addEventListener('click', () => {
-        this.engine.setVCO2Sync(!this.engine.vco2.hardSync);
-        this.vco2SyncBtn.classList.toggle('active', this.engine.vco2.hardSync);
+    // On/off buttons for boolean patch parameters
+    this.toggles = this.synth.toggles
+      .map((toggle) => ({ ...toggle, btn: document.getElementById(toggle.id) }))
+      .filter((toggle) => toggle.btn);
+    for (const toggle of this.toggles) {
+      toggle.btn.addEventListener('click', () => {
+        this.params.set(this.engine, toggle.path, !this.params.getPath(this.engine, toggle.path));
+        this.renderToggle(toggle);
       });
     }
 
@@ -170,17 +166,21 @@ class SynthUI {
     });
   }
 
+  renderToggle(toggle) {
+    toggle.btn.classList.toggle('active', !!this.params.getPath(this.engine, toggle.path));
+  }
+
   /**
    * Redraws every patch control from the engine (knobs, faders, button rows, toggles, performance bay)
    */
   syncControls() {
     for (const knob of this.knobs) {
-      const param = SynthParams.byKnob(knob.param, this.currentLfoTarget);
-      if (param) knob.setValue(SynthParams.read(this.engine, param));
+      const param = this.params.byKnob(knob.param, this.currentLfoTarget);
+      if (param) knob.setValue(this.params.read(this.engine, param));
     }
     this.faders.forEach((fader) => fader.sync());
-    BUTTON_GROUPS.forEach((group) => this.renderButtonGroup(group));
-    if (this.vco2SyncBtn) this.vco2SyncBtn.classList.toggle('active', !!this.engine.vco2.hardSync);
+    this.synth.buttonGroups.forEach((group) => this.renderButtonGroup(group));
+    this.toggles.forEach((toggle) => this.renderToggle(toggle));
     if (this.glideToggle) this.glideToggle.checked = !!this.engine.glideEnabled;
     this.renderOctave();
   }

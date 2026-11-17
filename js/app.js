@@ -3,7 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const AudioEngine = window.AudioEngine;
   const ArpEngine = window.ArpEngine;
   const SynthUI = window.SynthUI;
   const DrumEngine = window.DrumEngine;
@@ -11,9 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const PWAManager = window.PWAManager;
 
   // Initialize Core Engines
-  const audioEngine = new AudioEngine();
+  const synth = window.SynthRegistry.get('sub1');
+  const audioEngine = synth.createEngine();
   const arpEngine = new ArpEngine(audioEngine);
-  const synthUI = new SynthUI(audioEngine, arpEngine);
+  const synthUI = new SynthUI(audioEngine, arpEngine, synth);
   const drumEngine = new DrumEngine(audioEngine);
   const drumUI = new DrumUI(drumEngine, arpEngine, audioEngine);
   const pwaManager = new PWAManager(audioEngine, drumEngine, drumUI);

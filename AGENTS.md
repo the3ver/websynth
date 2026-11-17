@@ -68,7 +68,8 @@ websynth/
 │   ├── visualizer.js       # CRT oscilloscope, VU meters, woofers
 │   ├── preset-store.js     # User presets in localStorage (DOM-free)
 │   ├── preset-panel.js     # Preset LCD, prev/next, save / overwrite / delete dialog
-│   ├── synth-ui.js         # Panel composer: knobs/faders/buttons via SynthParams, arp strip, perf bay
+│   ├── synth-ui.js         # Panel composer: knobs/faders/buttons via the synth definition, arp strip, perf bay
+│   ├── synth-registry.js   # Synth definitions (engine, param table, button rows, env tabs, presets) + selection
 │   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
 │   └── app.js              # Application entry, master power, volume & version manager
 └── test/

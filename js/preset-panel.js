@@ -1,14 +1,19 @@
 /**
- * RETROVOX SUB-1 • PRESET LCD & SAVE DIALOG
+ * PRESET LCD & SAVE DIALOG
  * Factory + user preset browser (dropdown, prev/next, init patch) and the save / overwrite / delete modal.
  * Persistence lives in PresetStore; after a preset is loaded into the engine, onApplied(preset) lets the
  * synth panel re-sync its controls.
  */
 
 class PresetPanel {
-  constructor(engine, store, onApplied) {
+  /**
+   * @param presets { factory: [...], init } of the active synth
+   */
+  constructor(engine, store, presets, onApplied) {
     this.engine = engine;
     this.store = store;
+    this.factoryPresets = presets.factory;
+    this.initPreset = presets.init;
     this.onApplied = onApplied;
     this.presetsList = [];
     this.currentPresetIndex = 0;
@@ -53,7 +58,7 @@ class PresetPanel {
     onClick('prevPresetBtn', () => this.step(-1));
     onClick('nextPresetBtn', () => this.step(1));
     onClick('initPatchBtn', () => {
-      if (window.SYNTH_INIT_PRESET) this.apply(window.SYNTH_INIT_PRESET);
+      if (this.initPreset) this.apply(this.initPreset);
     });
   }
 
@@ -190,7 +195,7 @@ class PresetPanel {
 
     this.store.remove(id);
     this.refreshDropdown();
-    this.apply(this.presetsList[0] || window.SYNTH_INIT_PRESET);
+    this.apply(this.presetsList[0] || this.initPreset);
     return true;
   }
 
@@ -200,7 +205,7 @@ class PresetPanel {
 
   refreshDropdown() {
     if (!this.dropdown) return;
-    const factory = window.SYNTH_FACTORY_PRESETS || [];
+    const factory = this.factoryPresets || [];
     const user = this.store.list();
     this.presetsList = [...factory, ...user];
 

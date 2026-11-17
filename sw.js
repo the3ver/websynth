@@ -41,6 +41,7 @@ const PRECACHE_ASSETS = [
   './js/preset-store.js',
   './js/preset-panel.js',
   './js/synth-ui.js',
+  './js/synth-registry.js',
   './js/arp-engine.js',
   './js/presets.js',
   './manifest.webmanifest',
