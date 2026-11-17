@@ -48,6 +48,7 @@ websynth/
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
+│   │   ├── operator.js     # FM Operator (sine -> amp -> scale) and the 8 four-operator ALGORITHMS
 │   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
@@ -59,6 +60,10 @@ websynth/
 │   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
 │   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
 │   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
+│   ├── fm-params.js        # FM-4 parameter table (FmParams)
+│   ├── fm-presets.js       # FM-4 factory presets (FM_FACTORY_PRESETS, FM_INIT_PRESET)
+│   ├── fm-voice.js         # FM-4 voice: 4 operators wired by algorithm, per-operator ADSR, vibrato
+│   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): algorithm, operator ratio/detune/level, vibrato
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync

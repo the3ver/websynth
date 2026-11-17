@@ -1,8 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { loadEngineContext } = require('./helpers/synth-engine');
-
-const context = loadEngineContext('presets.js', 'synth-registry.js');
+const { loadEngineContext, FM_SCRIPTS } = require('./helpers/synth-engine');
+const context = loadEngineContext('presets.js', ...FM_SCRIPTS, 'synth-registry.js');
 const { SynthRegistry } = context;
 const definitions = Object.values(SynthRegistry.definitions);
 

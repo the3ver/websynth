@@ -30,6 +30,22 @@ const SYNTH_DEFINITIONS = {
     presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET },
     presetStorageKey: 'retrovox_user_presets',
     lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate
+  },
+
+  fm: {
+    id: 'fm',
+    name: 'RETROVOX FM-4',
+    createEngine: () => new FmEngine(),
+    params: FmParams,
+    buttonGroups: [
+      { path: 'algorithm', selector: '#fmAlgorithmRow .fm-alg-btn', key: 'alg', parse: (v) => parseInt(v, 10) },
+      { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' }
+    ],
+    toggles: [],
+    envTargets: { op1: 'op1.env', op2: 'op2.env', op3: 'op3.env', op4: 'op4.env' },
+    presets: { factory: window.FM_FACTORY_PRESETS, init: window.FM_INIT_PRESET },
+    presetStorageKey: 'retrovox_fm_user_presets',
+    lfoRate: (engine) => engine.vibrato.rate
   }
 };
 
