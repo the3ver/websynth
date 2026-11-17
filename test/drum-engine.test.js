@@ -143,3 +143,31 @@ describe('scheduleStep', () => {
     assert.deepEqual(ticks, [[7, 2, 0.5]]);
   });
 });
+
+describe('drum DSP helpers', () => {
+  const { FakeAudioContext } = require('./helpers/fake-audio-context');
+
+  test('tanh drive curve: 256 samples, normalized to +-1, odd-symmetric', () => {
+    const { drum } = createDrum();
+    for (const gain of [1.5, 3]) {
+      const curve = drum.makeTanhCurve(gain);
+      assert.equal(curve.length, 256);
+      assert.ok(Math.abs(curve[0] + 1) < 1e-6);
+      assert.ok(Math.abs(curve[255] - 1) < 1e-6);
+      const x = (100 * 2) / 255 - 1;
+      assert.ok(Math.abs(curve[100] - Math.tanh(gain * x) / Math.tanh(gain)) < 1e-6);
+      assert.ok(Math.abs(curve[100] + curve[155]) < 1e-6);
+    }
+  });
+
+  test('drum noise buffer is 2 s mono white noise at full scale, built once', () => {
+    const { drum } = createDrum();
+    drum.ctx = new FakeAudioContext();
+    const buffer = drum.getNoiseBuffer();
+    assert.equal(buffer.numberOfChannels, 1);
+    assert.equal(buffer.length, drum.ctx.sampleRate * 2);
+    const peak = buffer.getChannelData(0).reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+    assert.ok(peak <= 1 && peak > 0.9, `peak ${peak}`);
+    assert.equal(drum.getNoiseBuffer(), buffer);
+  });
+});

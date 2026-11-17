@@ -332,3 +332,25 @@ describe('preset state', () => {
     assert.notEqual(engine.lfo1.destinations.pitch, 0.99);
   });
 });
+
+describe('PWM comparator curve and noise buffer', () => {
+  test('PWM curve is a steep tanh(40x) over 2048 samples', () => {
+    const curve = createEngine().createPWMShaperCurve();
+    assert.equal(curve.length, 2048);
+    for (const i of [0, 700, 1023, 1024, 1500, 2047]) {
+      const x = (i * 2) / 2047 - 1;
+      assert.ok(Math.abs(curve[i] - Math.tanh(40 * x)) < 1e-6, `sample ${i}`);
+    }
+  });
+
+  test('synth noise buffer is 2 s mono white noise at 0.6 peak, built once', () => {
+    const { engine, ctx } = createLiveEngine();
+    const buffer = engine.getNoiseBuffer();
+    assert.equal(buffer.numberOfChannels, 1);
+    assert.equal(buffer.length, ctx.sampleRate * 2);
+    const peak = buffer.getChannelData(0).reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+    assert.ok(peak <= 0.6 && peak > 0.5, `peak ${peak}`);
+    assert.equal(engine.getNoiseBuffer(), buffer);
+    assert.equal(engine.sharedNoiseSource.buffer, buffer);
+  });
+});
