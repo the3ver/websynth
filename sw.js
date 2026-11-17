@@ -29,6 +29,7 @@ const PRECACHE_ASSETS = [
   './js/synth-params.js',
   './js/voice.js',
   './js/fx-chain.js',
+  './js/poly-synth-engine.js',
   './js/audio-engine.js',
   './js/drum-kits.js',
   './js/drum-engine.js',

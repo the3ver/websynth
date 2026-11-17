@@ -1,40 +1,13 @@
 /**
- * RETROVOX SUB-1 • WEB AUDIO API ENGINE
- * Core Audio Engine handling Polyphonic Subtractive Voice Allocation,
- * Dual-VCO, Pulse Width Modulation, Sub-Oscillator, Noise Generator,
- * 24dB Multi-Mode Resonant VCF (Ladder Lowpass, Bandpass, Highpass, Drive & KeyTrack),
- * Dual ADSR Envelopes (VCF Filter ADSR & VCA Amp ADSR),
- * Dual Independent LFOs (LFO 1 & LFO 2 with Multi-Wave, S&H, Fade-In Delay, Pitch, VCF, PWM, Amp targets),
- * Vintage Stereo FX Rack (Juno BBD Chorus, Stereo Tape Delay with Lowpass Dampening, Studio Space Reverb),
- * Oscilloscope Analyser, Master Gain, and MIDI Integration.
+ * RETROVOX SUB-1 • SUBTRACTIVE SYNTH ENGINE
+ * Dual-VCO with PWM, sub-oscillator and noise, 24dB multi-mode VCF with drive and key tracking,
+ * filter and amp ADSR, two LFOs (multi-wave, S&H, fade-in; pitch, VCF, PWM, amp targets).
+ * Shared polyphony, FX rack, master bus, MIDI and presets come from PolySynthEngine.
  */
 
-// ADSR stage limits (attack/decay/release in seconds, sustain as level)
-const ENV_STAGE_RANGE = {
-  attack: [0.001, Infinity],
-  decay: [0.001, Infinity],
-  sustain: [0.0, 1.0],
-  release: [0.005, Infinity]
-};
-
-class AudioEngine {
+class AudioEngine extends PolySynthEngine {
   constructor() {
-    this.ctx = null;
-    this.master = null; // SynthBlocks.MasterBus: analyser -> volume -> limiter -> clipper
-    this.masterVoiceBus = null;
-    this.maxVoices = 12;
-    // Persistent 12-voice pool (Zero GC Churn); voicePool / activeVoices are the pool's own array and map
-    this.pool = new SynthBlocks.VoicePool();
-    this.voicePool = this.pool.voices;
-    this.activeVoices = this.pool.active; // midiNote -> Voice
-    this.isPowered = true;
-    this.masterVolume = 0.8;
-    this.octaveShift = 0; // -2 to +2
-    this.pitchBendFactor = 1.0; // 0.5 to 2.0
-    this.modWheelValue = 0.0; // 0.0 to 1.0
-    this.glideEnabled = false;
-    this.glideTime = 0.06; // seconds
-    this.lastFrequency = null;
+    super({ params: SynthParams, maxVoices: 12 });
     this.noiseBuffer = null;
     this.sharedNoiseSource = null;
     this.sharedNoiseGain = null;
@@ -119,131 +92,34 @@ class AudioEngine {
 
     // SynthBlocks.Lfo per LFO number (index 0 unused), built with the AudioContext
     this.lfos = [null, null, null];
-
-    // Vintage Stereo FX Rack Parameters
-    this.fx = {
-      chorus: {
-        mode: 'off',    // 'off', 'I', 'II', 'I+II'
-        mix: 0.65       // 0.0 to 1.0
-      },
-      delay: {
-        time: 0.32,     // 0.02 to 1.0s
-        feedback: 0.45, // 0.0 to 0.9
-        mix: 0.0        // 0.0 to 1.0
-      },
-      reverb: {
-        decay: 3.2,     // 0.5 to 10.0s
-        mix: 0.0        // 0.0 to 1.0
-      }
-    };
-
-    this.fxChain = null;
-
-    // Callbacks for UI updates
-    this.onVoiceChange = null;
-    this.onMidiStateChange = null;
-    this.onAudioStateChange = null;
   }
 
   /**
-   * Resumes and unlocks the Web Audio API context with iOS / iPadOS Safari CoreAudio kickstart.
+   * PWM comparator curve, static pulse width offsets and both LFOs (shared by all voices)
    */
-  async resumeAudio() {
-    if (!this.ctx) {
-      this.initAudio();
-    }
-    if (this.ctx && this.ctx.state !== 'running') {
-      try {
-        await this.ctx.resume();
-      } catch (e) {}
+  initInstrument() {
+    this.pwmCurve = SynthBlocks.pwmComparatorCurve();
 
-      // Kickstart iOS / iPadOS Safari CoreAudio hardware output bus with a 1-sample silent buffer
-      try {
-        const buffer = this.ctx.createBuffer(1, 1, 22050);
-        const source = this.ctx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(this.ctx.destination);
-        source.start(0);
-      } catch (e) {}
+    if (this.ctx.createConstantSource) {
+      this.vco1PwOffset = this.ctx.createConstantSource();
+      this.vco1PwOffset.offset.setValueAtTime((this.vco1.pulseWidth - 0.5) * 0.8, this.ctx.currentTime);
+      this.vco1PwOffset.start();
+
+      this.vco2PwOffset = this.ctx.createConstantSource();
+      this.vco2PwOffset.offset.setValueAtTime(0.0, this.ctx.currentTime);
+      this.vco2PwOffset.start();
     }
 
-    if (this.onAudioStateChange && this.ctx) {
-      this.onAudioStateChange(this.ctx.state);
-    }
-    return this.ctx ? this.ctx.state : 'uninitialized';
-  }
-
-  ensureAudioRunning() {
-    if (!this.ctx || this.ctx.state !== 'running') {
-      this.resumeAudio();
-    }
+    this.initLfoEngines();
   }
 
   /**
-   * Initializes AudioContext, LFOs, Voice Pool, and Master FX Signal Chain.
+   * Shared white noise source, then the 12 persistent voices (see voice.js)
    */
-  initAudio() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx({ latencyHint: 'interactive' });
-
-      // Listen for hardware audio state transitions
-      this.ctx.onstatechange = () => {
-        if (this.onAudioStateChange) {
-          this.onAudioStateChange(this.ctx.state);
-        }
-      };
-
-      // Master Voice Bus
-      this.masterVoiceBus = this.ctx.createGain();
-
-      // Analyser, volume, limiter and safety clipper (shared with the drum machine)
-      this.master = new SynthBlocks.MasterBus(this.ctx, { volume: this.masterVolume });
-
-      // Pre-calculate PWM WaveShaper transfer curve
-      this.pwmCurve = SynthBlocks.pwmComparatorCurve();
-
-      // Static Pulse Width Offset Constant Sources
-      if (this.ctx.createConstantSource) {
-        this.vco1PwOffset = this.ctx.createConstantSource();
-        this.vco1PwOffset.offset.setValueAtTime((this.vco1.pulseWidth - 0.5) * 0.8, this.ctx.currentTime);
-        this.vco1PwOffset.start();
-
-        this.vco2PwOffset = this.ctx.createConstantSource();
-        this.vco2PwOffset.offset.setValueAtTime(0.0, this.ctx.currentTime);
-        this.vco2PwOffset.start();
-      }
-
-      // Build Dual LFO Engines
-      this.initLfoEngines();
-
-      // Build Stereo FX Chain
-      this.initStereoFXChain();
-
-      // Pre-generate noise buffer
-      this.getNoiseBuffer();
-
-      // Initialize Persistent 12-Voice Polyphonic Pool (Zero GC on note events)
-      this.initVoicePool(this.maxVoices);
-
-      // Setup Web MIDI API
-      this.initMidi();
-    }
-
-    if (this.ctx.state !== 'running') {
-      this.resumeAudio();
-    }
-
-    return this.ctx.state;
-  }
-
-  /**
-   * Initializes the persistent Voice Pool (12 polyphonic voices pre-wired, see voice.js)
-   */
-  initVoicePool(count = 12) {
+  initVoicePool(count) {
     if (this.voicePool.length > 0) return;
+    this.getNoiseBuffer();
 
-    // Shared White Noise Generator
     if (!this.sharedNoiseSource) {
       this.sharedNoiseSource = this.ctx.createBufferSource();
       this.sharedNoiseSource.buffer = this.getNoiseBuffer();
@@ -254,9 +130,11 @@ class AudioEngine {
       this.sharedNoiseSource.start(0);
     }
 
-    for (let i = 0; i < count; i++) {
-      this.pool.add(new Voice(this, i));
-    }
+    super.initVoicePool(count);
+  }
+
+  createVoice(id) {
+    return new Voice(this, id);
   }
 
   getLfo(lfoNum) {
@@ -278,13 +156,6 @@ class AudioEngine {
     for (const voice of this.voicePool) {
       voice.setLfoAmount(lfoNum, dest, amount, now, timeConstant);
     }
-  }
-
-  /**
-   * Builds the Stereo FX rack between the voice bus and the master bus (see fx-chain.js)
-   */
-  initStereoFXChain() {
-    this.fxChain = new FXChain(this.ctx, this.fx, this.masterVoiceBus, this.master.input);
   }
 
   /**
@@ -317,14 +188,6 @@ class AudioEngine {
   }
 
   /**
-   * Calculate base note frequency with Global Octave Shift
-   */
-  midiNoteToFrequency(midiNote) {
-    const shiftedNote = midiNote + (this.octaveShift * 12);
-    return 440 * Math.pow(2, (shiftedNote - 69) / 12);
-  }
-
-  /**
    * Calculate exact VCO 1 Frequency (including VCO1 Octave)
    */
   getVCO1Frequency(baseFreq) {
@@ -347,49 +210,6 @@ class AudioEngine {
     let freq = this.vcf.cutoff * Math.pow(2, keyOffset);
     freq *= Math.pow(2, this.modWheelValue * 2.5);
     return Math.max(20, Math.min(20000, freq));
-  }
-
-  /**
-   * Triggers Note On with Persistent Voice Pool (Zero Node Allocations / Zero GC)
-   */
-  noteOn(midiNote, velocity = 1.0) {
-    if (!this.isPowered) return;
-    this.ensureAudioRunning();
-
-    const now = this.ctx ? this.ctx.currentTime : 0;
-    const voice = this.pool.allocate(midiNote, now);
-    if (!voice) return;
-
-    this.lastFrequency = voice.trigger(midiNote, velocity, now);
-    this.pool.assign(midiNote, voice);
-
-    if (this.onVoiceChange) {
-      this.onVoiceChange(this.activeVoices.size, this.lastFrequency);
-    }
-  }
-
-  noteOff(midiNote) {
-    if (!this.ctx) return;
-    const voice = this.pool.take(midiNote);
-    if (!voice) return;
-
-    voice.release(this.ctx.currentTime);
-
-    if (this.onVoiceChange) {
-      this.onVoiceChange(this.activeVoices.size, this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null);
-    }
-  }
-
-  allNotesOff() {
-    for (const midiNote of Array.from(this.activeVoices.keys())) {
-      this.noteOff(midiNote);
-    }
-    // Safety net: also release busy voices that are not in the note map
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    for (const voice of this.voicePool) {
-      if (voice.isBusy && voice.releaseStartTime === 0) voice.release(now);
-    }
   }
 
   // =========================================================================
@@ -498,18 +318,6 @@ class AudioEngine {
     this.vcf.envMod = Math.max(-1, Math.min(1, parseFloat(envMod)));
   }
 
-  // --- ADSR ENVELOPE SETTERS ---
-
-  /**
-   * Sets one ADSR stage: setEnvStage('ampEnv' | 'filterEnv', 'attack' | 'decay' | 'sustain' | 'release', value)
-   */
-  setEnvStage(envName, stage, val) {
-    const env = this[envName];
-    if (!env || !(stage in env)) return;
-    const [min, max] = ENV_STAGE_RANGE[stage];
-    env[stage] = Math.max(min, Math.min(max, parseFloat(val)));
-  }
-
   // --- DUAL LFO 1 & LFO 2 SETTERS ---
 
   setLFOParam(lfoNum, param, val) {
@@ -543,151 +351,17 @@ class AudioEngine {
     }
   }
 
-  // --- STEREO FX SETTERS ---
-
-  setChorusMode(mode) {
-    this.fx.chorus.mode = mode;
-    if (this.fxChain) this.fxChain.chorus.applyMode();
-  }
-
-  setChorusMix(val) {
-    this.fx.chorus.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.chorus.applyMix();
-  }
-
-  setDelayTime(val) {
-    this.fx.delay.time = Math.max(0.02, Math.min(1.0, parseFloat(val)));
-    if (this.fxChain) this.fxChain.delay.applyTime();
-  }
-
-  setDelayFeedback(val) {
-    this.fx.delay.feedback = Math.max(0.0, Math.min(0.9, parseFloat(val)));
-    if (this.fxChain) this.fxChain.delay.applyFeedback();
-  }
-
-  setDelayMix(val) {
-    this.fx.delay.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.delay.applyMix();
-  }
-
-  setReverbDecay(val) {
-    this.fx.reverb.decay = Math.max(0.5, Math.min(10.0, parseFloat(val)));
-    if (this.fxChain) this.fxChain.reverb.applyDecay();
-  }
-
-  setReverbMix(val) {
-    this.fx.reverb.mix = Math.max(0, Math.min(1, parseFloat(val)));
-    if (this.fxChain) this.fxChain.reverb.applyMix();
-  }
-
-  /**
-   * Runs fn(voice, now) for every voice once the audio graph exists
-   */
-  forEachVoice(fn) {
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    for (const voice of this.voicePool) fn(voice, now);
-  }
-
   updateAllVoiceFilters() {
     this.forEachVoice((voice) => voice.updateFilter());
   }
 
-  updateAllVoiceFrequencies() {
-    this.forEachVoice((voice, now) => voice.updateFrequencies(now));
-  }
-
-  setMasterVolume(value) {
-    this.masterVolume = Math.max(0, Math.min(1, value));
-    if (this.master) this.master.setVolume(this.masterVolume);
-  }
-
-  setOctaveShift(shift) {
-    this.octaveShift = Math.max(-2, Math.min(2, shift));
-    this.updateAllVoiceFrequencies();
+  // Octave and mod wheel move the key-tracked, mod-wheel-opened cutoff
+  onOctaveChange() {
     this.updateAllVoiceFilters();
   }
 
-  setPitchBend(factor) {
-    this.pitchBendFactor = factor;
-    this.updateAllVoiceFrequencies();
-  }
-
-  setModWheel(value) {
-    this.modWheelValue = Math.max(0, Math.min(1, value));
+  onModWheelChange() {
     this.updateAllVoiceFilters();
-  }
-
-  setGlide(enabled) {
-    this.glideEnabled = enabled;
-  }
-
-  setPower(on) {
-    this.isPowered = on;
-    if (!on) {
-      this.allNotesOff();
-    } else {
-      this.ensureAudioRunning();
-    }
-  }
-
-  // =========================================================================
-  // WEB MIDI API SUPPORT
-  // =========================================================================
-
-  async initMidi() {
-    if (navigator.requestMIDIAccess) {
-      try {
-        const midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-        let deviceCount = 0;
-
-        const updateInputs = () => {
-          deviceCount = 0;
-          for (const input of midiAccess.inputs.values()) {
-            deviceCount++;
-            input.onmidimessage = (msg) => this.handleMidiMessage(msg);
-          }
-          if (this.onMidiStateChange) {
-            this.onMidiStateChange(deviceCount > 0, deviceCount);
-          }
-        };
-
-        midiAccess.onstatechange = () => updateInputs();
-        updateInputs();
-      } catch (err) {
-        console.log('Web MIDI not available or permission denied:', err);
-      }
-    }
-  }
-
-  handleMidiMessage(event) {
-    if (!this.isPowered) return;
-    const [status, note, velocity] = event.data;
-    const command = status >> 4;
-
-    if (command === 9 && velocity > 0) {
-      this.noteOn(note, velocity / 127);
-    } else if (command === 8 || (command === 9 && velocity === 0)) {
-      this.noteOff(note);
-    } else if (command === 14) {
-      const bendValue = ((velocity << 7) + note) - 8192;
-      const bendSemitones = (bendValue / 8192) * 2;
-      this.setPitchBend(Math.pow(2, bendSemitones / 12));
-    } else if (command === 11 && note === 1) {
-      this.setModWheel(velocity / 127);
-    }
-  }
-
-  // =========================================================================
-  // PRESET SNAPSHOT & RESTORATION
-  // =========================================================================
-
-  getPresetState() {
-    return SynthParams.readState(this);
-  }
-
-  loadPresetState(state) {
-    if (state) SynthParams.applyState(this, state);
   }
 }
 

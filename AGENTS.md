@@ -57,7 +57,8 @@ websynth/
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
 │   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
-│   ├── audio-engine.js     # AudioContext, voice pool & allocation, LFOs, setters, MIDI, limiter
+│   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
+│   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync
