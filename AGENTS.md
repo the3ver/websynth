@@ -48,12 +48,13 @@ websynth/
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
+│   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-│   ├── synth-params.js     # Patch parameter table: preset path, setter, knob id (single source of truth)
+│   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
 │   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
 │   ├── audio-engine.js     # AudioContext, voice pool & allocation, LFOs, setters, MIDI, limiter

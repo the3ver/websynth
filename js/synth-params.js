@@ -1,8 +1,6 @@
 /**
  * RETROVOX SUB-1 • PATCH PARAMETER TABLE
- * Single source of truth for every patch parameter: preset path, engine setter, optional engine field
- * (when it differs from the path) and the rotary knob that controls it (data-param in index.html).
- * Preset save/load, knob dispatch and UI sync are all driven from this table.
+ * Every SUB-1 patch parameter once (see SynthBlocks.ParamTable in js/lib/param-table.js).
  */
 
 const lfoParams = (lfoNum) => [
@@ -17,10 +15,7 @@ const lfoParams = (lfoNum) => [
   }))
 ];
 
-const envParams = (envName) => ['attack', 'decay', 'sustain', 'release'].map((stage) => ({
-  path: `${envName}.${stage}`,
-  set: (e, v) => e.setEnvStage(envName, stage, v)
-}));
+const envParams = SynthBlocks.ParamTable.envParams;
 
 // Order matches the original preset loader: oscillators, mixer, filter, envelopes, LFOs, FX, performance
 const SYNTH_PARAMS = [
@@ -64,60 +59,6 @@ const SYNTH_PARAMS = [
   { path: 'performance.octaveShift', field: 'octaveShift', set: (e, v) => e.setOctaveShift(v) }
 ];
 
-const PARAMS_BY_PATH = new Map(SYNTH_PARAMS.map((p) => [p.path, p]));
-
-const SynthParams = {
-  list: SYNTH_PARAMS,
-
-  getPath(obj, path) {
-    return path.split('.').reduce((node, key) => (node == null ? undefined : node[key]), obj);
-  },
-
-  setPath(obj, path, value) {
-    const keys = path.split('.');
-    const last = keys.pop();
-    const parent = keys.reduce((node, key) => (node[key] = node[key] || {}), obj);
-    parent[last] = value;
-  },
-
-  byPath(path) {
-    return PARAMS_BY_PATH.get(path);
-  },
-
-  /**
-   * Knob ids are unique except the shared LFO knobs, which address the LFO selected in the UI
-   */
-  byKnob(knobId, lfoNum) {
-    return SYNTH_PARAMS.find((p) => p.knob === knobId && (p.lfo === undefined || p.lfo === lfoNum));
-  },
-
-  read(engine, param) {
-    return param.field ? engine[param.field] : this.getPath(engine, param.path);
-  },
-
-  set(engine, path, value) {
-    const param = this.byPath(path);
-    if (param) param.set(engine, value);
-  },
-
-  /**
-   * Current patch as a plain nested preset state
-   */
-  readState(engine) {
-    const state = {};
-    for (const param of SYNTH_PARAMS) this.setPath(state, param.path, this.read(engine, param));
-    return state;
-  },
-
-  /**
-   * Applies every parameter present in a (possibly partial) preset state
-   */
-  applyState(engine, state) {
-    for (const param of SYNTH_PARAMS) {
-      const value = this.getPath(state, param.path);
-      if (value !== undefined) param.set(engine, value);
-    }
-  }
-};
+const SynthParams = new SynthBlocks.ParamTable(SYNTH_PARAMS);
 
 window.SynthParams = SynthParams;
