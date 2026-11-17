@@ -10,8 +10,6 @@
 const LFO_DESTINATIONS = ['pitch', 'vcf', 'pwm', 'amp'];
 const LFO_DEPTH = { pitch: 200, vcf: 3600, pwm: 0.35, amp: 0.45 };
 
-// Minimum envelope segment, keeps exponential ramps click-free
-const MIN_ENV_TIME = 0.004;
 const VOICE_PEAK_GAIN = 0.40;
 
 class Voice {
@@ -157,6 +155,12 @@ class Voice {
     this.tremoloGain = ctx.createGain();
     this.tremoloGain.gain.setValueAtTime(1.0, now);
     this.vca.connect(this.tremoloGain);
+
+    // VCA holds its running level on retrigger (no click), the filter jumps back to cutoff
+    this.ampEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, Infinity], holdOnTrigger: true });
+    this.filterEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [20, 20000] });
+    this.ampParams = [this.vca.gain];
+    this.filterParams = [this.vcf1.frequency, this.vcf2.frequency];
   }
 
   connectLfoDestinations() {
@@ -276,34 +280,16 @@ class Voice {
   }
 
   startFilterEnvelope(now) {
-    const { vcf, filterEnv } = this.engine;
     const cutoff = this.voiceCutoff;
     this.configureFilter(cutoff);
 
-    const envPeakCutoff = Math.max(20, Math.min(20000, cutoff * Math.pow(2, vcf.envMod * 3.5)));
-    const envSustainCutoff = Math.max(20, Math.min(20000, cutoff + ((envPeakCutoff - cutoff) * filterEnv.sustain)));
-    const attack = Math.max(MIN_ENV_TIME, filterEnv.attack);
-    const decay = Math.max(MIN_ENV_TIME, filterEnv.decay);
-
-    for (const filter of [this.vcf1, this.vcf2]) {
-      filter.frequency.cancelScheduledValues(now);
-      filter.frequency.setValueAtTime(Math.max(20, cutoff), now);
-      filter.frequency.exponentialRampToValueAtTime(envPeakCutoff, now + attack);
-      filter.frequency.exponentialRampToValueAtTime(envSustainCutoff, now + attack + decay);
-    }
+    const peak = Math.max(20, Math.min(20000, cutoff * Math.pow(2, this.engine.vcf.envMod * 3.5)));
+    this.filterEnvelope.trigger(this.filterParams, now, { start: Math.max(20, cutoff), base: cutoff, peak });
   }
 
   startAmpEnvelope(velocity, now) {
-    const { ampEnv } = this.engine;
-    const peakGain = Math.max(0.0001, VOICE_PEAK_GAIN * velocity);
-    const sustainGain = Math.max(0.0001, peakGain * ampEnv.sustain);
-    const attack = Math.max(MIN_ENV_TIME, ampEnv.attack);
-    const decay = Math.max(MIN_ENV_TIME, ampEnv.decay);
-
-    holdParam(this.vca.gain, now);
-    this.vca.gain.setValueAtTime(0.00001, now);
-    this.vca.gain.exponentialRampToValueAtTime(peakGain, now + attack);
-    this.vca.gain.exponentialRampToValueAtTime(sustainGain, now + attack + decay);
+    const peak = Math.max(0.0001, VOICE_PEAK_GAIN * velocity);
+    this.ampEnvelope.trigger(this.ampParams, now, { start: 0.00001, base: 0, peak });
   }
 
   /**
@@ -329,27 +315,20 @@ class Voice {
    * Starts the asymptotic VCA and VCF release; the voice frees itself once the tail has decayed
    */
   release(now) {
-    const { ampEnv, filterEnv } = this.engine;
     this.releaseStartTime = now;
 
-    const ampRelTime = Math.max(0.008, ampEnv.release);
-    const vcfRelTime = Math.max(0.008, filterEnv.release);
-
     try {
-      holdParam(this.vca.gain, now);
-      this.vca.gain.setTargetAtTime(0.0, now, Math.max(0.003, ampRelTime / 3.0));
+      this.ampEnvelope.release(this.ampParams, now, 0.0);
     } catch (e) {}
 
     try {
-      for (const filter of [this.vcf1, this.vcf2]) {
-        holdParam(filter.frequency, now);
-        filter.frequency.setTargetAtTime(this.voiceCutoff, now, Math.max(0.003, vcfRelTime / 3.0));
-      }
+      this.filterEnvelope.release(this.filterParams, now, this.voiceCutoff);
     } catch (e) {}
 
     // Mark voice as idle and unplug it once the tail is inaudible (3x release = 9 time
     // constants, about -78 dB), unless re-triggered meanwhile
-    const cleanupDelayMs = (Math.max(ampRelTime, vcfRelTime) * 3 + 0.05) * 1000;
+    const releaseTime = Math.max(this.ampEnvelope.releaseTime, this.filterEnvelope.releaseTime);
+    const cleanupDelayMs = (releaseTime * 3 + 0.05) * 1000;
     if (this.cleanupTimer) clearTimeout(this.cleanupTimer);
     this.cleanupTimer = setTimeout(() => {
       if (this.releaseStartTime === now) {
@@ -454,17 +433,6 @@ class Voice {
     this.vcf2.frequency.setValueAtTime(safeCutoff, now);
     this.vcf1.Q.setValueAtTime(q1, now);
     this.vcf2.Q.setValueAtTime(q2, now);
-  }
-}
-
-/**
- * Freezes an AudioParam at its current value (falls back to cancelScheduledValues on old Safari)
- */
-function holdParam(param, now) {
-  if (param.cancelAndHoldAtTime) {
-    param.cancelAndHoldAtTime(now);
-  } else {
-    param.cancelScheduledValues(now);
   }
 }
 

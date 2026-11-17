@@ -41,7 +41,8 @@ websynth/
 │   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
 ├── js/                    # Classic scripts, loaded in this order by index.html
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
-│   │   └── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
+│   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
+│   │   └── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave

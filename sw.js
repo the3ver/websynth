@@ -15,6 +15,7 @@ const PRECACHE_ASSETS = [
   './css/style.css',
   './js/app.js',
   './js/lib/curves.js',
+  './js/lib/envelope.js',
   './js/dom-utils.js',
   './js/pwa-manager.js',
   './js/synth-params.js',
