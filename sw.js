@@ -17,6 +17,7 @@ const PRECACHE_ASSETS = [
   './js/lib/curves.js',
   './js/lib/envelope.js',
   './js/lib/filter.js',
+  './js/lib/gain-stages.js',
   './js/lib/vco.js',
   './js/lib/lfo.js',
   './js/lib/effects.js',

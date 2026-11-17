@@ -422,12 +422,7 @@ class AudioEngine {
 
     // Fast 2ms crossfade down on stolen voice to avoid click
     try {
-      if (oldestActiveVoice.vca.gain.cancelAndHoldAtTime) {
-        oldestActiveVoice.vca.gain.cancelAndHoldAtTime(now);
-      } else {
-        oldestActiveVoice.vca.gain.cancelScheduledValues(now);
-      }
-      oldestActiveVoice.vca.gain.setTargetAtTime(0.0, now, 0.002);
+      oldestActiveVoice.vca.choke(now);
     } catch (e) {}
 
     this.unmapVoice(oldestActiveVoice);
@@ -582,7 +577,7 @@ class AudioEngine {
     if (!this.ctx) return;
     const curve = SynthBlocks.driveCurve(this.vcf.drive);
     for (const voice of this.voicePool) {
-      voice.driveShaper.curve = curve;
+      voice.drive.setAmount(this.vcf.drive, curve);
     }
   }
 

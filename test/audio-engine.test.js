@@ -311,11 +311,11 @@ describe('shared curves and noise buffer', () => {
     const drive = context.SynthBlocks.driveCurve(engine.vcf.drive);
     for (const voice of engine.voicePool) {
       assert.deepEqual(Array.from(voice.vco[1].pwShaper.curve), Array.from(pwm));
-      assert.deepEqual(Array.from(voice.driveShaper.curve), Array.from(drive));
+      assert.deepEqual(Array.from(voice.drive.shaper.curve), Array.from(drive));
     }
     engine.setVCFDrive(0.8);
     const driven = Array.from(context.SynthBlocks.driveCurve(0.8));
-    assert.deepEqual(Array.from(engine.voicePool[3].driveShaper.curve), driven);
+    assert.deepEqual(Array.from(engine.voicePool[3].drive.shaper.curve), driven);
   });
 
   test('synth noise buffer is 2 s mono white noise at 0.6 peak, built once', () => {

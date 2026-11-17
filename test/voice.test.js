@@ -12,7 +12,7 @@ test('voice pool has 12 voices with running oscillators, idle voices off the mas
     assert.equal(voice.vco[2].osc.started, 0);
     assert.equal(voice.subOsc.started, 0);
     // Idle voices stay unconnected so the audio thread does not render them (CPU on tablets)
-    assert.ok(!voice.tremoloGain.connections.includes(engine.masterVoiceBus));
+    assert.ok(!voice.vca.output.connections.includes(engine.masterVoiceBus));
   }
 });
 
@@ -20,7 +20,7 @@ test('noteOn connects the voice, release cleanup disconnects it again', () => {
   const { engine, context } = createLiveEngine();
   engine.noteOn(60, 1.0);
   const voice = engine.activeVoices.get(60);
-  const toBus = () => voice.tremoloGain.connections.filter((n) => n === engine.masterVoiceBus).length;
+  const toBus = () => voice.vca.output.connections.filter((n) => n === engine.masterVoiceBus).length;
   assert.equal(toBus(), 1);
 
   engine.noteOn(60, 1.0); // retrigger must not add a second connection
@@ -79,8 +79,8 @@ test('velocity scales mixer gain levels', () => {
   engine.noteOn(60, 0.5);
   const voice = engine.activeVoices.get(60);
 
-  assert.equal(voice.osc1Gain.gain.value, expectedVco1);
-  assert.equal(voice.subGain.gain.value, expectedSub);
+  assert.equal(voice.mixer.channels.vco1Level.gain.value, expectedVco1);
+  assert.equal(voice.mixer.channels.subLevel.gain.value, expectedSub);
 });
 
 test('glide ramps oscillator frequency from previous note frequency to target', () => {
@@ -215,7 +215,7 @@ test('retrigger before release timeout expires cancels cleanup and keeps voice b
 
   assert.equal(voice.isBusy, true);
   assert.equal(voice.midiNote, 60);
-  assert.ok(voice.tremoloGain.connections.includes(engine.masterVoiceBus));
+  assert.ok(voice.vca.output.connections.includes(engine.masterVoiceBus));
 });
 
 test('setVCO1Wave switches between direct wave and shaped pulse paths', () => {

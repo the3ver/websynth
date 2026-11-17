@@ -45,6 +45,7 @@ websynth/
 │   │   ├── effects.js      # Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
+│   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   └── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
@@ -98,10 +99,10 @@ websynth/
 - **Voice Nodes**:
   - `vco[1]` & `vco[2]` (`SynthBlocks.Vco`: native Sine/Triangle/Sawtooth direct path and 4x-oversampled WaveShaper audio-rate PWM)
   - `subOsc` (Sub-octave triangle wave)
-  - `noiseGain` (White noise buffer input)
-  - `driveShaper` (WaveShaperNode with level-normalized $\tanh$ curve)
+  - `mixer` (`SynthBlocks.Mixer`: vco1Level, vco2Level, subLevel, noiseLevel channels; noise comes from the engine's shared white noise source)
+  - `drive` (`SynthBlocks.Drive`: 2x-oversampled WaveShaper with level-normalized $\tanh$ curve)
   - `filter` (`SynthBlocks.Filter`: stage1 & stage2, 24dB/12dB cascaded ladder filter with Q-staging)
-  - `vca` (ADSR amplitude envelope gain stage)
+  - `vca` (`SynthBlocks.Vca`: ADSR amplitude gain `vca.gain` -> tremolo gain `vca.tremoloGain` for LFO amp)
   - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains fed by `engine.lfos[n].output` (`SynthBlocks.Lfo`, oscillator + S&H source); depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
 - **Lifecycle & LRU Voice Stealing**:
   - `noteOn(midiNote, velocity)` searches for an inactive voice in `this.voicePool`.

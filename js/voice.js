@@ -34,8 +34,8 @@ class Voice {
    */
   setOutputConnected(on) {
     if (on === this.outputConnected) return;
-    if (on) this.tremoloGain.connect(this.engine.masterVoiceBus);
-    else this.tremoloGain.disconnect();
+    if (on) this.vca.output.connect(this.engine.masterVoiceBus);
+    else this.vca.output.disconnect();
     this.outputConnected = on;
   }
 
@@ -97,25 +97,14 @@ class Voice {
     this.subOsc.type = 'triangle';
     this.subOsc.frequency.setValueAtTime(220, now);
 
-    const makeLevel = (level) => {
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(level, now);
-      return g;
-    };
-    this.osc1Gain = makeLevel(engine.mixer.vco1Level);
-    this.osc2Gain = makeLevel(engine.mixer.vco2Level);
-    this.subGain = makeLevel(engine.mixer.subLevel);
-    this.noiseGain = makeLevel(engine.mixer.noiseLevel);
-    this.mixGains = { vco1Level: this.osc1Gain, vco2Level: this.osc2Gain, subLevel: this.subGain, noiseLevel: this.noiseGain };
+    const { vco1Level, vco2Level, subLevel, noiseLevel } = engine.mixer;
+    this.mixer = new SynthBlocks.Mixer(ctx, { vco1Level, vco2Level, subLevel, noiseLevel });
 
-    vco1.connect(this.osc1Gain);
-    vco2.connect(this.osc2Gain);
-    this.subOsc.connect(this.subGain);
-    if (engine.sharedNoiseGain) engine.sharedNoiseGain.connect(this.noiseGain);
-
-    const mixerBus = ctx.createGain();
-    for (const g of Object.values(this.mixGains)) g.connect(mixerBus);
-    return mixerBus;
+    vco1.connect(this.mixer.input('vco1Level'));
+    vco2.connect(this.mixer.input('vco2Level'));
+    this.subOsc.connect(this.mixer.input('subLevel'));
+    if (engine.sharedNoiseGain) engine.sharedNoiseGain.connect(this.mixer.input('noiseLevel'));
+    return this.mixer.output;
   }
 
   /**
@@ -124,24 +113,16 @@ class Voice {
   buildFilterAndAmp(mixerBus) {
     const engine = this.engine;
     const ctx = engine.ctx;
-    const now = ctx.currentTime;
 
-    this.driveShaper = ctx.createWaveShaper();
-    this.driveShaper.curve = SynthBlocks.driveCurve(engine.vcf.drive);
-    this.driveShaper.oversample = '2x';
-    mixerBus.connect(this.driveShaper);
+    this.drive = new SynthBlocks.Drive(ctx, engine.vcf.drive);
+    mixerBus.connect(this.drive.input);
 
     this.filter = new SynthBlocks.Filter(ctx);
     this.configureFilter(engine.vcf.cutoff);
-    this.driveShaper.connect(this.filter.input);
+    this.drive.output.connect(this.filter.input);
 
-    this.vca = ctx.createGain();
-    this.vca.gain.setValueAtTime(0.0, now);
-    this.filter.output.connect(this.vca);
-
-    this.tremoloGain = ctx.createGain();
-    this.tremoloGain.gain.setValueAtTime(1.0, now);
-    this.vca.connect(this.tremoloGain);
+    this.vca = new SynthBlocks.Vca(ctx);
+    this.filter.output.connect(this.vca.input);
 
     // VCA holds its running level on retrigger (no click), the filter jumps back to cutoff
     this.ampEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, Infinity], holdOnTrigger: true });
@@ -156,7 +137,7 @@ class Voice {
       route.pitch.connect(this.vco[1].detune);
       route.pitch.connect(this.vco[2].detune);
       for (const detune of this.filter.detuneParams) route.vcf.connect(detune);
-      route.amp.connect(this.tremoloGain.gain);
+      route.amp.connect(this.vca.tremoloGain);
     }
   }
 
@@ -211,11 +192,7 @@ class Voice {
     this.subOsc.frequency.cancelScheduledValues(now);
     this.subOsc.frequency.setValueAtTime(this.getSubFrequency(baseFreq), now);
 
-    // Mixer levels (velocity-scaled)
-    for (const [key, node] of Object.entries(this.mixGains)) {
-      node.gain.cancelScheduledValues(now);
-      node.gain.setValueAtTime(engine.mixer[key] * velocity, now);
-    }
+    this.mixer.setLevelsAt(engine.mixer, velocity, now);
 
     this.startFilterEnvelope(now);
     this.startAmpEnvelope(velocity, now);
@@ -331,7 +308,7 @@ class Voice {
   }
 
   setMixLevel(key, level, now) {
-    this.mixGains[key].gain.setTargetAtTime(level, now, 0.015);
+    this.mixer.setLevel(key, level, now);
   }
 
   lfoNodes(lfoNum, dest) {
