@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.8), scripts & metadata
+├── package.json            # Versioning (v1.8.9), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -64,6 +64,7 @@ websynth/
 │   ├── fm-presets.js       # FM-4 factory presets (FM_FACTORY_PRESETS, FM_INIT_PRESET)
 │   ├── fm-voice.js         # FM-4 voice: 4 operators wired by algorithm, per-operator ADSR, vibrato
 │   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): algorithm, operator ratio/detune/level, vibrato
+│   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from Operator.ALGORITHMS (DOM-free)
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync

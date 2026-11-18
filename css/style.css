@@ -187,15 +187,106 @@ body {
   color: var(--led-amber);
 }
 
-/* FM-4 algorithm routing list */
-.fm-algorithm-legend {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1px;
+/* FM-4 algorithm routing display (LCD) */
+.fm-alg-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, #04120c 0%, #020a07 100%);
+  border: 1px solid rgba(0, 255, 136, 0.18);
+  border-radius: 4px;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8), inset 0 0 2px rgba(0, 255, 136, 0.25);
   font-family: var(--font-mono);
+  color: var(--led-green);
+}
+
+.fm-alg-display-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px var(--led-green-glow);
+}
+
+.fm-alg-key {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.5rem;
-  color: #8a94a8;
-  letter-spacing: 0.3px;
+  color: rgba(0, 255, 136, 0.6);
+  text-shadow: none;
+}
+
+.fm-alg-key i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--led-green);
+  border-radius: 1px;
+}
+
+.fm-alg-key i.carrier {
+  background: var(--led-green);
+}
+
+.fm-alg-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 92px;
+}
+
+.fm-alg-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 150px;
+  overflow: visible;
+}
+
+.fm-alg-edge,
+.fm-alg-out {
+  stroke: var(--led-green);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.fm-alg-out {
+  opacity: 0.5;
+}
+
+.fm-alg-op rect {
+  fill: #031a10;
+  stroke: var(--led-green);
+  stroke-width: 1.2;
+}
+
+.fm-alg-op text {
+  fill: var(--led-green);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.fm-alg-op.carrier rect {
+  fill: var(--led-green);
+  filter: drop-shadow(0 0 3px var(--led-green-glow));
+}
+
+.fm-alg-op.carrier text {
+  fill: #021008;
+}
+
+.fm-alg-caption {
+  font-size: 0.55rem;
+  letter-spacing: 0.5px;
+  color: rgba(0, 255, 136, 0.75);
+  text-align: center;
 }
 
 .status-pill {

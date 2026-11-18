@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.8</span>
+          <span class="version-tag">v1.8.9</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -752,17 +752,14 @@ window.addEventListener('DOMContentLoaded', () => {
                   <div class="vco-section-block">
                     <div class="vco-section-header">
                       <span>ROUTING</span>
-                      <span class="tag">MOD → CARRIER</span>
                     </div>
-                    <div class="fm-algorithm-legend">
-                      <span>1: 4→3→2→1</span>
-                      <span>2: (4+3)→2→1</span>
-                      <span>3: 4→1, 3→2→1</span>
-                      <span>4: 4→3→1, 2→1</span>
-                      <span>5: 4→3, 2→1 · Träger 1+3</span>
-                      <span>6: 4→1, 4→2, 4→3 · Träger 1+2+3</span>
-                      <span>7: 4→3 · Träger 1+2+3</span>
-                      <span>8: alle vier parallel (additiv)</span>
+                    <div class="fm-alg-display">
+                      <div class="fm-alg-display-head">
+                        <span id="fmAlgorithmNumber">ALG 1</span>
+                        <span class="fm-alg-key"><i class="carrier"></i>CARRIER <i></i>MOD</span>
+                      </div>
+                      <div class="fm-alg-screen" id="fmAlgorithmDiagram"></div>
+                      <div class="fm-alg-caption" id="fmAlgorithmCaption"></div>
                     </div>
                   </div>
                 </div>
@@ -1519,7 +1516,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.8</span>
+            <span class="release-version-number">v1.8.9</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1538,7 +1535,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <p>Oben links unter RETROVOX wählst du jetzt den Synthesizer. Die Seite lädt neu und merkt sich die Wahl.</p>
               <ul>
                 <li><strong>4 Operatoren:</strong> Ratio, Feinverstimmung, Pegel und eine eigene ADSR pro Operator (Tabs OP 1-4 über den Fadern).</li>
-                <li><strong>8 Algorithmen:</strong> vom seriellen Stapel 4→3→2→1 bis zu vier parallelen Trägern für Orgelklänge.</li>
+                <li><strong>8 Algorithmen:</strong> vom seriellen Stapel 4→3→2→1 bis zu vier parallelen Trägern für Orgelklänge. Ein grünes Display zeigt das Routing des gewählten Algorithmus.</li>
                 <li><strong>Presets:</strong> Tine Piano, Glass Bell, Slap Bass, FM Brass, Drawbar Organ, Marimba. User-Presets bleiben pro Synth getrennt.</li>
               </ul>
             </div>
@@ -1759,6 +1756,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/fm-presets.js"></script>
   <script src="js/fm-voice.js"></script>
   <script src="js/fm-engine.js"></script>
+  <script src="js/fm-algorithm-display.js"></script>
   <script src="js/drum-kits.js"></script>
   <script src="js/drum-engine.js"></script>
   <script src="js/drum-ui.js"></script>

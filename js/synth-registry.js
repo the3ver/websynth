@@ -43,7 +43,13 @@ const SYNTH_DEFINITIONS = {
     createEngine: () => new FmEngine(),
     params: FmParams,
     buttonGroups: [
-      { path: 'algorithm', selector: '#fmAlgorithmRow .fm-alg-btn', key: 'alg', parse: (v) => parseInt(v, 10) },
+      {
+        path: 'algorithm',
+        selector: '#fmAlgorithmRow .fm-alg-btn',
+        key: 'alg',
+        parse: (v) => parseInt(v, 10),
+        onRender: (alg) => window.FmAlgorithmDisplay.render(alg)
+      },
       { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' }
     ],
     toggles: [],
