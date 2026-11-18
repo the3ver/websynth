@@ -1,40 +1,45 @@
 /**
  * FM-4 • ALGORITHM ROUTING DISPLAY
- * Draws the operator routing of SynthBlocks.Operator.ALGORITHMS as a small LCD-style SVG.
- * Carriers sit on the bottom row and feed the OUT bus; each modulator sits one row above the
+ * Draws the routing of FmAlgorithms.ALGORITHMS as a small LCD-style SVG: operators C, A, B1, B2,
+ * modulation lines, a feedback loop on the feedback operator and the two outputs X and Y.
+ * Operators that modulate nothing sit on the bottom row; a modulator sits one row above the
  * deepest operator it modulates, centred over its targets.
- * layout() and svg() are DOM-free (unit tested); render() writes into an element.
+ * layout() and svg() are DOM-free (unit tested); render() writes into the panel.
  */
 const FmAlgorithmDisplay = (() => {
   const BOX = 22;      // operator box size
   const COL = 36;      // horizontal distance between columns
   const ROW = 34;      // vertical distance between rows
-  const PAD = 6;
-  const OUT_GAP = 14;  // carrier box bottom to OUT bus
+  const PAD = 10;
+  const BUS_GAP = 12;  // bottom box edge to bus X; bus Y sits BUS_STEP below
+  const BUS_STEP = 9;
 
   /**
    * Grid positions for one algorithm.
-   * Returns { nodes: [{ op, row, x, carrier }], edges: [[from, to]], carriers, rows }
-   * row 0 = carriers; x in column units, centred on 0.
+   * Returns { nodes: [{ op, name, row, x, out: 'x' | 'y' | null, feedback }], edges, x, y, rows }
+   * row 0 = bottom; x in column units, centred on 0.
    */
   function layout(algorithm) {
-    const alg = SynthBlocks.Operator.ALGORITHMS[algorithm];
+    const alg = FmAlgorithms.ALGORITHMS[algorithm];
     if (!alg) return null;
     const targets = (op) => alg.mods.filter(([from]) => from === op).map(([, to]) => to);
 
     const rowOf = {};
     const depth = (op) => {
-      if (rowOf[op] !== undefined) return rowOf[op];
-      const t = targets(op);
-      rowOf[op] = t.length ? 1 + Math.max(...t.map(depth)) : 0;
+      if (rowOf[op] === undefined) {
+        const t = targets(op);
+        rowOf[op] = t.length ? 1 + Math.max(...t.map(depth)) : 0;
+      }
       return rowOf[op];
     };
     const ops = [1, 2, 3, 4];
     ops.forEach(depth);
 
+    // Bottom row left to right: output X operators, unrouted ones, output Y operators
+    const side = (op) => (alg.x.includes(op) ? alg.x.indexOf(op) : alg.y.includes(op) ? 20 + alg.y.indexOf(op) : 10 + op);
     const x = {};
-    const carriers = ops.filter((op) => rowOf[op] === 0);
-    carriers.forEach((op, i) => { x[op] = i - (carriers.length - 1) / 2; });
+    const bottom = ops.filter((op) => rowOf[op] === 0).sort((a, b) => side(a) - side(b));
+    bottom.forEach((op, i) => { x[op] = i - (bottom.length - 1) / 2; });
 
     const rows = Math.max(...ops.map((op) => rowOf[op])) + 1;
     for (let row = 1; row < rows; row++) {
@@ -51,37 +56,53 @@ const FmAlgorithmDisplay = (() => {
       }
     }
 
+    const outOf = (op) => (alg.x.includes(op) ? 'x' : alg.y.includes(op) ? 'y' : null);
     return {
-      nodes: ops.map((op) => ({ op, row: rowOf[op], x: x[op], carrier: rowOf[op] === 0 })),
+      nodes: ops.map((op) => ({
+        op,
+        name: FmAlgorithms.NAMES[op],
+        row: rowOf[op],
+        x: x[op],
+        out: outOf(op),
+        feedback: alg.feedback === op
+      })),
       edges: alg.mods.map(([from, to]) => [from, to]),
-      carriers,
+      x: alg.x,
+      y: alg.y,
       rows
     };
   }
 
-  // One-line routing summary, e.g. "4→3 2→1 · OUT 1+3"
+  // One-line routing summary, e.g. "A>C B2>B1 · FB B2 · X C · Y B1"
   function caption(algorithm) {
-    const alg = SynthBlocks.Operator.ALGORITHMS[algorithm];
+    const alg = FmAlgorithms.ALGORITHMS[algorithm];
     if (!alg) return '';
-    const mods = alg.mods.map(([from, to]) => `${from}→${to}`).join(' ');
-    return `${mods ? mods + ' · ' : ''}OUT ${alg.carriers.join('+')}`;
+    const name = (op) => FmAlgorithms.NAMES[op];
+    const mods = alg.mods.map(([from, to]) => `${name(from)}→${name(to)}`).join(' ');
+    return `${mods} · FB ${name(alg.feedback)} · X ${alg.x.map(name).join('+')} · Y ${alg.y.map(name).join('+')}`;
   }
 
   function svg(algorithm) {
     const l = layout(algorithm);
     if (!l) return '';
+    // Fixed canvas for 4 columns and 4 rows, so the display keeps its size for every algorithm;
+    // the routing sits centred horizontally and on the bottom (next to the buses)
     const xs = l.nodes.map((n) => n.x);
     const minX = Math.min(...xs);
-    const width = (Math.max(...xs) - minX) * COL + BOX + PAD * 2;
-    const height = (l.rows - 1) * ROW + BOX + OUT_GAP + PAD * 2;
+    const contentWidth = (Math.max(...xs) - minX) * COL + BOX;
+    const width = 3 * COL + BOX + PAD * 2 + 16;
+    const busX = PAD + 3 * ROW + BOX + BUS_GAP;
+    const busY = busX + BUS_STEP;
+    const height = busY + 10;
+    const left0 = (width - contentWidth) / 2;
     const pos = {};
     for (const n of l.nodes) {
       pos[n.op] = {
-        cx: PAD + BOX / 2 + (n.x - minX) * COL,
-        top: PAD + (l.rows - 1 - n.row) * ROW
+        cx: left0 + BOX / 2 + (n.x - minX) * COL,
+        top: PAD + (3 - n.row) * ROW,
+        row: n.row
       };
     }
-    const busY = PAD + (l.rows - 1) * ROW + BOX + OUT_GAP - 4;
     const parts = [];
 
     for (const [from, to] of l.edges) {
@@ -89,17 +110,46 @@ const FmAlgorithmDisplay = (() => {
       const b = pos[to];
       parts.push(`<line class="fm-alg-edge" x1="${a.cx}" y1="${a.top + BOX}" x2="${b.cx}" y2="${b.top}"/>`);
     }
-    const carrierX = l.carriers.map((op) => pos[op].cx);
-    for (const op of l.carriers) {
-      parts.push(`<line class="fm-alg-out" x1="${pos[op].cx}" y1="${pos[op].top + BOX}" x2="${pos[op].cx}" y2="${busY}"/>`);
+
+    // Outputs: bottom-row operators drop straight down, higher ones leave on their right side
+    const busLines = { x: [], y: [] };
+    for (const n of l.nodes) {
+      if (!n.out) continue;
+      const { cx, top, row } = pos[n.op];
+      const busYPos = n.out === 'x' ? busX : busY;
+      const cls = `fm-alg-out out-${n.out}`;
+      if (row === 0) {
+        parts.push(`<line class="${cls}" x1="${cx}" y1="${top + BOX}" x2="${cx}" y2="${busYPos}"/>`);
+        busLines[n.out].push(cx);
+      } else {
+        const sx = cx + BOX / 2 + 4;
+        parts.push(`<polyline class="${cls}" points="${cx + BOX / 2},${top + BOX / 2} ${sx},${top + BOX / 2} ${sx},${busYPos}"/>`);
+        busLines[n.out].push(sx);
+      }
     }
-    parts.push(`<line class="fm-alg-out" x1="${Math.min(...carrierX) - 6}" y1="${busY}" x2="${Math.max(...carrierX) + 6}" y2="${busY}"/>`);
+    for (const [bus, yPos] of [['x', busX], ['y', busY]]) {
+      const pts = busLines[bus];
+      const left = Math.min(...pts);
+      const right = Math.max(...pts);
+      if (bus === 'x') {
+        parts.push(`<line class="fm-alg-out out-x" x1="${left - 6}" y1="${yPos}" x2="${right}" y2="${yPos}"/>`);
+        parts.push(`<text class="fm-alg-bus" x="${left - 9}" y="${yPos}">X</text>`);
+      } else {
+        parts.push(`<line class="fm-alg-out out-y" x1="${left}" y1="${yPos}" x2="${right + 6}" y2="${yPos}"/>`);
+        parts.push(`<text class="fm-alg-bus" x="${right + 9}" y="${yPos}">Y</text>`);
+      }
+    }
+
     for (const n of l.nodes) {
       const { cx, top } = pos[n.op];
-      const cls = n.carrier ? 'fm-alg-op carrier' : 'fm-alg-op';
+      const left = cx - BOX / 2;
+      if (n.feedback) {
+        parts.push(`<polyline class="fm-alg-fb" points="${left},${top + 7} ${left - 5},${top + 7} ${left - 5},${top - 5} ${cx},${top - 5} ${cx},${top}"/>`);
+      }
+      const cls = n.out ? 'fm-alg-op carrier' : 'fm-alg-op';
       parts.push(
-        `<g class="${cls}"><rect x="${cx - BOX / 2}" y="${top}" width="${BOX}" height="${BOX}" rx="3"/>` +
-        `<text x="${cx}" y="${top + BOX / 2}">${n.op}</text></g>`
+        `<g class="${cls}"><rect x="${left}" y="${top}" width="${BOX}" height="${BOX}" rx="3"/>` +
+        `<text x="${cx}" y="${top + BOX / 2}">${n.name}</text></g>`
       );
     }
 

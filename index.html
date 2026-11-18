@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.10</span>
+          <span class="version-tag">v1.8.11</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -203,7 +203,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 <span class="badge-title" data-synth="sub1">RETROVOX SUB-1</span>
                 <span class="badge-tech" data-synth="sub1">DUAL-VCO • 24dB VCF • DUAL-LFO • STEREO FX</span>
                 <span class="badge-title" data-synth="fm">RETROVOX FM-4</span>
-                <span class="badge-tech" data-synth="fm">4-OP FM • 8 ALGORITHMS • VIBRATO • STEREO FX</span>
+                <span class="badge-tech" data-synth="fm">4-OP FM • 8 ALGORITHMS • FEEDBACK • X/Y MIX</span>
               </div>
 
               <!-- Center: Hardware LCD Preset Manager Bay -->
@@ -244,11 +244,11 @@ window.addEventListener('DOMContentLoaded', () => {
               </button>
               <button class="mobile-tab-btn active" data-synth="fm" data-tab="fm-ops-a" data-slide-index="0">
                 <span class="tab-icon">🎛️</span>
-                <span class="mobile-tab-title">OP 1-2 &amp; ALG</span>
+                <span class="mobile-tab-title">C · A &amp; ALG</span>
               </button>
               <button class="mobile-tab-btn" data-synth="fm" data-tab="fm-ops-b" data-slide-index="1">
                 <span class="tab-icon">🔊</span>
-                <span class="mobile-tab-title">OP 3-4 &amp; VIB</span>
+                <span class="mobile-tab-title">B · FB · MIX</span>
               </button>
               <button class="mobile-tab-btn" data-tab="env-fx" data-slide-index="2">
                 <span class="tab-icon">⚡</span>
@@ -639,22 +639,22 @@ window.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
-            <!-- FM-4 Slide 1: Operators 1 & 2 + Algorithm -->
+            <!-- FM-4 Slide 1: Operators C & A + Algorithm -->
             <div class="module-slide" data-synth="fm" data-slide="fm-ops-a" data-slide-index="0">
                 <div class="module-bay vco-module active-module" data-tab-group="fm-ops-a">
                   <div class="module-title">
-                    <span>01 // OPERATORS 1 &amp; 2</span>
+                    <span>01 // OPERATORS C &amp; A</span>
                     <span class="module-led cyan"></span>
                   </div>
                 <div class="vco-subgrid">
                   <div class="vco-section-block">
                     <div class="vco-section-header">
-                      <span>OPERATOR 1</span>
-                      <span class="tag">SINE</span>
+                      <span>OPERATOR C</span>
+                      <span class="tag">CARRIER</span>
                     </div>
                     <div class="knobs-row">
                       <div class="synth-knob-wrapper">
-                        <div class="synth-knob-housing" data-param="fm-op1-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                        <div class="synth-knob-housing" data-param="fm-op1-ratio" data-values="0.25,0.5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16" data-default="1" data-type="ratio">
                           <div class="synth-knob-dial">
                             <div class="knob-pointer"></div>
                             <div class="knob-dial-center"></div>
@@ -690,12 +690,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
                   <div class="vco-section-block">
                     <div class="vco-section-header">
-                      <span>OPERATOR 2</span>
-                      <span class="tag">SINE</span>
+                      <span>OPERATOR A</span>
+                      <span class="tag">MODULATOR</span>
                     </div>
                     <div class="knobs-row">
                       <div class="synth-knob-wrapper">
-                        <div class="synth-knob-housing" data-param="fm-op2-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                        <div class="synth-knob-housing" data-param="fm-op2-ratio" data-values="0.25,0.5,0.75,1,1.41,1.5,1.73,2,2.5,2.82,3,3.14,3.5,4,4.24,5,5.5,6,6.28,7,8,9,10,11,12,13,14,15,16" data-default="1" data-type="ratio">
                           <div class="synth-knob-dial">
                             <div class="knob-pointer"></div>
                             <div class="knob-dial-center"></div>
@@ -738,57 +738,52 @@ window.addEventListener('DOMContentLoaded', () => {
                   </div>
                 <div class="vco-subgrid" id="fmAlgorithmRow">
                   <div class="filter-mode-row">
-                    <button class="filter-mode-btn fm-alg-btn active" data-alg="1" title="Algorithmus 1: 4→3→2→1">ALG 1</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="2" title="Algorithmus 2: (4+3)→2→1">ALG 2</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="3" title="Algorithmus 3: 4→1, 3→2→1">ALG 3</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="4" title="Algorithmus 4: 4→3→1, 2→1">ALG 4</button>
+                    <button class="filter-mode-btn fm-alg-btn active" data-alg="1" title="Algorithmus 1: A→C, B2→B1→C · FB A · X C · Y B1">1</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="2" title="Algorithmus 2: A→C, B2→B1 · FB B2 · X C · Y B1">2</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="3" title="Algorithmus 3: A→C, A→B2, A→B1 · FB A · X C+B2 · Y B1">3</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="4" title="Algorithmus 4: B2→B1→A→C · FB B2 · X C · Y A">4</button>
                   </div>
                   <div class="filter-mode-row">
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="5" title="Algorithmus 5: 4→3, 2→1 · Träger 1+3">ALG 5</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="6" title="Algorithmus 6: 4→1, 4→2, 4→3 · Träger 1+2+3">ALG 6</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="7" title="Algorithmus 7: 4→3 · Träger 1+2+3">ALG 7</button>
-                    <button class="filter-mode-btn fm-alg-btn" data-alg="8" title="Algorithmus 8: alle vier parallel (additiv)">ALG 8</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="5" title="Algorithmus 5: B1→A, B2→A, A→C · FB B1 · X C · Y A">5</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="6" title="Algorithmus 6: A→C, A→B1, B2→C, B2→B1 · FB A · X C · Y B1">6</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="7" title="Algorithmus 7: A→C, B2→B1 · FB A · X C+A · Y B1+B2">7</button>
+                    <button class="filter-mode-btn fm-alg-btn" data-alg="8" title="Algorithmus 8: A→C · FB B1 · X C+B2 · Y B1">8</button>
                   </div>
-                  <div class="vco-section-block">
-                    <div class="vco-section-header">
-                      <span>ROUTING</span>
+                  <div class="fm-alg-display">
+                    <div class="fm-alg-display-head">
+                      <span id="fmAlgorithmNumber">ALG 1</span>
+                      <span class="fm-alg-key"><i class="carrier"></i>OUT <i></i>MOD</span>
                     </div>
-                    <div class="fm-alg-display">
-                      <div class="fm-alg-display-head">
-                        <span id="fmAlgorithmNumber">ALG 1</span>
-                        <span class="fm-alg-key"><i class="carrier"></i>CARRIER <i></i>MOD</span>
-                      </div>
-                      <div class="fm-alg-screen" id="fmAlgorithmDiagram"></div>
-                      <div class="fm-alg-caption" id="fmAlgorithmCaption"></div>
-                    </div>
+                    <div class="fm-alg-screen" id="fmAlgorithmDiagram"></div>
+                    <div class="fm-alg-caption" id="fmAlgorithmCaption"></div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- FM-4 Slide 2: Operators 3 & 4 + Vibrato -->
+            <!-- FM-4 Slide 2: Operators B1 & B2 + Feedback, Mix, Vibrato -->
             <div class="module-slide" data-synth="fm" data-slide="fm-ops-b" data-slide-index="1">
                 <div class="module-bay vco-module active-module" data-tab-group="fm-ops-b">
                   <div class="module-title">
-                    <span>03 // OPERATORS 3 &amp; 4</span>
+                    <span>03 // OPERATORS B1 &amp; B2</span>
                     <span class="module-led cyan"></span>
                   </div>
                 <div class="vco-subgrid">
                   <div class="vco-section-block">
                     <div class="vco-section-header">
-                      <span>OPERATOR 3</span>
-                      <span class="tag">SINE</span>
+                      <span>OPERATOR B1</span>
+                      <span class="tag">B GROUP</span>
                     </div>
                     <div class="knobs-row">
                       <div class="synth-knob-wrapper">
-                        <div class="synth-knob-housing" data-param="fm-op3-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
+                        <div class="synth-knob-housing" data-param="fm-b-ratio" data-min="0" data-max="483" data-step="1" data-default="69" data-type="bratio" title="B2 läuft durch alle Stufen, dann rückt B1 eine Stufe weiter (wie Uhrzeiger)">
                           <div class="synth-knob-dial">
                             <div class="knob-pointer"></div>
                             <div class="knob-dial-center"></div>
                           </div>
                         </div>
-                        <span class="knob-label-text">RATIO</span>
-                        <span class="knob-readout-badge" id="fm-op3-ratio-readout">1:1</span>
+                        <span class="knob-label-text">RATIO B1/B2</span>
+                        <span class="knob-readout-badge" id="fm-b-ratio-readout">1 / 1</span>
                       </div>
 
                       <div class="synth-knob-wrapper">
@@ -817,21 +812,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
                   <div class="vco-section-block">
                     <div class="vco-section-header">
-                      <span>OPERATOR 4</span>
-                      <span class="tag">SINE</span>
+                      <span>OPERATOR B2</span>
+                      <span class="tag">B GROUP</span>
                     </div>
                     <div class="knobs-row">
-                      <div class="synth-knob-wrapper">
-                        <div class="synth-knob-housing" data-param="fm-op4-ratio" data-min="0.5" data-max="16" data-step="0.5" data-default="1" data-type="ratio">
-                          <div class="synth-knob-dial">
-                            <div class="knob-pointer"></div>
-                            <div class="knob-dial-center"></div>
-                          </div>
-                        </div>
-                        <span class="knob-label-text">RATIO</span>
-                        <span class="knob-readout-badge" id="fm-op4-ratio-readout">1:1</span>
-                      </div>
-
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fm-op4-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
                           <div class="synth-knob-dial">
@@ -860,10 +844,40 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 <div class="module-bay lfo-module active-module" data-tab-group="fm-ops-b">
                   <div class="module-title">
-                    <span>04 // VIBRATO &amp; MOD</span>
+                    <span>04 // FEEDBACK · MIX · VIB</span>
                     <span class="module-led amber"></span>
                   </div>
                 <div class="vco-subgrid">
+                  <div class="vco-section-block">
+                    <div class="vco-section-header">
+                      <span>OUTPUT</span>
+                      <span class="tag">X ↔ Y</span>
+                    </div>
+                    <div class="knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-feedback" data-min="0" data-max="1" data-step="0.01" data-default="0" data-type="percent" title="Selbstmodulation des Feedback-Operators im gewählten Algorithmus">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">FEEDBACK</span>
+                        <span class="knob-readout-badge" id="fm-feedback-readout">0%</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fm-mix" data-min="0" data-max="1" data-step="0.01" data-default="0" data-type="percent" title="0 % = nur Ausgang X, 100 % = nur Ausgang Y">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">MIX X/Y</span>
+                        <span class="knob-readout-badge" id="fm-mix-readout">0%</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="vco-section-block">
                     <div class="vco-section-header">
                       <span>SINE VIBRATO</span>
@@ -912,10 +926,10 @@ window.addEventListener('DOMContentLoaded', () => {
                   <div class="env-tab-group" id="envTabGroup">
                     <button class="env-tab-btn active" data-synth="sub1" data-target="amp" title="VCA Lautstärke-Hüllkurve">VCA (AMP)</button>
                     <button class="env-tab-btn" data-synth="sub1" data-target="filter" title="VCF Filter Cutoff-Hüllkurve">VCF (FILTER)</button>
-                    <button class="env-tab-btn active" data-synth="fm" data-target="op1" title="Hüllkurve Operator 1">OP 1</button>
-                    <button class="env-tab-btn" data-synth="fm" data-target="op2" title="Hüllkurve Operator 2">OP 2</button>
-                    <button class="env-tab-btn" data-synth="fm" data-target="op3" title="Hüllkurve Operator 3">OP 3</button>
-                    <button class="env-tab-btn" data-synth="fm" data-target="op4" title="Hüllkurve Operator 4">OP 4</button>
+                    <button class="env-tab-btn active" data-synth="fm" data-target="op1" title="Hüllkurve Operator C">C</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op2" title="Hüllkurve Operator A">A</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op3" title="Hüllkurve Operator B1">B1</button>
+                    <button class="env-tab-btn" data-synth="fm" data-target="op4" title="Hüllkurve Operator B2">B2</button>
                   </div>
 
                   <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
@@ -1516,7 +1530,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.10</span>
+            <span class="release-version-number">v1.8.11</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1534,8 +1548,8 @@ window.addEventListener('DOMContentLoaded', () => {
               <h3>RETROVOX FM-4</h3>
               <p>Oben links unter RETROVOX wählst du jetzt den Synthesizer. Die Seite lädt neu und merkt sich die Wahl.</p>
               <ul>
-                <li><strong>4 Operatoren:</strong> Ratio, Feinverstimmung, Pegel und eine eigene ADSR pro Operator (Tabs OP 1-4 über den Fadern).</li>
-                <li><strong>8 Algorithmen:</strong> vom seriellen Stapel 4→3→2→1 bis zu vier parallelen Trägern für Orgelklänge. Ein grünes Display zeigt das Routing des gewählten Algorithmus.</li>
+                <li><strong>4 Operatoren C, A, B1, B2:</strong> Feinverstimmung, Pegel und eine eigene ADSR pro Operator (Tabs über den Fadern). Ratio: C fast nur ganzzahlig, A auch unharmonisch, B1/B2 auf einem Regler wie Uhrzeiger.</li>
+                <li><strong>8 Algorithmen:</strong> je ein Feedback-Operator und zwei Ausgänge X und Y, der MIX-Regler blendet zwischen ihnen. Ein grünes Display zeigt das Routing.</li>
                 <li><strong>Presets:</strong> Tine Piano, Glass Bell, Slap Bass, FM Brass, Drawbar Organ, Marimba. User-Presets bleiben pro Synth getrennt.</li>
                 <li><strong>Eigenes Design:</strong> kühles Blau-Stahl statt Holz, jedes Poti zeigt seinen Wert als grün leuchtenden Ring.</li>
               </ul>
@@ -1742,7 +1756,6 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/lib/voice-pool.js"></script>
   <script src="js/lib/lfo.js"></script>
   <script src="js/lib/master-bus.js"></script>
-  <script src="js/lib/operator.js"></script>
   <script src="js/lib/param-table.js"></script>
   <script src="js/lib/effects.js"></script>
   <script src="js/dom-utils.js"></script>
@@ -1753,6 +1766,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/fx-chain.js"></script>
   <script src="js/poly-synth-engine.js"></script>
   <script src="js/audio-engine.js"></script>
+  <script src="js/fm-algorithms.js"></script>
   <script src="js/fm-params.js"></script>
   <script src="js/fm-presets.js"></script>
   <script src="js/fm-voice.js"></script>

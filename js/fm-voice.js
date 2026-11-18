@@ -1,9 +1,11 @@
 /**
  * FM-4 • SYNTH VOICE
- * Four SynthBlocks.Operators wired by the selected algorithm, one ADSR per operator, a vibrato
- * depth gain from the engine's LFO onto every operator's detune, and the carrier mix.
- * Built once on AudioContext startup and re-triggered without allocating nodes (Zero GC).
- * Reads the patch from its engine (algorithm, op1..op4, vibrato).
+ * One 'fm4-voice' AudioWorkletNode (js/worklets/fm-voice-processor.js) renders the four operators
+ * C, A, B1, B2 in the selected algorithm. This class drives its AudioParams: operator frequencies
+ * (ratio, fine detune, glide), one ADSR per operator on the operator gains, vibrato on the shared
+ * detune, plus algorithm, feedback and X/Y mix.
+ * Built once after the worklet module loaded and re-triggered without allocating nodes (Zero GC).
+ * Reads the patch from its engine (algorithm, feedback, mix, op1..op4, vibrato).
  */
 
 const FM_OPERATORS = [1, 2, 3, 4];
@@ -20,34 +22,46 @@ class FmVoice {
     this.baseFreq = 440;
     this.cleanupTimer = null;
     this.outputConnected = false;
-    this.carriers = new Set();
 
     const ctx = engine.ctx;
     const now = ctx.currentTime;
-    // Operators and their envelopes by number (index 0 unused)
+    this.node = new AudioWorkletNode(ctx, 'fm4-voice', {
+      numberOfInputs: 0,
+      numberOfOutputs: 1,
+      outputChannelCount: [1],
+      processorOptions: { algorithms: FmAlgorithms.ALGORITHMS }
+    });
+    const param = (name) => this.node.parameters.get(name);
+
+    // Operator params by number (index 0 unused): { frequency, gain }
     this.ops = [null];
     this.envelopes = [null];
     for (const n of FM_OPERATORS) {
-      const op = new SynthBlocks.Operator(ctx, now);
-      this.ops.push(op);
+      this.ops.push({ frequency: param(`freq${n}`), gain: param(`gain${n}`) });
       this.envelopes.push(new SynthBlocks.Envelope(engine.getOp(n).env, { range: [0.0001, Infinity], holdOnTrigger: true }));
     }
+    this.detune = param('detune');
+    this.algorithmParam = param('algorithm');
+    this.feedbackParam = param('feedback');
+    this.mixParam = param('mix');
 
     this.mix = ctx.createGain();
     this.mix.gain.setValueAtTime(FM_VOICE_PEAK_GAIN, now);
+    this.node.connect(this.mix);
 
-    // Vibrato: LFO (+-1) -> depth in cents -> every operator's detune
+    // Vibrato: LFO (+-1) -> depth in cents -> shared operator detune
     this.vibrato = ctx.createGain();
     this.vibrato.gain.setValueAtTime(engine.vibratoCents(), now);
     if (engine.vibratoLfo) engine.vibratoLfo.output.connect(this.vibrato);
-    for (const n of FM_OPERATORS) this.vibrato.connect(this.ops[n].detune);
+    this.vibrato.connect(this.detune);
 
     this.applyAlgorithm(now);
-    for (const n of FM_OPERATORS) this.ops[n].start(0);
+    this.applyFeedback(now);
+    this.applyMix(now);
   }
 
   /**
-   * Idle voices stay off the master bus, so silent voices cost no rendering
+   * Idle voices stay off the master bus; the worklet skips its sines while every envelope rests
    */
   setOutputConnected(on) {
     if (on === this.outputConnected) return;
@@ -56,18 +70,16 @@ class FmVoice {
     this.outputConnected = on;
   }
 
-  /**
-   * Rewires operator outputs for the engine's algorithm: modulators into frequency params,
-   * carriers into the mix (scaled so more carriers do not get louder)
-   */
   applyAlgorithm(now) {
-    const { mods, carriers } = SynthBlocks.Operator.ALGORITHMS[this.engine.algorithm];
-    for (const n of FM_OPERATORS) this.ops[n].disconnect();
-    for (const [from, to] of mods) this.ops[from].connect(this.ops[to].frequency);
-    for (const n of carriers) this.ops[n].connect(this.mix);
-    this.carriers = new Set(carriers);
-    this.mix.gain.setValueAtTime(FM_VOICE_PEAK_GAIN / carriers.length, now);
-    this.updateScales(now);
+    this.algorithmParam.setValueAtTime(this.engine.algorithm, now);
+  }
+
+  applyFeedback(now) {
+    this.feedbackParam.setValueAtTime(this.engine.feedback, now);
+  }
+
+  applyMix(now) {
+    this.mixParam.setValueAtTime(this.engine.mix, now);
   }
 
   // =========================================================================
@@ -109,7 +121,6 @@ class FmVoice {
       const peak = Math.max(0.0001, engine.getOp(n).level * velocity);
       this.envelopes[n].trigger([op.gain], now, { start: 0.00001, base: 0, peak });
     }
-    this.updateScales(now);
     return baseFreq;
   }
 
@@ -165,16 +176,6 @@ class FmVoice {
   }
 
   /**
-   * Modulator depth follows the modulator frequency; carriers pass at unity
-   */
-  updateScales(now) {
-    for (const n of FM_OPERATORS) {
-      const scale = this.carriers.has(n) ? 1.0 : SynthBlocks.Operator.modulationScale(this.baseFreq * this.opRatio(n));
-      this.ops[n].scaleParam.setValueAtTime(scale, now);
-    }
-  }
-
-  /**
    * Re-tunes a sounding voice after octave, ratio, detune or pitch bend changes
    */
   updateFrequencies(now) {
@@ -183,7 +184,6 @@ class FmVoice {
     for (const n of FM_OPERATORS) {
       this.ops[n].frequency.setTargetAtTime(this.baseFreq * this.opRatio(n), now, 0.015);
     }
-    this.updateScales(now);
   }
 
   setVibratoCents(cents, now) {

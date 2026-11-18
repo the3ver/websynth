@@ -2,63 +2,66 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadScripts } = require('./helpers/load-browser-script');
 
-const { FmAlgorithmDisplay, SynthBlocks } = loadScripts('lib/operator.js', 'fm-algorithm-display.js');
+const { FmAlgorithmDisplay, FmAlgorithms } = loadScripts('fm-algorithms.js', 'fm-algorithm-display.js');
 const { layout, caption, svg } = FmAlgorithmDisplay;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 const node = (l, op) => l.nodes.find((n) => n.op === op);
+const { C, A, B1, B2 } = FmAlgorithms;
 
-test('algorithm 1 is a vertical stack 4 over 3 over 2 over carrier 1', () => {
-  const l = layout(1);
-  assert.deepEqual(plain(l.carriers), [1]);
+test('algorithm 4 is a vertical stack B2 over B1 over A over C', () => {
+  const l = layout(4);
   assert.equal(l.rows, 4);
-  for (const op of [1, 2, 3, 4]) {
-    assert.equal(node(l, op).row, op - 1);
-    assert.equal(node(l, op).x, 0);
-  }
+  assert.deepEqual([C, A, B1, B2].map((op) => node(l, op).row), [0, 1, 2, 3]);
+  assert.ok(l.nodes.every((n) => n.x === 0));
+  assert.equal(node(l, C).out, 'x');
+  assert.equal(node(l, A).out, 'y');
+  assert.ok(node(l, B2).feedback);
 });
 
-test('algorithm 8 puts all four carriers side by side on one row', () => {
-  const l = layout(8);
-  assert.equal(l.rows, 1);
-  assert.deepEqual(plain(l.nodes.map((n) => n.x)), [-1.5, -0.5, 0.5, 1.5]);
-  assert.ok(l.nodes.every((n) => n.carrier && n.row === 0));
+test('algorithm 3: A sits centred above C, B2 and B1; C and B2 share output X', () => {
+  const l = layout(3);
+  assert.equal(node(l, A).row, 1);
+  assert.equal(node(l, A).x, node(l, B2).x);
+  assert.deepEqual(plain(l.x), [C, B2]);
+  assert.deepEqual(plain(l.y), [B1]);
 });
 
-test('algorithm 6: operator 4 sits centred above its three carriers', () => {
-  const l = layout(6);
-  assert.equal(node(l, 4).row, 1);
-  assert.equal(node(l, 4).x, node(l, 2).x);
-  assert.deepEqual(plain(l.edges), [[4, 1], [4, 2], [4, 3]]);
+test('algorithm 5: B1 and B2 both modulate A and do not overlap', () => {
+  const l = layout(5);
+  assert.equal(node(l, B1).row, node(l, B2).row);
+  assert.notEqual(node(l, B1).x, node(l, B2).x);
 });
 
-test('algorithm 2: two modulators of the same target do not overlap', () => {
-  const l = layout(2);
-  assert.equal(node(l, 3).row, node(l, 4).row);
-  assert.notEqual(node(l, 3).x, node(l, 4).x);
-});
-
-test('every algorithm: each modulator sits above every operator it modulates, no two boxes share a spot', () => {
-  for (const n of Object.keys(SynthBlocks.Operator.ALGORITHMS).map(Number)) {
+test('every algorithm: modulators sit above their targets, no two boxes share a spot, one feedback operator', () => {
+  for (const n of Object.keys(FmAlgorithms.ALGORITHMS).map(Number)) {
     const l = layout(n);
     assert.equal(l.nodes.length, 4, `alg ${n}`);
     for (const [from, to] of l.edges) assert.ok(node(l, from).row > node(l, to).row, `alg ${n}: ${from}->${to}`);
     const spots = l.nodes.map((nd) => `${nd.row}:${nd.x}`);
     assert.equal(new Set(spots).size, 4, `alg ${n}: ${spots}`);
-    assert.deepEqual(plain(l.nodes.filter((nd) => nd.carrier).map((nd) => nd.op)), plain(SynthBlocks.Operator.ALGORITHMS[n].carriers));
+    assert.equal(l.nodes.filter((nd) => nd.feedback).length, 1, `alg ${n} feedback`);
+    assert.ok(l.x.length > 0 && l.y.length > 0, `alg ${n} outputs`);
   }
 });
 
-test('caption lists modulations and carriers', () => {
-  assert.equal(caption(5), '4→3 2→1 · OUT 1+3');
-  assert.equal(caption(8), 'OUT 1+2+3+4');
+test('caption names modulations, feedback and both outputs', () => {
+  assert.equal(caption(2), 'A→C B2→B1 · FB B2 · X C · Y B1');
+  assert.equal(caption(7), 'A→C B2→B1 · FB A · X C+A · Y B1+B2');
 });
 
-test('svg draws 4 boxes, one line per modulation and the out bus', () => {
-  const s = svg(5);
+test('svg draws 4 named boxes, one line per modulation, a feedback loop and both buses', () => {
+  const s = svg(1);
   assert.equal((s.match(/<rect /g) || []).length, 4);
-  assert.equal((s.match(/class="fm-alg-edge"/g) || []).length, 2);
-  assert.equal((s.match(/class="fm-alg-op carrier"/g) || []).length, 2);
-  assert.ok(!/NaN|undefined/.test(s));
+  assert.equal((s.match(/class="fm-alg-edge"/g) || []).length, 3);
+  assert.equal((s.match(/class="fm-alg-fb"/g) || []).length, 1);
+  assert.ok(s.includes('>B1<') && s.includes('>C<'));
+  assert.ok(s.includes('>X<') && s.includes('>Y<'));
+  assert.ok(!/NaN|undefined|Infinity/.test(s));
+});
+
+test('every algorithm draws on the same canvas size, so the display never changes height', () => {
+  const sizes = Object.keys(FmAlgorithms.ALGORITHMS).map((n) => svg(Number(n)).match(/viewBox="([^"]+)"/)[1]);
+  assert.equal(new Set(sizes).size, 1, sizes.join(' | '));
 });
 
 test('unknown algorithms draw nothing', () => {

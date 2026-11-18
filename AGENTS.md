@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.10), scripts & metadata
+├── package.json            # Versioning (v1.8.11), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -48,7 +48,6 @@ websynth/
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
-│   │   ├── operator.js     # FM Operator (sine -> amp -> scale) and the 8 four-operator ALGORITHMS
 │   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
@@ -60,11 +59,14 @@ websynth/
 │   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
 │   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
 │   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
+│   ├── fm-algorithms.js    # FM-4 operators C/A/B1/B2, 8 algorithms (mods, feedback op, outputs X/Y), ratio steps, watch-hand B knob
 │   ├── fm-params.js        # FM-4 parameter table (FmParams)
 │   ├── fm-presets.js       # FM-4 factory presets (FM_FACTORY_PRESETS, FM_INIT_PRESET)
-│   ├── fm-voice.js         # FM-4 voice: 4 operators wired by algorithm, per-operator ADSR, vibrato
-│   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): algorithm, operator ratio/detune/level, vibrato
-│   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from Operator.ALGORITHMS (DOM-free)
+│   ├── fm-voice.js         # FM-4 voice: drives one 'fm4-voice' worklet node (operator freqs, ADSR gains, vibrato, alg/feedback/mix)
+│   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): loads the worklet, algorithm, feedback, X/Y mix, ratios, vibrato
+│   ├── worklets/
+│   │   └── fm-voice-processor.js # AudioWorklet: 4-op phase modulation per sample with feedback (FmVoiceCore, tested in Node)
+│   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from FmAlgorithms (DOM-free, fixed canvas)
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync

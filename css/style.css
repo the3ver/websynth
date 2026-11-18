@@ -237,15 +237,34 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 92px;
 }
 
 .fm-alg-svg {
   display: block;
-  max-width: 100%;
+  width: 100%;
+  max-width: 190px;
   height: auto;
-  max-height: 150px;
   overflow: visible;
+}
+
+.fm-alg-fb {
+  fill: none;
+  stroke: var(--led-green);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+polyline.fm-alg-out {
+  fill: none;
+}
+
+.fm-alg-bus {
+  fill: var(--led-green);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
 }
 
 .fm-alg-edge,
@@ -269,7 +288,7 @@ body {
 .fm-alg-op text {
   fill: var(--led-green);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-anchor: middle;
   dominant-baseline: central;
@@ -286,6 +305,10 @@ body {
 
 .fm-alg-caption {
   font-size: 0.55rem;
+  line-height: 1.25;
+  /* Room for three lines, so the display height never depends on the algorithm */
+  height: 3.75em;
+  overflow: hidden;
   letter-spacing: 0.5px;
   color: rgba(0, 255, 136, 0.75);
   text-align: center;
