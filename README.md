@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.9-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.10-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,9 +10,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.8.9: FM-4, der zweite Synthesizer
+### ⚡ NEU in v1.8.10: FM-4, der zweite Synthesizer
 - **🎛️ Synth-Auswahl:** Die Modellzeile oben links ist jetzt ein Auswahlfeld. Neben dem SUB-1 gibt es den RETROVOX FM-4; die Wahl lädt die Seite neu und bleibt gespeichert (direkt per `?synth=fm`).
 - **📡 FM-4:** 4 Sinus-Operatoren mit Ratio, Feinverstimmung, Pegel und eigener ADSR, 8 Algorithmen mit Routing-Display, Vibrato (Mod Wheel vertieft es), dieselben Stereo-Effekte. 6 Factory-Presets: Tine Piano, Glass Bell, Slap Bass, FM Brass, Drawbar Organ, Marimba. User-Presets speichert jeder Synth getrennt.
+- **❄️ Eigenes Gesicht:** Der FM-4 trägt kühles Blau-Stahl mit Aluminium-Seitenteilen statt Holz; jedes Poti zeigt seinen Wert als grün leuchtenden Ring.
 
 ### ⚡ NEU in v1.8.7: Keine hängenden Noten
 - **🎹 Hängende Noten:** Gleiten mit mehreren Fingern konnte einen Ton dauerhaft klingen lassen, auch nach Power Off oder Presetwechsel. Die Engine verliert erneut angeschlagene Noten nicht mehr, und Power Off/Presetwechsel lassen jede klingende Stimme los.
