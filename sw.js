@@ -1,10 +1,16 @@
 /**
  * RETROVOX SUB-1 & RETROBEAT D-909 • Progressive Web App Service Worker
- * Version: 1.8.14
+ * Version: 1.8.15
  * Provides 100% offline capability, app shell caching, and font asset caching.
+ *
+ * One release = one cache (SHELL_CACHE, named after CACHE_VERSION). HTML and assets of a page load
+ * always come from the same cache, so a new index.html never runs with old scripts or the other
+ * way round. A release reaches the page like this: the browser finds a changed sw.js, the new
+ * worker precaches its shell from the network (past the HTTP cache), takes over, and
+ * pwa-manager.js reloads the page on controllerchange.
  */
 
-const CACHE_VERSION = 'v1.8.14';
+const CACHE_VERSION = 'v1.8.15';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
@@ -70,7 +76,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE).then(async (cache) => {
       try {
-        await cache.addAll(PRECACHE_ASSETS);
+        // cache: 'reload' skips the browser HTTP cache, which may still hold the previous release
+        await cache.addAll(PRECACHE_ASSETS.map((url) => new Request(url, { cache: 'reload' })));
       } catch (err) {
         console.warn('[SW] Pre-caching partial failure, continuing:', err);
       }
@@ -133,48 +140,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Local Same-Origin App Shell Assets
+  // 2. Local Same-Origin App Shell: cache of the running release first, network only for misses.
+  //    Nothing from the network is written into this release's cache (that would mix releases).
   if (url.origin === self.location.origin) {
-    // Navigation requests (HTML document)
-    if (request.mode === 'navigate') {
-      event.respondWith(
-        (async () => {
-          try {
-            // Attempt fast network fetch with a 1.5s timeout
-            const fetchPromise = fetch(request);
-            const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Network timeout')), 1500)
-            );
-            const networkResponse = await Promise.race([fetchPromise, timeoutPromise]);
-            if (networkResponse && networkResponse.status === 200) {
-              const cache = await caches.open(SHELL_CACHE);
-              cache.put(request, networkResponse.clone());
-              return networkResponse;
-            }
-          } catch (e) {
-            // Network failure or timeout -> fallback to cached index.html
-          }
-          const cached = await caches.match(request) || await caches.match('./index.html') || await caches.match('index.html');
-          return cached || new Response('Offline Studio ready', { status: 200, headers: { 'Content-Type': 'text/html' } });
-        })()
-      );
-      return;
-    }
-
-    // Static Assets (CSS, JS, Icons, Images) -> Cache-First with Stale-While-Revalidate
     event.respondWith(
-      caches.open(SHELL_CACHE).then(async (cache) => {
-        const cachedResponse = await cache.match(request, { ignoreSearch: true });
-        
-        const fetchPromise = fetch(request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            cache.put(request, networkResponse.clone());
+      (async () => {
+        const cache = await caches.open(SHELL_CACHE);
+        const cached = await cache.match(request, { ignoreSearch: true }) ||
+          (request.mode === 'navigate' ? await cache.match('./index.html') : undefined);
+        if (cached) return cached;
+        try {
+          return await fetch(request);
+        } catch (e) {
+          if (request.mode === 'navigate') {
+            return new Response('Offline Studio ready', { status: 200, headers: { 'Content-Type': 'text/html' } });
           }
-          return networkResponse;
-        }).catch(() => null);
-
-        return cachedResponse || (await fetchPromise) || new Response('Asset not found', { status: 404 });
-      })
+          return new Response('Asset not found', { status: 404 });
+        }
+      })()
     );
   }
 });
