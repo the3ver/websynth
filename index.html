@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.11</span>
+          <span class="version-tag">v1.8.12</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -750,10 +750,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     <button class="filter-mode-btn fm-alg-btn" data-alg="8" title="Algorithmus 8: A→C · FB B1 · X C+B2 · Y B1">8</button>
                   </div>
                   <div class="fm-alg-display">
-                    <div class="fm-alg-display-head">
-                      <span id="fmAlgorithmNumber">ALG 1</span>
-                      <span class="fm-alg-key"><i class="carrier"></i>OUT <i></i>MOD</span>
-                    </div>
                     <div class="fm-alg-screen" id="fmAlgorithmDiagram"></div>
                     <div class="fm-alg-caption" id="fmAlgorithmCaption"></div>
                   </div>
@@ -997,30 +993,29 @@ window.addEventListener('DOMContentLoaded', () => {
                 <div class="vco-subgrid">
                   
                   <!-- 1. JUNO STEREO BBD CHORUS -->
-                  <div class="fx-subpanel">
-                    <div class="fx-subpanel-title">
-                      <span>BBD STEREO CHORUS</span>
-                      <span class="fx-tag">JUNO ENSEMBLE</span>
-                    </div>
-
-                    <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+                  <div class="fx-subpanel fx-chorus-panel">
+                    <!-- Title and mode buttons stacked left, mix knob right: one row less -->
+                    <div class="fx-chorus-main">
+                      <div class="fx-subpanel-title">
+                        <span>BBD STEREO CHORUS</span>
+                      </div>
                       <!-- Chorus Mode Buttons (OFF, I, II, I+II) -->
-                      <div class="chorus-mode-row" id="chorusModeRow" style="flex: 2;">
+                      <div class="chorus-mode-row" id="chorusModeRow">
                         <button class="chorus-mode-btn active" data-mode="off" title="Chorus deaktiviert">OFF</button>
                         <button class="chorus-mode-btn" data-mode="I" title="Chorus I: Langsamer, warmer Swirl (0.45 Hz)">I</button>
                         <button class="chorus-mode-btn" data-mode="II" title="Chorus II: Schnellerer Schimmer (0.85 Hz)">II</button>
                         <button class="chorus-mode-btn" data-mode="I+II" title="Chorus I+II: Vibrato-Wobble (1.35 Hz)">I+II</button>
                       </div>
+                    </div>
 
                       <!-- Chorus Wet/Dry Mix Knob -->
-                      <div class="synth-knob-wrapper" style="flex: 1;">
+                      <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-chorus-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.65" data-type="percent">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
                         <span class="knob-label-text">C-MIX</span>
                         <span class="knob-readout-badge" id="fx-chorus-mix-readout">65%</span>
                       </div>
-                    </div>
                   </div>
 
                   <!-- 2. STEREO TAPE DELAY & REVERB -->
@@ -1530,7 +1525,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.11</span>
+            <span class="release-version-number">v1.8.12</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1551,7 +1546,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 <li><strong>4 Operatoren C, A, B1, B2:</strong> Feinverstimmung, Pegel und eine eigene ADSR pro Operator (Tabs über den Fadern). Ratio: C fast nur ganzzahlig, A auch unharmonisch, B1/B2 auf einem Regler wie Uhrzeiger.</li>
                 <li><strong>8 Algorithmen:</strong> je ein Feedback-Operator und zwei Ausgänge X und Y, der MIX-Regler blendet zwischen ihnen. Ein grünes Display zeigt das Routing.</li>
                 <li><strong>Presets:</strong> Tine Piano, Glass Bell, Slap Bass, FM Brass, Drawbar Organ, Marimba. User-Presets bleiben pro Synth getrennt.</li>
-                <li><strong>Eigenes Design:</strong> kühles Blau-Stahl statt Holz, jedes Poti zeigt seinen Wert als grün leuchtenden Ring.</li>
+                <li><strong>Eigenes Design:</strong> kühles Blau-Stahl statt Holz, jedes Poti zeigt seinen Wert als grün leuchtenden Ring. Mehr Platz für das Routing-Display, kompakterer Chorus.</li>
               </ul>
             </div>
           </div>

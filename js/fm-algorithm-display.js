@@ -161,10 +161,8 @@ const FmAlgorithmDisplay = (() => {
   function render(algorithm, doc = document) {
     const screen = doc.getElementById('fmAlgorithmDiagram');
     const label = doc.getElementById('fmAlgorithmCaption');
-    const number = doc.getElementById('fmAlgorithmNumber');
     if (screen) screen.innerHTML = svg(algorithm);
     if (label) label.textContent = caption(algorithm);
-    if (number) number.textContent = `ALG ${algorithm}`;
   }
 
   return { layout, caption, svg, render };
