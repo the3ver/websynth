@@ -136,6 +136,7 @@ class SynthUI {
     document.querySelectorAll(group.selector).forEach((btn) => {
       btn.classList.toggle('active', parse(btn.dataset[group.key]) === value);
     });
+    if (group.onRender) group.onRender(value);
   }
 
   initModuleControls() {
