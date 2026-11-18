@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.13</span>
+          <span class="version-tag">v1.8.14</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -991,43 +991,43 @@ window.addEventListener('DOMContentLoaded', () => {
                   <span class="module-led green"></span>
                 </div>
 
-                <div class="vco-subgrid">
-                  
-                  <!-- 1. JUNO STEREO BBD CHORUS -->
-                  <div class="fx-subpanel fx-chorus-panel">
-                    <!-- Title and mode buttons stacked left, mix knob right: one row less -->
-                    <div class="fx-chorus-main">
-                      <div class="fx-subpanel-title">
-                        <span>BBD STEREO CHORUS</span>
-                      </div>
-                      <!-- Chorus Mode Buttons (OFF, I, II, I+II) -->
-                      <div class="chorus-mode-row" id="chorusModeRow">
-                        <button class="chorus-mode-btn active" data-mode="off" title="Chorus deaktiviert">OFF</button>
-                        <button class="chorus-mode-btn" data-mode="I" title="Chorus I: Langsamer, warmer Swirl (0.45 Hz)">I</button>
-                        <button class="chorus-mode-btn" data-mode="II" title="Chorus II: Schnellerer Schimmer (0.85 Hz)">II</button>
-                        <button class="chorus-mode-btn" data-mode="I+II" title="Chorus I+II: Vibrato-Wobble (1.35 Hz)">I+II</button>
-                      </div>
-                    </div>
+                <div class="vco-subgrid fx-rack">
+                  <!-- Effect selector: shows one effect page at a time; the LED marks audible effects -->
+                  <div class="env-tab-group fx-tab-group" id="fxTabGroup">
+                    <button class="env-tab-btn fx-tab-btn active" data-target="chorus" title="Chorus einblenden"><i class="fx-led" data-fx-led="chorus"></i>CHORUS</button>
+                    <button class="env-tab-btn fx-tab-btn" data-target="delay" title="Delay einblenden"><i class="fx-led" data-fx-led="delay"></i>DELAY</button>
+                    <button class="env-tab-btn fx-tab-btn" data-target="reverb" title="Reverb einblenden"><i class="fx-led" data-fx-led="reverb"></i>REVERB</button>
+                  </div>
 
-                      <!-- Chorus Wet/Dry Mix Knob -->
+                  <div class="fx-page active" data-fx-page="chorus">
+                    <div class="fx-subpanel-title">
+                      <span>BBD STEREO CHORUS</span>
+                      <span class="fx-tag">STEREO</span>
+                    </div>
+                    <!-- Chorus Mode Buttons (OFF, I, II, I+II) -->
+                    <div class="chorus-mode-row" id="chorusModeRow">
+                      <button class="chorus-mode-btn active" data-mode="off" title="Chorus deaktiviert">OFF</button>
+                      <button class="chorus-mode-btn" data-mode="I" title="Chorus I: Langsamer, warmer Swirl (0.45 Hz)">I</button>
+                      <button class="chorus-mode-btn" data-mode="II" title="Chorus II: Schnellerer Schimmer (0.85 Hz)">II</button>
+                      <button class="chorus-mode-btn" data-mode="I+II" title="Chorus I+II: Vibrato-Wobble (1.35 Hz)">I+II</button>
+                    </div>
+                    <div class="fx-knobs-row">
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-chorus-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.65" data-type="percent">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
-                        <span class="knob-label-text">C-MIX</span>
+                        <span class="knob-label-text">MIX</span>
                         <span class="knob-readout-badge" id="fx-chorus-mix-readout">65%</span>
                       </div>
+                    </div>
                   </div>
 
-                  <!-- 2. STEREO TAPE DELAY & REVERB -->
-                  <div class="fx-subpanel">
+                  <div class="fx-page" data-fx-page="delay">
                     <div class="fx-subpanel-title">
-                      <span>TAPE DELAY & STUDIO REVERB</span>
-                      <span class="fx-tag">PING-PONG & SPACE</span>
+                      <span>TAPE DELAY</span>
+                      <span class="fx-tag">PING-PONG</span>
                     </div>
-
                     <div class="fx-knobs-row">
-                      <!-- Delay Time -->
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-delay-time" data-min="0.02" data-max="1.0" data-step="0.01" data-default="0.32" data-type="time">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
@@ -1036,25 +1036,30 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-readout-badge" id="fx-delay-time-readout">320 ms</span>
                       </div>
 
-                      <!-- Delay Feedback -->
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-delay-feedback" data-min="0.0" data-max="0.85" data-step="0.01" data-default="0.45" data-type="percent">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
-                        <span class="knob-label-text">F-BACK</span>
+                        <span class="knob-label-text">FEEDBACK</span>
                         <span class="knob-readout-badge" id="fx-delay-feedback-readout">45%</span>
                       </div>
 
-                      <!-- Delay Mix -->
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-delay-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
-                        <span class="knob-label-text">D-MIX</span>
+                        <span class="knob-label-text">MIX</span>
                         <span class="knob-readout-badge" id="fx-delay-mix-readout">0%</span>
                       </div>
+                    </div>
+                  </div>
 
-                      <!-- Reverb Decay -->
+                  <div class="fx-page" data-fx-page="reverb">
+                    <div class="fx-subpanel-title">
+                      <span>STUDIO REVERB</span>
+                      <span class="fx-tag">SPACE</span>
+                    </div>
+                    <div class="fx-knobs-row">
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-reverb-decay" data-min="0.5" data-max="8.0" data-step="0.1" data-default="3.2" data-type="time">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
@@ -1063,18 +1068,15 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-readout-badge" id="fx-reverb-decay-readout">3.20 s</span>
                       </div>
 
-                      <!-- Reverb Mix -->
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="fx-reverb-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
-                        <span class="knob-label-text">R-MIX</span>
+                        <span class="knob-label-text">MIX</span>
                         <span class="knob-readout-badge" id="fx-reverb-mix-readout">0%</span>
                       </div>
                     </div>
-
                   </div>
-
                 </div>
               </div>
               <!-- End of Slide 3 -->
@@ -1526,11 +1528,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.13</span>
+            <span class="release-version-number">v1.8.14</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1538,6 +1540,19 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
+            <div class="card-icon">🎲</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>RANDOM-Patch &amp; Effekt-Tasten</h3>
+              <p>Zwei Bedienhilfen für beide Synthesizer.</p>
+              <ul>
+                <li><strong>RANDOM:</strong> die Taste neben INIT würfelt einen spielbaren Patch. Oktave und Glide bleiben stehen, SAVE sichert einen Treffer als User-Preset.</li>
+                <li><strong>Effekt-Tasten:</strong> CHORUS, DELAY und REVERB blenden jeweils nur ihre Regler ein. Die LED an der Taste zeigt, ob der Effekt gerade hörbar ist.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
             <div class="card-icon">📡</div>
             <div class="card-content">
               <div class="card-badge perf-badge">NEUER SYNTH</div>

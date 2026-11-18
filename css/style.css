@@ -2457,20 +2457,6 @@ polyline.fm-alg-out {
   font-size: 0.46rem;
 }
 
-/* Chorus: title and mode buttons on the left, mix knob on the right */
-.fx-chorus-panel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.fx-chorus-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
 .chorus-mode-row {
   display: flex;
   gap: 2px;
@@ -2505,6 +2491,47 @@ polyline.fm-alg-out {
   color: #ffffff;
   box-shadow: 0 0 6px rgba(0, 255, 136, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
   text-shadow: 0 0 4px var(--led-green);
+}
+
+/* FX rack: effect tabs on top, one page with the chosen effect below */
+.fx-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.fx-led {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.fx-led.on {
+  background: var(--led-green);
+  box-shadow: 0 0 5px var(--led-green);
+}
+
+.fx-page {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.fx-page.active {
+  display: flex;
+}
+
+.fx-page .chorus-mode-row .chorus-mode-btn {
+  height: 24px;
 }
 
 .fx-knobs-row {

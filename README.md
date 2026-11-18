@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.13-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.14-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,9 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.14: Effekte mit Tasten
+- **🎛️ FX-Tabs:** Oben im Effekt-Modul wählen die Tasten CHORUS, DELAY und REVERB, welcher Effekt seine Regler zeigt. Jeder Effekt hat so die volle Breite. Eine LED an jeder Taste leuchtet, solange der Effekt hörbar ist.
 
 ### ⚡ NEU in v1.8.13: RANDOM-Patch
 - **🎲 RANDOM:** Die Taste neben INIT würfelt einen spielbaren Patch für den aktiven Synth (SUB-1 oder FM-4). Werte bleiben in musikalischen Grenzen, Oktave und Glide bleiben stehen. Gefällt der Klang, sichert SAVE ihn als User-Preset.

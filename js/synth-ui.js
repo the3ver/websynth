@@ -85,6 +85,7 @@ class SynthUI {
     const param = this.params.byKnob(knobId, this.currentLfoTarget);
     if (param) {
       param.set(this.engine, val);
+      if (knobId.startsWith('fx-')) this.renderFxLeds();
     } else if (this.arpKnobActions[knobId]) {
       this.arpKnobActions[knobId](val);
     }
@@ -146,6 +147,7 @@ class SynthUI {
         btn.addEventListener('click', () => {
           this.params.set(this.engine, this.groupPath(group), parse(btn.dataset[group.key]));
           this.renderButtonGroup(group);
+          this.renderFxLeds();
         });
       });
     }
@@ -165,6 +167,19 @@ class SynthUI {
       this.currentLfoTarget = parseInt(target, 10);
       this.syncControls();
     });
+
+    // FX rack: one effect page at a time, LEDs on the tabs mark the audible effects
+    this.fxPages = document.querySelectorAll('.fx-page');
+    this.fxLeds = document.querySelectorAll('[data-fx-led]');
+    this.initTabGroup('fxTabGroup', (target) => {
+      this.fxPages.forEach((page) => page.classList.toggle('active', page.dataset.fxPage === target));
+    });
+  }
+
+  renderFxLeds() {
+    if (!this.fxLeds) return;
+    const active = FXChain.activeEffects(this.engine.fx);
+    this.fxLeds.forEach((led) => led.classList.toggle('on', !!active[led.dataset.fxLed]));
   }
 
   renderToggle(toggle) {
@@ -182,6 +197,7 @@ class SynthUI {
     this.faders.forEach((fader) => fader.sync());
     this.synth.buttonGroups.forEach((group) => this.renderButtonGroup(group));
     this.toggles.forEach((toggle) => this.renderToggle(toggle));
+    this.renderFxLeds();
     if (this.glideToggle) this.glideToggle.checked = !!this.engine.glideEnabled;
     this.renderOctave();
   }

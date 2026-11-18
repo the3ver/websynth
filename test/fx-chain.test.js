@@ -70,3 +70,12 @@ test('reverb decay regenerates a stereo impulse of matching length', () => {
   assert.equal(buffer.numberOfChannels, 2);
   assert.equal(buffer.length, 2 * ctx.sampleRate);
 });
+
+test('activeEffects: an effect counts as on only when it is audible', () => {
+  const { context } = createLiveEngine();
+  const fx = (mode, cMix, dMix, rMix) => ({ chorus: { mode, mix: cMix }, delay: { mix: dMix }, reverb: { mix: rMix } });
+  const plain = (v) => JSON.parse(JSON.stringify(v));
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0.6, 0, 0))), { chorus: false, delay: false, reverb: false });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('I', 0.6, 0.2, 0))), { chorus: true, delay: true, reverb: false });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('II', 0, 0, 0.1))), { chorus: false, delay: false, reverb: true });
+});

@@ -16,6 +16,17 @@ class FXChain {
     this.delay.output.connect(this.reverb.input);
     this.reverb.output.connect(output);
   }
+
+  /**
+   * Which effects are audible with these settings (for the LEDs on the FX tabs)
+   */
+  static activeEffects(fx) {
+    return {
+      chorus: fx.chorus.mode !== 'off' && fx.chorus.mix > 0,
+      delay: fx.delay.mix > 0,
+      reverb: fx.reverb.mix > 0
+    };
+  }
 }
 
 window.FXChain = FXChain;
