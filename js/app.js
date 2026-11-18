@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-synth]').forEach((el) => {
     if (el.dataset.synth !== synth.id) el.remove();
   });
+  // Lets the stylesheet give each synth its own look
+  document.documentElement.dataset.activeSynth = synth.id;
 
   const synthSelect = document.getElementById('synthSelect');
   if (synthSelect) {

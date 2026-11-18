@@ -71,6 +71,7 @@ class Knob {
     this.value = this.defaultValue;
     this.onChange = onChange;
     this.cursor = 'ns-resize';
+    this.housing = housing;
     this.dial = housing.querySelector('.synth-knob-dial');
     this.readout = document.getElementById(`${this.param}-readout`);
 
@@ -100,6 +101,8 @@ class Knob {
   render() {
     const ratio = KnobScale.clampRatio(KnobScale.valueToRatio(this.spec, this.value));
     this.dial.style.transform = `rotate(${-135 + (ratio * 270)}deg)`;
+    // Knob position 0..1 for CSS (e.g. a level ring around the knob)
+    this.housing.style.setProperty('--knob-ratio', ratio.toFixed(4));
     if (this.readout) this.readout.textContent = KnobScale.formatReadout(this.spec.type, this.value);
   }
 
