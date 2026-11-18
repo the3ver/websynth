@@ -9,7 +9,7 @@
  *   buttonGroups       radio button rows: { path (string | ui => string), selector, key, parse? }
  *   toggles            on/off buttons for boolean params: { id, path }
  *   envTargets         ADSR fader tab (data-target) -> envelope settings path on the engine
- *   presets            { factory: [...], init }
+ *   presets            { factory: [...], init, random() -> patch state (RANDOM button) }
  *   presetStorageKey   localStorage key of the user presets
  *   lfoRate(engine, ui) rate in Hz for the LFO LED
  */
@@ -31,7 +31,7 @@ const SYNTH_DEFINITIONS = {
     ],
     toggles: [{ id: 'vco2SyncBtn', path: 'vco2.hardSync' }],
     envTargets: { amp: 'ampEnv', filter: 'filterEnv' },
-    presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET },
+    presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET, random: (rng) => PatchRandomizer.sub1(rng) },
     presetStorageKey: 'retrovox_user_presets',
     lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate
   },
@@ -54,7 +54,7 @@ const SYNTH_DEFINITIONS = {
     ],
     toggles: [],
     envTargets: { op1: 'op1.env', op2: 'op2.env', op3: 'op3.env', op4: 'op4.env' },
-    presets: { factory: window.FM_FACTORY_PRESETS, init: window.FM_INIT_PRESET },
+    presets: { factory: window.FM_FACTORY_PRESETS, init: window.FM_INIT_PRESET, random: (rng) => PatchRandomizer.fm(rng) },
     presetStorageKey: 'retrovox_fm_user_presets',
     lfoRate: (engine) => engine.vibrato.rate
   }

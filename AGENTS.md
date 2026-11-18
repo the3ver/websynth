@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.12), scripts & metadata
+├── package.json            # Versioning (v1.8.13), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -67,6 +67,7 @@ websynth/
 │   ├── worklets/
 │   │   └── fm-voice-processor.js # AudioWorklet: 4-op phase modulation per sample with feedback (FmVoiceCore, tested in Node)
 │   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from FmAlgorithms (DOM-free, fixed canvas)
+│   ├── patch-randomizer.js # RANDOM button: playable random patch per synth (DOM-free, seeded rng in tests)
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
 │   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync

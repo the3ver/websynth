@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.12</span>
+          <span class="version-tag">v1.8.13</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -219,6 +219,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 <div class="preset-action-group">
                   <button class="preset-btn-action" id="savePresetBtn" title="Aktuellen Sound als User Preset speichern">SAVE</button>
                   <button class="preset-btn-action" id="initPatchBtn" title="Neutralen Grundzustand laden (Init Patch)">INIT</button>
+                  <button class="preset-btn-action" id="randomPatchBtn" title="Zufälligen Patch erzeugen (Oktave und Glide bleiben)">RANDOM</button>
                 </div>
               </div>
 
@@ -1525,7 +1526,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.12</span>
+            <span class="release-version-number">v1.8.13</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1767,6 +1768,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/fm-voice.js"></script>
   <script src="js/fm-engine.js"></script>
   <script src="js/fm-algorithm-display.js"></script>
+  <script src="js/patch-randomizer.js"></script>
   <script src="js/drum-kits.js"></script>
   <script src="js/drum-engine.js"></script>
   <script src="js/drum-ui.js"></script>

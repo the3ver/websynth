@@ -1,19 +1,21 @@
 /**
  * PRESET LCD & SAVE DIALOG
- * Factory + user preset browser (dropdown, prev/next, init patch) and the save / overwrite / delete modal.
+ * Factory + user preset browser (dropdown, prev/next, init patch, random patch) and the save / overwrite /
+ * delete modal.
  * Persistence lives in PresetStore; after a preset is loaded into the engine, onApplied(preset) lets the
  * synth panel re-sync its controls.
  */
 
 class PresetPanel {
   /**
-   * @param presets { factory: [...], init } of the active synth
+   * @param presets { factory: [...], init, random? } of the active synth
    */
   constructor(engine, store, presets, onApplied) {
     this.engine = engine;
     this.store = store;
     this.factoryPresets = presets.factory;
     this.initPreset = presets.init;
+    this.randomState = presets.random || null;
     this.onApplied = onApplied;
     this.presetsList = [];
     this.currentPresetIndex = 0;
@@ -59,6 +61,9 @@ class PresetPanel {
     onClick('nextPresetBtn', () => this.step(1));
     onClick('initPatchBtn', () => {
       if (this.initPreset) this.apply(this.initPreset);
+    });
+    onClick('randomPatchBtn', () => {
+      if (this.randomState) this.apply(PatchRandomizer.preset(this.randomState()));
     });
   }
 
@@ -226,6 +231,20 @@ class PresetPanel {
     this.dropdown.appendChild(group);
   }
 
+  /**
+   * A patch outside the lists (RANDOM) gets its own dropdown entry until the next refresh
+   */
+  showTransient(preset) {
+    if (!this.dropdown) return;
+    let opt = this.dropdown.querySelector(`option[value="${preset.id}"]`);
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = preset.id;
+      this.dropdown.insertBefore(opt, this.dropdown.firstChild);
+    }
+    opt.textContent = preset.name;
+  }
+
   apply(preset) {
     if (!preset || !preset.state) return;
     this.engine.allNotesOff();
@@ -233,6 +252,7 @@ class PresetPanel {
     this.onApplied(preset);
 
     if (this.catTag) this.catTag.textContent = preset.category || 'PRESET';
+    if (preset.transient) this.showTransient(preset);
     if (this.dropdown) this.dropdown.value = preset.id;
     this.currentPresetIndex = this.presetsList.findIndex((p) => p.id === preset.id);
   }

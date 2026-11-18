@@ -1,10 +1,10 @@
 /**
  * RETROVOX SUB-1 & RETROBEAT D-909 • Progressive Web App Service Worker
- * Version: 1.8.12
+ * Version: 1.8.13
  * Provides 100% offline capability, app shell caching, and font asset caching.
  */
 
-const CACHE_VERSION = 'v1.8.12';
+const CACHE_VERSION = 'v1.8.13';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
@@ -38,6 +38,7 @@ const PRECACHE_ASSETS = [
   './js/fm-engine.js',
   './js/worklets/fm-voice-processor.js',
   './js/fm-algorithm-display.js',
+  './js/patch-randomizer.js',
   './js/drum-kits.js',
   './js/drum-engine.js',
   './js/drum-ui.js',
