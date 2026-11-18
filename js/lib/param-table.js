@@ -3,6 +3,7 @@
  * One table per synth lists every patch parameter once: preset path, engine setter, optional engine
  * field (when it differs from the path), the knob that controls it (data-param in index.html) and,
  * for knobs shared between LFOs or operators, the selector value it belongs to (`lfo`).
+ * `preset: false` marks a knob-only view of other parameters (it is neither saved nor loaded).
  * Preset save/load, knob dispatch and UI sync all run off the table.
  * Classic script: attaches to the window.SynthBlocks namespace.
  */
@@ -57,7 +58,9 @@
      */
     readState(engine) {
       const state = {};
-      for (const param of this.list) setPath(state, param.path, this.read(engine, param));
+      for (const param of this.list) {
+        if (param.preset !== false) setPath(state, param.path, this.read(engine, param));
+      }
       return state;
     }
 
@@ -66,6 +69,7 @@
      */
     applyState(engine, state) {
       for (const param of this.list) {
+        if (param.preset === false) continue;
         const value = getPath(state, param.path);
         if (value !== undefined) param.set(engine, value);
       }

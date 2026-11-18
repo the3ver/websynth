@@ -86,6 +86,13 @@ class FakeAudioContext {
     this.destination = new FakeAudioNode('destination');
     this.onstatechange = null;
     this.nodes = [];
+    this.workletModules = [];
+    this.audioWorklet = {
+      addModule: (url) => {
+        this.workletModules.push(url);
+        return Promise.resolve();
+      }
+    };
   }
 
   resume() {
@@ -238,6 +245,26 @@ class FakeAudioContext {
   }
 }
 
+/**
+ * AudioWorkletNode stand-in: the params named in WORKLET_PARAMS[name] become FakeAudioParams.
+ * Tests register a processor's params with FakeAudioWorkletNode.define(name, { param: default }).
+ */
+const WORKLET_PARAMS = {};
+
+class FakeAudioWorkletNode extends FakeAudioNode {
+  constructor(ctx, name, options = {}) {
+    super('audioWorklet');
+    this.name = name;
+    this.options = options;
+    this.parameters = new Map(Object.entries(WORKLET_PARAMS[name] || {}).map(([k, v]) => [k, new FakeAudioParam(v)]));
+    ctx.nodes.push(this);
+  }
+
+  static define(name, params) {
+    WORKLET_PARAMS[name] = params;
+  }
+}
+
 function nodesOfKind(ctx, kind) {
   return ctx.nodes.filter((node) => node.kind === kind);
 }
@@ -246,5 +273,6 @@ module.exports = {
   FakeAudioContext,
   FakeAudioNode,
   FakeAudioParam,
+  FakeAudioWorkletNode,
   nodesOfKind
 };

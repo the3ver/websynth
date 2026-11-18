@@ -149,3 +149,31 @@ test('FM ratio knobs snap to their step and read as N:1', () => {
   assert.equal(KnobScale.formatReadout('ratio', 3.5), '3.5:1');
   assert.equal(KnobScale.formatReadout('ratio', 0.5), '0.5:1');
 });
+
+test('list knobs (data-values) step through their entries only', () => {
+  const spec = { type: 'ratio', min: 0.25, max: 16, step: 0.01, values: [0.25, 0.5, 1, 2, 16] };
+  assert.equal(KnobScale.valueToRatio(spec, 1), 0.5);
+  assert.equal(KnobScale.valueToRatio(spec, 1.1), 0.5, 'off-list values snap to the nearest entry');
+  assert.equal(KnobScale.ratioToValue(spec, 0.74), 2);
+  assert.equal(KnobScale.ratioToValue(spec, 1.3), 16);
+  assert.equal(KnobScale.quantizeDrag(spec, 2), 2);
+  assert.equal(KnobScale.wheelStep(spec, 1, 1), 2);
+  assert.equal(KnobScale.wheelStep(spec, 0.25, -1), 0.25);
+  assert.equal(KnobScale.dragSpan(spec, false), 130);
+});
+
+test('the FM-4 B ratio knob moves one step per wheel notch and gets a long drag span', () => {
+  const spec = { type: 'bratio', min: 0, max: 483, step: 1 };
+  assert.equal(KnobScale.wheelStep(spec, 10, 1), 11);
+  assert.equal(KnobScale.wheelStep(spec, 0, -1), 0);
+  assert.equal(KnobScale.dragSpan(spec, false), 483 * 3);
+  assert.equal(KnobScale.dragSpan(spec, true), 483 * 8);
+  assert.equal(KnobScale.formatReadout('bratio', 7), '7', 'without FmAlgorithms the raw step');
+});
+
+test('other knobs keep the 4 % wheel step and the 130 / 450 px drag span', () => {
+  const bpm = { type: 'bpm', min: 40, max: 260, step: 1 };
+  assert.equal(KnobScale.wheelStep(bpm, 120, 1), Math.round(120 + 0.04 * 220));
+  assert.equal(KnobScale.dragSpan(bpm, false), 130);
+  assert.equal(KnobScale.dragSpan(bpm, true), 450);
+});

@@ -171,6 +171,8 @@ class PolySynthEngine {
   noteOn(midiNote, velocity = 1.0) {
     if (!this.isPowered) return;
     this.ensureAudioRunning();
+    // A synth whose voices load asynchronously (FM-4 worklet) has none yet
+    if (this.voicePool.length === 0) return;
 
     const now = this.ctx ? this.ctx.currentTime : 0;
     const voice = this.pool.allocate(midiNote, now);

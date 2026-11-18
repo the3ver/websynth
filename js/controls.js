@@ -65,8 +65,13 @@ class Knob {
       type: data.type || 'percent',
       min: parseFloat(data.min),
       max: parseFloat(data.max),
-      step: parseFloat(data.step) || 0.01
+      step: parseFloat(data.step) || 0.01,
+      values: data.values ? data.values.split(',').map(Number) : null
     };
+    if (this.spec.values) {
+      this.spec.min = this.spec.values[0];
+      this.spec.max = this.spec.values[this.spec.values.length - 1];
+    }
     this.defaultValue = parseFloat(data.default);
     this.value = this.defaultValue;
     this.onChange = onChange;
@@ -80,8 +85,8 @@ class Knob {
     housing.addEventListener('dblclick', () => this.commit(this.defaultValue));
     housing.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const ratio = KnobScale.clampRatio(KnobScale.valueToRatio(this.spec, this.value) + (e.deltaY < 0 ? 0.04 : -0.04));
-      this.commit(KnobScale.quantizeWheel(this.spec, KnobScale.ratioToValue(this.spec, ratio)));
+      const next = KnobScale.wheelStep(this.spec, this.value, e.deltaY < 0 ? 1 : -1);
+      if (next !== this.value) this.commit(next);
     }, { passive: false });
   }
 
@@ -112,7 +117,7 @@ class Knob {
   }
 
   dragMove(clientY, shiftKey) {
-    const sensitivity = shiftKey ? 450 : 130;
+    const sensitivity = KnobScale.dragSpan(this.spec, shiftKey);
     const ratio = KnobScale.clampRatio(this.startRatio + (this.startY - clientY) / sensitivity);
     const newValue = KnobScale.quantizeDrag(this.spec, KnobScale.ratioToValue(this.spec, ratio));
     if (newValue !== this.value) this.commit(newValue);

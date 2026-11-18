@@ -42,3 +42,17 @@ test('envParams yields one setEnvStage row per ADSR stage', () => {
   rows[2].set({ setEnvStage: (...args) => calls.push(args) }, 0.4);
   assert.deepEqual(calls.map((c) => Array.from(c)), [['modEnv', 'sustain', 0.4]]);
 });
+
+test('preset: false rows drive a knob but are neither saved nor loaded', () => {
+  const calls = [];
+  const engine = { a: 1, get both() { return this.a * 10; } };
+  const table = new ParamTable([
+    { path: 'a', set: (e, v) => { e.a = v; } },
+    { path: 'both', knob: 'both-knob', preset: false, set: (e, v) => calls.push(v) }
+  ]);
+  assert.deepEqual(plain(table.readState(engine)), { a: 1 });
+  table.applyState(engine, { a: 2, both: 99 });
+  assert.equal(engine.a, 2);
+  assert.deepEqual(calls, []);
+  assert.equal(table.read(engine, table.byKnob('both-knob')), 20);
+});
