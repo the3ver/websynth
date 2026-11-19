@@ -3188,7 +3188,8 @@ polyline.fm-alg-out {
     gap: 8px;
   }
   .brand-model {
-    display: none;
+    font-size: 0.55rem;
+    letter-spacing: 0.8px;
   }
   .status-pill.network-status {
     display: none;
@@ -4683,7 +4684,8 @@ body.is-pwa-standalone .studio-desk {
   }
 
   .brand-model {
-    display: none !important;
+    font-size: 0.5rem !important;
+    letter-spacing: 0.3px !important;
   }
 
   .status-pill {
@@ -5179,7 +5181,8 @@ body.is-pwa-standalone .studio-desk {
   }
 
   .brand-model {
-    display: none !important;
+    font-size: 0.5rem !important;
+    letter-spacing: 0.3px !important;
   }
 
   .status-pill {
