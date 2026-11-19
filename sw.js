@@ -57,6 +57,7 @@ const PRECACHE_ASSETS = [
   './js/synth-ui.js',
   './js/synth-registry.js',
   './js/arp-engine.js',
+  './js/note-router.js',
   './js/presets.js',
   './manifest.webmanifest',
   './icons/icon.svg',

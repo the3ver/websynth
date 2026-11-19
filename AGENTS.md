@@ -54,6 +54,7 @@ websynth/
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
+│   ├── note-router.js      # NoteRouter: keybed notes -> arpeggiator or voices, arp/latch switches (DOM-free)
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
 │   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
@@ -192,7 +193,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 - A note sounds once even when both sources hold it; it stops only when neither does.
 - `window.addEventListener('mouseup')` **ONLY** releases pointer notes, preventing UI parameter tweaking from muting physical keyboard keys.
 - Glissando drag handlers release previous keys instantly on pointer boundary crossings.
-- `SynthUI.playNote()` / `stopNote()` route notes to the arpeggiator when it is on, otherwise to the voices.
+- `NoteRouter` (`js/note-router.js`, used by `SynthUI.playNote()` / `stopNote()`) routes notes to the arpeggiator when it is on, otherwise to the voices.
 
 ### 4b. Drag Controls (`js/controls.js`)
 - Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (4 in total, not 4 per control).

@@ -12,6 +12,7 @@ class SynthUI {
   constructor(audioEngine, arpEngine, synth) {
     this.engine = audioEngine;
     this.arp = arpEngine || new window.ArpEngine(audioEngine);
+    this.notes = new NoteRouter(audioEngine, this.arp);
     this.synth = synth;
     this.params = synth.params;
 
@@ -57,19 +58,11 @@ class SynthUI {
   // =========================================================================
 
   playNote(midiNote) {
-    if (this.arp && this.arp.enabled) {
-      this.arp.handleKeyDown(midiNote);
-    } else {
-      this.engine.noteOn(midiNote);
-    }
+    this.notes.playNote(midiNote);
   }
 
   stopNote(midiNote) {
-    if (this.arp && this.arp.enabled) {
-      this.arp.handleKeyUp(midiNote);
-    } else {
-      this.engine.noteOff(midiNote);
-    }
+    this.notes.stopNote(midiNote);
   }
 
   // =========================================================================
@@ -303,8 +296,8 @@ class SynthUI {
         btn.textContent = next ? labels[0] : labels[1];
       });
     };
-    toggleButton('arpPowerBtn', () => this.arp.enabled, (on) => this.arp.setEnabled(on), ['ARP ON', 'ARP OFF']);
-    toggleButton('arpLatchBtn', () => this.arp.latch, (on) => this.arp.setLatch(on), ['LATCH', 'HOLD']);
+    toggleButton('arpPowerBtn', () => this.arp.enabled, (on) => this.notes.setArpEnabled(on), ['ARP ON', 'ARP OFF']);
+    toggleButton('arpLatchBtn', () => this.arp.latch, (on) => this.notes.setLatch(on), ['LATCH', 'HOLD']);
 
     // Master clock sync switch (INT / DRUM SYNC), mirrored by the drum rack's sync button
     const arpSyncIndicator = document.getElementById('arpSyncIndicator');
