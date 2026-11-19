@@ -49,6 +49,7 @@ class VirtualKeyboard {
     this.keyElements = new Map(); // midi -> key element
     this.pointerHeldKeys = new Set(); // mouse & touch
     this.keyboardHeldKeys = new Set(); // computer keyboard
+    this.latchedKeys = new Set(); // HOLD chord, lit in amber
     this.isMouseDown = false;
     this.currentMouseNote = null;
 
@@ -98,6 +99,7 @@ class VirtualKeyboard {
           ${shortcut ? `<span class="key-shortcut">${shortcut}</span>` : ''}
         `;
       if (this.isHeld(midiNote)) keyEl.classList.add('active');
+      if (this.latchedKeys.has(midiNote)) keyEl.classList.add('latched');
 
       this.container.appendChild(keyEl);
       this.keyElements.set(midiNote, keyEl);
@@ -164,6 +166,16 @@ class VirtualKeyboard {
   setKeyLit(midiNote, lit) {
     const keyEl = this.keyElements.get(midiNote);
     if (keyEl) keyEl.classList.toggle('active', lit);
+  }
+
+  /**
+   * Lights the keys of the HOLD chord (they keep sounding or feed the arpeggiator after release)
+   */
+  setLatched(notes) {
+    this.latchedKeys = new Set(notes);
+    for (const [midiNote, keyEl] of this.keyElements) {
+      keyEl.classList.toggle('latched', this.latchedKeys.has(midiNote));
+    }
   }
 
   /**

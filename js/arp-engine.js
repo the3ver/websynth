@@ -121,7 +121,8 @@ class ArpEngine {
     this.latch = !!on;
     if (!this.latch) {
       this.latchedKeys = [];
-      if (this.heldKeys.length === 0) {
+      // With the arp off the NoteRouter releases the voices itself
+      if (this.enabled && this.heldKeys.length === 0) {
         this.stopClock();
         this.audio.allNotesOff();
         if (this.onStep) this.onStep(-1);
@@ -251,7 +252,7 @@ class ArpEngine {
   handleKeyUp(midiNote) {
     this.heldKeys = this.heldKeys.filter(n => n !== midiNote);
     if (!this.latch) {
-      if (this.heldKeys.length === 0) {
+      if (this.enabled && this.heldKeys.length === 0) {
         this.stopClock();
         this.audio.allNotesOff();
         if (this.onStep) this.onStep(-1);

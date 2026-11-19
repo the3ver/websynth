@@ -33,6 +33,7 @@ class SynthUI {
       onOctaveShift: (delta) => this.shiftOctave(delta),
       ensureAudio: () => this.engine.ensureAudioRunning()
     });
+    this.notes.onLatchedChange = (notes) => this.keyboard.setLatched(notes);
 
     this.initKnobs();
     this.initFaders();
@@ -40,7 +41,10 @@ class SynthUI {
     this.initMobileTabs();
     this.initPerformanceControls();
     this.initArpeggiatorControls();
-    this.presetPanel = new PresetPanel(this.engine, new PresetStore({ key: synth.presetStorageKey }), synth.presets, () => this.syncControls());
+    this.presetPanel = new PresetPanel(this.engine, new PresetStore({ key: synth.presetStorageKey }), synth.presets, () => {
+      this.notes.releaseLatch();
+      this.syncControls();
+    });
 
     this.visualizer = new Visualizer(this.engine, {
       canvas: document.getElementById('scopeCanvas'),

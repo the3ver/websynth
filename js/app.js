@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.8.16';
+  const CURRENT_APP_VERSION = '1.8.17';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
   mainPowerBtn.addEventListener('click', () => {
     isPowered = !isPowered;
     audioEngine.setPower(isPowered);
+    if (!isPowered) synthUI.notes.releaseLatch();
     
     if (isPowered) {
       mainPowerBtn.classList.add('active');
