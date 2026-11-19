@@ -2,10 +2,11 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createLiveEngine } = require('./helpers/synth-engine');
 
-test('FX chain runs voice bus -> chorus -> delay -> reverb -> master bus', () => {
+test('FX chain runs voice bus -> crusher -> chorus -> delay -> reverb -> master bus', () => {
   const { engine } = createLiveEngine();
-  const { chorus, delay, reverb } = engine.fxChain;
-  assert.ok(engine.masterVoiceBus.connections.includes(chorus.input));
+  const { crusher, chorus, delay, reverb } = engine.fxChain;
+  assert.ok(engine.masterVoiceBus.connections.includes(crusher.input));
+  assert.ok(crusher.output.connections.includes(chorus.input));
   assert.ok(chorus.input.connections.includes(chorus.dryGain));
   assert.ok(chorus.output.connections.includes(delay.input));
   assert.ok(delay.output.connections.includes(reverb.input));
@@ -73,9 +74,48 @@ test('reverb decay regenerates a stereo impulse of matching length', () => {
 
 test('activeEffects: an effect counts as on only when it is audible', () => {
   const { context } = createLiveEngine();
-  const fx = (mode, cMix, dMix, rMix) => ({ chorus: { mode, mix: cMix }, delay: { mix: dMix }, reverb: { mix: rMix } });
+  const fx = (mode, cMix, dMix, rMix, xMix = 0) => ({ crusher: { mix: xMix }, chorus: { mode, mix: cMix }, delay: { mix: dMix }, reverb: { mix: rMix } });
   const plain = (v) => JSON.parse(JSON.stringify(v));
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0.6, 0, 0))), { chorus: false, delay: false, reverb: false });
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('I', 0.6, 0.2, 0))), { chorus: true, delay: true, reverb: false });
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('II', 0, 0, 0.1))), { chorus: false, delay: false, reverb: true });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0.6, 0, 0))), { crusher: false, chorus: false, delay: false, reverb: false });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('I', 0.6, 0.2, 0))), { crusher: false, chorus: true, delay: true, reverb: false });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('II', 0, 0, 0.1))), { crusher: false, chorus: false, delay: false, reverb: true });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0, 0, 0, 0.5))), { crusher: true, chorus: false, delay: false, reverb: false });
+});
+
+test('crusher loads its worklet, then feeds it only while mix > 0', async () => {
+  const { engine, ctx } = createLiveEngine();
+  const { crusher } = engine.fxChain;
+  assert.equal(crusher.node, null, 'no node before the module loaded');
+  await engine.fxChain.ready;
+  assert.ok(ctx.workletModules.includes('js/worklets/crusher-processor.js'));
+  assert.equal(crusher.node.name, 'bitcrusher');
+  assert.equal(crusher.node.options.outputChannelCount[0], 2);
+  assert.ok(crusher.node.connections.includes(crusher.wetGain));
+  assert.ok(!crusher.input.connections.includes(crusher.node), 'bypassed at mix 0');
+
+  engine.setCrusherMix(0.75);
+  assert.ok(crusher.input.connections.includes(crusher.node));
+  assert.ok(crusher.input.connections.includes(crusher.dryGain), 'dry path stays');
+  assert.equal(crusher.wetGain.gain.value, 0.75);
+  assert.equal(crusher.dryGain.gain.value, 0.25);
+
+  engine.setCrusherMix(0);
+  assert.ok(!crusher.input.connections.includes(crusher.node));
+  assert.ok(crusher.input.connections.includes(crusher.dryGain));
+});
+
+test('crusher bits and rate reach the worklet params and are clamped', async () => {
+  const { engine } = createLiveEngine();
+  await engine.fxChain.ready;
+  const params = engine.fxChain.crusher.node.parameters;
+  assert.equal(params.get('bits').value, 8, 'engine default on attach');
+  assert.equal(params.get('rate').value, 11000);
+  engine.setCrusherBits(4);
+  engine.setCrusherRate(3000);
+  assert.equal(params.get('bits').value, 4);
+  assert.equal(params.get('rate').value, 3000);
+  engine.setCrusherBits(40);
+  engine.setCrusherRate(10);
+  assert.equal(engine.fx.crusher.bits, 16);
+  assert.equal(engine.fx.crusher.rate, 500);
 });

@@ -20,6 +20,7 @@ const READOUT_FORMATTERS = {
   res: (val) => `${val.toFixed(1)} Q`,
   time: (val) => (val < 1.0 ? `${Math.round(val * 1000)} ms` : `${val.toFixed(2)} s`),
   bpm: (val) => `${Math.round(val)}`,
+  bits: (val) => `${Math.round(val)} BIT`,
   ratio: (val) => `${Number.isInteger(val) ? val : val.toFixed(2).replace(/0$/, '')}:1`,
   // FM-4 watch-hand B1/B2 ratio step (js/fm-algorithms.js)
   bratio: (val) => (window.FmAlgorithms ? window.FmAlgorithms.formatB(val) : `${val}`)

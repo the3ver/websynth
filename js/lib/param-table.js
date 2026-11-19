@@ -90,6 +90,9 @@
      */
     static fxParams() {
       return [
+        { path: 'fx.crusher.bits', knob: 'fx-crusher-bits', set: (e, v) => e.setCrusherBits(v) },
+        { path: 'fx.crusher.rate', knob: 'fx-crusher-rate', set: (e, v) => e.setCrusherRate(v) },
+        { path: 'fx.crusher.mix', knob: 'fx-crusher-mix', set: (e, v) => e.setCrusherMix(v) },
         { path: 'fx.chorus.mode', set: (e, v) => e.setChorusMode(v) },
         { path: 'fx.chorus.mix', knob: 'fx-chorus-mix', set: (e, v) => e.setChorusMix(v) },
         { path: 'fx.delay.time', knob: 'fx-delay-time', set: (e, v) => e.setDelayTime(v) },

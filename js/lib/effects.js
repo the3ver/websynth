@@ -1,8 +1,9 @@
 /**
  * SYNTH BLOCKS • STEREO EFFECTS
- * Chorus (Juno-style BBD), ping-pong tape delay and convolution reverb. Each effect has an
- * input and an output node and mixes dry and wet internally. Settings are live objects
- * ({ mode, mix }, { time, feedback, mix }, { decay, mix }); apply*() pushes changes to the nodes.
+ * Bitcrusher, chorus (Juno-style BBD), ping-pong tape delay and convolution reverb. Each effect has
+ * an input and an output node and mixes dry and wet internally. Settings are live objects
+ * ({ bits, rate, mix }, { mode, mix }, { time, feedback, mix }, { decay, mix }); apply*() pushes
+ * changes to the nodes.
  * Classic script: attaches to the window.SynthBlocks namespace.
  */
 (function (blocks) {
@@ -12,6 +13,65 @@
     const g = ctx.createGain();
     g.gain.setValueAtTime(1.0, now);
     return g;
+  }
+
+  /**
+   * BITCRUSHER: crossfades the dry signal with the 'bitcrusher' worklet node
+   * (js/worklets/crusher-processor.js). The node arrives via attach() once its module loaded;
+   * the input feeds it only while mix > 0, so a bypassed crusher costs no DSP time.
+   */
+  class Crusher {
+    constructor(ctx, settings) {
+      const now = ctx.currentTime;
+      this.ctx = ctx;
+      this.settings = settings;
+      this.node = null;
+      this.feeding = false;
+      this.input = unityGain(ctx, now);
+      this.output = unityGain(ctx, now);
+
+      this.dryGain = ctx.createGain();
+      this.wetGain = ctx.createGain();
+      this.dryGain.gain.setValueAtTime(1 - settings.mix, now);
+      this.wetGain.gain.setValueAtTime(settings.mix, now);
+
+      this.input.connect(this.dryGain);
+      this.dryGain.connect(this.output);
+      this.wetGain.connect(this.output);
+    }
+
+    attach(node) {
+      this.node = node;
+      node.connect(this.wetGain);
+      this.applyBits();
+      this.applyRate();
+      this.updateFeed();
+    }
+
+    applyBits() {
+      if (!this.node) return;
+      this.node.parameters.get('bits').setTargetAtTime(this.settings.bits, this.ctx.currentTime, PARAM_RAMP);
+    }
+
+    applyRate() {
+      if (!this.node) return;
+      this.node.parameters.get('rate').setTargetAtTime(this.settings.rate, this.ctx.currentTime, PARAM_RAMP);
+    }
+
+    applyMix() {
+      const now = this.ctx.currentTime;
+      this.dryGain.gain.setTargetAtTime(1 - this.settings.mix, now, PARAM_RAMP);
+      this.wetGain.gain.setTargetAtTime(this.settings.mix, now, PARAM_RAMP);
+      this.updateFeed();
+    }
+
+    updateFeed() {
+      const wanted = this.node !== null && this.settings.mix > 0;
+      if (wanted === this.feeding) return;
+      if (wanted) this.input.connect(this.node);
+      else this.input.disconnect(this.node);
+      this.feeding = wanted;
+    }
   }
 
   /**
@@ -211,5 +271,5 @@
   Chorus.MODES = { I: [0.45, 0.003], II: [0.85, 0.0045], 'I+II': [1.35, 0.0065] };
   Delay.STEREO_RATIO = 1.333;
 
-  Object.assign(blocks, { Chorus, Delay, Reverb });
+  Object.assign(blocks, { Crusher, Chorus, Delay, Reverb });
 })(window.SynthBlocks = window.SynthBlocks || {});

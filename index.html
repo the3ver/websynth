@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.17</span>
+          <span class="version-tag">v1.8.18</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -997,6 +997,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     <button class="env-tab-btn fx-tab-btn active" data-target="chorus" title="Chorus einblenden"><i class="fx-led" data-fx-led="chorus"></i>CHORUS</button>
                     <button class="env-tab-btn fx-tab-btn" data-target="delay" title="Delay einblenden"><i class="fx-led" data-fx-led="delay"></i>DELAY</button>
                     <button class="env-tab-btn fx-tab-btn" data-target="reverb" title="Reverb einblenden"><i class="fx-led" data-fx-led="reverb"></i>REVERB</button>
+                    <button class="env-tab-btn fx-tab-btn" data-target="crusher" title="Bitcrusher einblenden"><i class="fx-led" data-fx-led="crusher"></i>CRUSH</button>
                   </div>
 
                   <div class="fx-page active" data-fx-page="chorus">
@@ -1074,6 +1075,38 @@ window.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <span class="knob-label-text">MIX</span>
                         <span class="knob-readout-badge" id="fx-reverb-mix-readout">0%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="fx-page" data-fx-page="crusher">
+                    <div class="fx-subpanel-title">
+                      <span>BITCRUSHER</span>
+                      <span class="fx-tag">LO-FI</span>
+                    </div>
+                    <div class="fx-knobs-row">
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-crusher-bits" data-min="1" data-max="16" data-step="1" data-default="8" data-type="bits">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">BITS</span>
+                        <span class="knob-readout-badge" id="fx-crusher-bits-readout">8 BIT</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-crusher-rate" data-min="500" data-max="48000" data-step="1" data-default="11000" data-type="hz">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">RATE</span>
+                        <span class="knob-readout-badge" id="fx-crusher-rate-readout">11.0 kHz</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="fx-crusher-mix" data-min="0.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="percent">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">MIX</span>
+                        <span class="knob-readout-badge" id="fx-crusher-mix-readout">0%</span>
                       </div>
                     </div>
                   </div>
@@ -1528,11 +1561,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.17</span>
+            <span class="release-version-number">v1.8.18</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1540,6 +1573,20 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
+            <div class="card-icon">👾</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>Bitcrusher</h3>
+              <p>Vierter Effekt im FX-Modul: Lo-Fi-Klang früher Sampler und Spielkonsolen, für SUB-1 und FM-4.</p>
+              <ul>
+                <li><strong>BITS:</strong> 16 bis 1 Bit. Weniger Bits rastern die Lautstärke gröber, das Signal rauscht und kratzt.</li>
+                <li><strong>RATE:</strong> 48 kHz bis 500 Hz. Tiefe Raten halten jeden Wert länger, darüber entstehen metallische Spiegeltöne.</li>
+                <li><strong>MIX:</strong> blendet zwischen Original und Crusher. Bei 0 % rechnet der Effekt nicht mit, die LED an CRUSH bleibt aus.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
             <div class="card-icon">✋</div>
             <div class="card-content">
               <div class="card-badge perf-badge">NEU</div>
@@ -1561,7 +1608,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <p>Zwei Bedienhilfen für beide Synthesizer.</p>
               <ul>
                 <li><strong>RANDOM:</strong> die Taste neben INIT würfelt einen spielbaren Patch. Oktave und Glide bleiben stehen, SAVE sichert einen Treffer als User-Preset.</li>
-                <li><strong>Effekt-Tasten:</strong> CHORUS, DELAY und REVERB blenden jeweils nur ihre Regler ein. Die LED an der Taste zeigt, ob der Effekt gerade hörbar ist.</li>
+                <li><strong>Effekt-Tasten:</strong> CHORUS, DELAY, REVERB und CRUSH blenden jeweils nur ihre Regler ein. Die LED an der Taste zeigt, ob der Effekt gerade hörbar ist.</li>
               </ul>
             </div>
           </div>

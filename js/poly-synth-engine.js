@@ -45,6 +45,11 @@ class PolySynthEngine {
 
     // Vintage Stereo FX Rack Parameters
     this.fx = {
+      crusher: {
+        bits: 8,        // 1 to 16
+        rate: 11000,    // hold rate, 500 to 48000 Hz
+        mix: 0.0        // 0.0 to 1.0
+      },
       chorus: {
         mode: 'off',    // 'off', 'I', 'II', 'I+II'
         mix: 0.65       // 0.0 to 1.0
@@ -235,6 +240,21 @@ class PolySynthEngine {
     if (!env || !(stage in env)) return;
     const [min, max] = ENV_STAGE_RANGE[stage];
     env[stage] = Math.max(min, Math.min(max, parseFloat(val)));
+  }
+
+  setCrusherBits(val) {
+    this.fx.crusher.bits = Math.max(1, Math.min(16, parseFloat(val)));
+    if (this.fxChain) this.fxChain.crusher.applyBits();
+  }
+
+  setCrusherRate(val) {
+    this.fx.crusher.rate = Math.max(500, Math.min(48000, parseFloat(val)));
+    if (this.fxChain) this.fxChain.crusher.applyRate();
+  }
+
+  setCrusherMix(val) {
+    this.fx.crusher.mix = Math.max(0, Math.min(1, parseFloat(val)));
+    if (this.fxChain) this.fxChain.crusher.applyMix();
   }
 
   setChorusMode(mode) {

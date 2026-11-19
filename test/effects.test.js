@@ -44,3 +44,21 @@ test('reverb impulse length is clamped to 0.5..8 s and decays', () => {
   const peak = (from, to) => data.slice(from, to).reduce((m, v) => Math.max(m, Math.abs(v)), 0);
   assert.ok(peak(data.length - 1000, data.length) < peak(0, 1000));
 });
+
+test('crusher crossfades dry and wet and waits for its worklet node', () => {
+  const ctx = new FakeAudioContext();
+  const settings = { bits: 6, rate: 8000, mix: 0.4 };
+  const crusher = new SynthBlocks.Crusher(ctx, settings);
+  assert.equal(crusher.dryGain.gain.value, 0.6);
+  assert.equal(crusher.wetGain.gain.value, 0.4);
+  assert.ok(crusher.input.connections.includes(crusher.dryGain));
+  crusher.applyBits(); // no node yet: nothing to do, no throw
+
+  const param = () => ({ value: null, setTargetAtTime(v) { this.value = v; } });
+  const node = { parameters: new Map([['bits', param()], ['rate', param()]]), connections: [], connect(t) { this.connections.push(t); } };
+  crusher.attach(node);
+  assert.ok(node.connections.includes(crusher.wetGain));
+  assert.ok(crusher.input.connections.includes(node), 'mix > 0 feeds the node right away');
+  assert.equal(node.parameters.get('bits').value, 6);
+  assert.equal(node.parameters.get('rate').value, 8000);
+});

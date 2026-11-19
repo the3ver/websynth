@@ -65,8 +65,9 @@ class FakeAudioNode {
     return target;
   }
 
-  disconnect() {
-    this.connections = [];
+  // disconnect() drops every connection, disconnect(target) only that one (as in Web Audio)
+  disconnect(target) {
+    this.connections = target === undefined ? [] : this.connections.filter((c) => c !== target);
   }
 
   start(t = 0) {

@@ -20,6 +20,7 @@ test('clampRatio clamps values strictly between 0 and 1', () => {
 });
 
 test('formatReadout handles all types correctly', () => {
+  assert.equal(KnobScale.formatReadout('bits', 7.6), '8 BIT');
   assert.equal(KnobScale.formatReadout('octave', -2), '32\'');
   assert.equal(KnobScale.formatReadout('octave', -1), '16\'');
   assert.equal(KnobScale.formatReadout('octave', 0), '8\'');

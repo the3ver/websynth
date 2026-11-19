@@ -8,6 +8,8 @@ const { FakeAudioContext, FakeAudioWorkletNode } = require('./fake-audio-context
 const FM_WORKLET_PARAMS = { detune: 0, algorithm: 1, feedback: 0, mix: 0 };
 for (let n = 1; n <= 4; n++) Object.assign(FM_WORKLET_PARAMS, { [`freq${n}`]: 440, [`gain${n}`]: 0 });
 FakeAudioWorkletNode.define('fm4-voice', FM_WORKLET_PARAMS);
+// Params of the bitcrusher worklet (js/worklets/crusher-processor.js)
+FakeAudioWorkletNode.define('bitcrusher', { bits: 16, rate: 48000 });
 
 const ENGINE_SCRIPTS = ['lib/curves.js', 'lib/envelope.js', 'lib/filter.js', 'lib/vco.js', 'lib/lfo.js', 'lib/effects.js', 'lib/gain-stages.js', 'lib/master-bus.js', 'lib/param-table.js', 'lib/voice-pool.js', 'synth-params.js', 'voice.js', 'fx-chain.js', 'poly-synth-engine.js', 'audio-engine.js'];
 const FM_SCRIPTS = ['fm-algorithms.js', 'fm-params.js', 'fm-presets.js', 'fm-voice.js', 'fm-engine.js'];

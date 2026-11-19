@@ -13,7 +13,7 @@ describe('FM-4 voice graph', () => {
     engine.noteOn(60, 1.0);
     assert.equal(engine.activeVoices.size, 0, 'notes before that stay silent');
     await engine.ready;
-    assert.deepEqual([...engine.ctx.workletModules], ['js/worklets/fm-voice-processor.js']);
+    assert.ok(engine.ctx.workletModules.includes('js/worklets/fm-voice-processor.js'));
     assert.equal(engine.voicePool.length, 12);
     for (const voice of engine.voicePool) {
       assert.equal(voice.node.name, 'fm4-voice');

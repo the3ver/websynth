@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.17-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.18-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,9 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.18: Bitcrusher
+- **👾 CRUSH:** Vierter Effekt im FX-Modul, vor Chorus, Delay und Reverb. BITS (16 bis 1) rastert die Lautstärke gröber, RATE (48 kHz bis 500 Hz) hält jeden Wert länger, MIX blendet zwischen Original und Lo-Fi. Bei MIX 0 rechnet der Effekt nicht mit. Beide Synths, gespeichert in Presets.
 
 ### ⚡ NEU in v1.8.17: HOLD ohne Arpeggiator
 - **✋ HOLD:** Die HOLD-Taste hält den Akkord jetzt auch bei ARP OFF. Losgelassene Tasten klingen weiter und leuchten orange; der nächste Anschlag nach dem Loslassen ersetzt den Akkord. ARP ON übernimmt den gehaltenen Akkord, ARP OFF gibt ihn an die Stimmen zurück. HOLD aus, Power Off und Presetwechsel beenden ihn.

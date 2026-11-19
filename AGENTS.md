@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.17), scripts & metadata
+├── package.json            # Versioning (v1.8.18), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -42,13 +42,13 @@ websynth/
 ├── js/                    # Classic scripts, loaded in this order by index.html
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
-│   │   ├── effects.js      # Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
+│   │   ├── effects.js      # Crusher (dry/wet around the bitcrusher worklet), Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
-│   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams
+│   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams, fxParams (shared FX rack rows)
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
@@ -57,7 +57,7 @@ websynth/
 │   ├── note-router.js      # NoteRouter: keybed notes -> arpeggiator or voices, arp/latch switches (DOM-free)
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
-│   ├── fx-chain.js         # Rack: SynthBlocks Chorus -> Delay -> Reverb in series
+│   ├── fx-chain.js         # Rack: SynthBlocks Crusher -> Chorus -> Delay -> Reverb in series, loads the crusher worklet
 │   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
 │   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
 │   ├── fm-algorithms.js    # FM-4 operators C/A/B1/B2, 8 algorithms (mods, feedback op, outputs X/Y), ratio steps, watch-hand B knob
@@ -66,7 +66,8 @@ websynth/
 │   ├── fm-voice.js         # FM-4 voice: drives one 'fm4-voice' worklet node (operator freqs, ADSR gains, vibrato, alg/feedback/mix)
 │   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): loads the worklet, algorithm, feedback, X/Y mix, ratios, vibrato
 │   ├── worklets/
-│   │   └── fm-voice-processor.js # AudioWorklet: 4-op phase modulation per sample with feedback (FmVoiceCore, tested in Node)
+│   │   ├── fm-voice-processor.js # AudioWorklet: 4-op phase modulation per sample with feedback (FmVoiceCore, tested in Node)
+│   │   └── crusher-processor.js  # AudioWorklet: bitcrusher, sample-and-hold rate + bit quantization (CrusherCore, tested in Node)
 │   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from FmAlgorithms (DOM-free, fixed canvas)
 │   ├── patch-randomizer.js # RANDOM button: playable random patch per synth (DOM-free, seeded rng in tests)
 │   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
@@ -155,7 +156,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 
 ### 4. FX Rack (`js/fx-chain.js`) & Master Bus (`js/lib/master-bus.js`)
 - **Signal Flow**:
-  $$\text{VoiceBus} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{MasterBus: Analyser} \longrightarrow \text{Volume} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Safety Clipper} \longrightarrow \text{Destination}$$
+  $$\text{VoiceBus} \longrightarrow \text{Bitcrusher} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{MasterBus: Analyser} \longrightarrow \text{Volume} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Safety Clipper} \longrightarrow \text{Destination}$$
 - **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.001s`, release `0.05s`; the 4x-oversampled safety clipper catches its overshoot below 0.98.
 - `engine.master` (`SynthBlocks.MasterBus`) is the shared output: the drum bus connects to `master.input`, the visualizer reads `master.analyser`.
 

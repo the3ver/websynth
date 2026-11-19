@@ -20,6 +20,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 1.5, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.5, fadeIn: 1.2, destinations: { pitch: 0.25, vcf: 0.15, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.7 },
         delay: { time: 0.38, feedback: 0.5, mix: 0.4 },
         reverb: { decay: 4.8, mix: 0.55 }
@@ -42,6 +43,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
         delay: { time: 0.2, feedback: 0.0, mix: 0.0 },
         reverb: { decay: 1.0, mix: 0.05 }
@@ -64,6 +66,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 1.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.45, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'II', mix: 0.8 },
         delay: { time: 0.26, feedback: 0.4, mix: 0.35 },
         reverb: { decay: 2.2, mix: 0.3 }
@@ -86,6 +89,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'sawtooth', rate: 0.4, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.3, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
         delay: { time: 0.28, feedback: 0.45, mix: 0.3 },
         reverb: { decay: 1.8, mix: 0.2 }
@@ -108,6 +112,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.5, fadeIn: 0.8, destinations: { pitch: 0.15, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.6 },
         delay: { time: 0.32, feedback: 0.2, mix: 0.15 },
         reverb: { decay: 2.8, mix: 0.35 }
@@ -130,6 +135,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'samplehold', rate: 8.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.85, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'triangle', rate: 0.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.2, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
         delay: { time: 0.34, feedback: 0.55, mix: 0.45 },
         reverb: { decay: 3.5, mix: 0.4 }
@@ -152,6 +158,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 0.35, fadeIn: 0.0, destinations: { pitch: 0.05, vcf: 0.35, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 1.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.15, pwm: 0.0, amp: 0.15 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I+II', mix: 0.75 },
         delay: { time: 0.48, feedback: 0.55, mix: 0.45 },
         reverb: { decay: 6.5, mix: 0.65 }
@@ -174,6 +181,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 6.0, fadeIn: 0.5, destinations: { pitch: 0.2, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.35 },
         delay: { time: 0.18, feedback: 0.2, mix: 0.15 },
         reverb: { decay: 1.2, mix: 0.15 }
@@ -196,6 +204,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'triangle', rate: 0.8, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.65, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.0, fadeIn: 1.5, destinations: { pitch: 0.18, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.85 },
         delay: { time: 0.36, feedback: 0.3, mix: 0.25 },
         reverb: { decay: 3.8, mix: 0.45 }
@@ -218,6 +227,7 @@ const FACTORY_PRESETS = [
       lfo1: { wave: 'sine', rate: 5.8, fadeIn: 0.3, destinations: { pitch: 0.22, vcf: 0.0, pwm: 0.0, amp: 0.1 } },
       lfo2: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.4 },
         delay: { time: 0.42, feedback: 0.5, mix: 0.4 },
         reverb: { decay: 4.2, mix: 0.5 }
@@ -243,6 +253,7 @@ const INIT_PRESET = {
     lfo1: { wave: 'triangle', rate: 2.5, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
     lfo2: { wave: 'sine', rate: 5.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
     fx: {
+      crusher: { bits: 8, rate: 11000, mix: 0.0 },
       chorus: { mode: 'off', mix: 0.65 },
       delay: { time: 0.32, feedback: 0.45, mix: 0.0 },
       reverb: { decay: 3.2, mix: 0.0 }
