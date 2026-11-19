@@ -84,6 +84,21 @@
         set: (e, v) => e.setEnvStage(envName, stage, v)
       }));
     }
+
+    /**
+     * Rows for the shared FX rack (engine.fx, setters on PolySynthEngine, fx-* knobs)
+     */
+    static fxParams() {
+      return [
+        { path: 'fx.chorus.mode', set: (e, v) => e.setChorusMode(v) },
+        { path: 'fx.chorus.mix', knob: 'fx-chorus-mix', set: (e, v) => e.setChorusMix(v) },
+        { path: 'fx.delay.time', knob: 'fx-delay-time', set: (e, v) => e.setDelayTime(v) },
+        { path: 'fx.delay.feedback', knob: 'fx-delay-feedback', set: (e, v) => e.setDelayFeedback(v) },
+        { path: 'fx.delay.mix', knob: 'fx-delay-mix', set: (e, v) => e.setDelayMix(v) },
+        { path: 'fx.reverb.decay', knob: 'fx-reverb-decay', set: (e, v) => e.setReverbDecay(v) },
+        { path: 'fx.reverb.mix', knob: 'fx-reverb-mix', set: (e, v) => e.setReverbMix(v) }
+      ];
+    }
   }
 
   Object.assign(blocks, { ParamTable });
