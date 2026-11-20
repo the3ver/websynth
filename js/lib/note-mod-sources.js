@@ -23,10 +23,10 @@
         return source;
       };
       this.nodes = {};
-      // [source node, Envelope] per envelope name
+      // { node, envelope, stages } per envelope name
       this.envelopes = Object.entries(envelopes).map(([name, stages]) => {
         this.nodes[name] = constant(0);
-        return [this.nodes[name], new blocks.Envelope(stages, { range: [0.0001, 1] })];
+        return { node: this.nodes[name], envelope: new blocks.Envelope(stages, { range: [0.0001, 1] }), stages };
       });
       Object.assign(this.nodes, { velocity: constant(1), key: constant(0), random: constant(0) });
     }
@@ -36,11 +36,11 @@
       vel.offset.setValueAtTime(velocity, now);
       key.offset.setValueAtTime(Math.max(-1, Math.min(1, (midiNote - KEY_CENTER) / KEY_SPAN)), now);
       random.offset.setValueAtTime(Math.random() * 2 - 1, now);
-      for (const [node, envelope] of this.envelopes) envelope.trigger([node.offset], now, { start: 0.0001, peak: 1 });
+      for (const { node, envelope } of this.envelopes) envelope.trigger([node.offset], now, { start: 0.0001, peak: 1 });
     }
 
     release(now) {
-      for (const [node, envelope] of this.envelopes) envelope.release([node.offset], now, 0);
+      for (const { node, envelope } of this.envelopes) envelope.release([node.offset], now, 0);
     }
   }
 
