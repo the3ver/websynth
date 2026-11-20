@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.30), scripts & metadata
+├── package.json            # Versioning (v1.8.31), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -195,7 +195,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 
 ### 2. Desktop Seamless Grid Inheritance (`display: contents;`)
 - On Desktop (`min-width: 900px`), `.module-slide` applies `display: contents;`.
-- All 6 module bays seamlessly inherit the parent 6-column desktop grid (`1.55fr 0.95fr 1.15fr 1.15fr 0.95fr 1.1fr`) with zero layout shift, zero DOM restructuring, and zero CSS wrapper overhead.
+- All 6 module bays seamlessly inherit the parent 6-column desktop grid (`1.55fr 0.95fr 1.3fr 1.15fr 0.95fr 0.95fr`; a column never gets narrower than its content, e.g. the FX tab labels, so keep labels short) with zero layout shift, zero DOM restructuring, and zero CSS wrapper overhead.
 
 ### 3. Mobile Landscape Split-Studio Mode (`@media (orientation: landscape) and (max-height: 600px)`)
 - Splits the chassis into a 2-column layout (`grid-template-columns: 46% 54%`):
