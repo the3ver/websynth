@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.25-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.26-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,6 +10,9 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
+### ⚡ NEU in v1.8.26: MOD MATRIX im Synth
+- **⇄ MOD MATRIX:** Die Taste sitzt jetzt im Titel von Modul 04 // DUAL LFO & MOD statt in der Kopfleiste.
+
 ### ⚡ NEU in v1.8.25: Oszillator-Tabs
 - **🎛️ OSC 1 / OSC 2 / SUB:** Das VCO-Modul zeigt wie das FX-Panel eine Seite pro Oszillator. OSC 1 und OSC 2 haben dieselben Regler: Welle, OCTAVE, SEMI, DETUNE und PULSE W. Neu sind SEMI und DETUNE für VCO 1 und eine eigene Pulsbreite für VCO 2. SYNC bleibt bei OSC 2, SUB OCT wandert in den Tab SUB. Alte Presets klingen unverändert.
 
@@ -17,10 +20,10 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 - **⇄ FX-Ziele:** Die Mod-Matrix des SUB-1 moduliert jetzt auch das FX-Rack: CRUSH BITS, CRUSH RATE, DELAY TIME, DELAY FEEDBACK, DELAY MIX und REVERB MIX. LFOs und Mod Wheel wirken direkt; Hüllkurven, Velocity, Tonhöhe und Zufall folgen der zuletzt gespielten Note. CRUSH-Ziele klingen nur bei CRUSH MIX über 0.
 
 ### ⚡ NEU in v1.8.23: Kopfleiste auf dem iPad
-- **🔄 RELOAD:** Unter 1680 px Breite zeigen DRUM RACK und MOD MATRIX nur ihr Symbol, unter 1366 px auch "Was gibt's Neues?". RELOAD und POWER rutschen auf dem iPad nicht mehr aus der Kopfleiste.
+- **🔄 RELOAD:** Unter 1366 px Breite zeigt DRUM RACK nur sein Symbol und "Was gibt's Neues?" nur ✨ und die Version. RELOAD und POWER rutschen auf dem iPad nicht mehr aus der Kopfleiste.
 
 ### ⚡ NEU in v1.8.21/v1.8.22: Mod-Matrix (SUB-1)
-- **⇄ MOD MATRIX:** Die Taste MOD MATRIX in der Kopfleiste blendet eine Matrix mit 8 Slots ein. Jeder Slot verbindet eine Quelle (LFO 1/2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel) mit einem Ziel (Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel), die Menge geht von -100 % bis +100 %. Eine LED zeigt aktive Slots, das Keybed bleibt spielbar. Die Matrix wird mit dem Preset gespeichert; die festen LFO-Regler bleiben. Ungenutzte Slots und Quellen sind abgeklemmt und kosten keine Rechenzeit (v1.8.22).
+- **⇄ MOD MATRIX:** Die Taste MOD MATRIX (seit v1.8.26 in Modul 04) blendet eine Matrix mit 8 Slots ein. Jeder Slot verbindet eine Quelle (LFO 1/2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel) mit einem Ziel (Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel), die Menge geht von -100 % bis +100 %. Eine LED zeigt aktive Slots, das Keybed bleibt spielbar. Die Matrix wird mit dem Preset gespeichert; die festen LFO-Regler bleiben. Ungenutzte Slots und Quellen sind abgeklemmt und kosten keine Rechenzeit (v1.8.22).
 - **💾 Alte Presets:** Fehlt einem älteren User-Preset ein neuer Parameter (Crusher, Matrix), lädt er den INIT-Wert, statt den laufenden Wert stehen zu lassen.
 
 ### ⚡ NEU in v1.8.18: Bitcrusher

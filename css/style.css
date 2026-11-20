@@ -4763,8 +4763,7 @@ body.is-pwa-standalone .studio-desk {
     min-width: 18px !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon),
-  .mod-matrix-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -4998,8 +4997,7 @@ body.is-pwa-standalone .studio-desk {
     font-size: 0.68rem !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon),
-  .mod-matrix-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -5262,8 +5260,7 @@ body.is-pwa-standalone .studio-desk {
     min-width: 18px !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon),
-  .mod-matrix-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -5935,35 +5932,45 @@ body.is-pwa-standalone .studio-desk {
    MOD MATRIX OVERLAY (header button MOD MATRIX, SUB-1)
    ========================================================================== */
 
-.mod-matrix-header-btn {
-  border-color: rgba(0, 229, 255, 0.35);
+.mod-matrix-module-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  margin-right: 6px;
+  padding: 1px 6px;
+  background: #141720;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
   color: #7fefff;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.mod-matrix-header-btn:hover,
-.mod-matrix-header-btn.active {
+.mod-matrix-module-btn:hover,
+.mod-matrix-module-btn.active {
   background: rgba(0, 229, 255, 0.12);
   border-color: var(--led-cyan);
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
 }
 
-.mod-matrix-header-btn.has-routes .btn-icon {
+.mod-matrix-module-btn.has-routes .btn-icon {
   color: var(--led-green);
   text-shadow: 0 0 5px var(--led-green);
 }
 
-/* Header buttons scale with the viewport: below 1680px the full labels overflow the header
-   (reload and power slide out), so the drum and matrix buttons show icons only; below 1366px
-   (iPad landscape) the changelog button keeps only sparkle and version */
-@media (max-width: 1679px) {
-  .drum-rack-header-btn span:not(.btn-icon),
-  .mod-matrix-header-btn span:not(.btn-icon) {
+/* Header buttons scale with the viewport: below 1366px (iPad landscape) the full labels overflow
+   the header (reload and power slide out), so the drum button shows its icon only and the
+   changelog button keeps sparkle and version */
+@media (max-width: 1365px) {
+  .drum-rack-header-btn span:not(.btn-icon) {
     display: none;
   }
-}
 
-@media (max-width: 1365px) {
   .changelog-trigger-btn span:not(.changelog-sparkle):not(.version-tag) {
     display: none;
   }
