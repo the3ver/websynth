@@ -88,6 +88,17 @@
     }
 
     /**
+     * Rows for the modulation matrix slots (engine.modMatrix, engine.setModSlot, mod-slotN-amount knobs)
+     */
+    static matrixParams(slots) {
+      return slots.flatMap((slot) => ['source', 'dest', 'amount'].map((field) => ({
+        path: `modMatrix.${slot}.${field}`,
+        ...(field === 'amount' ? { knob: `mod-${slot}-amount` } : {}),
+        set: (e, v) => e.setModSlot(slot, field, v)
+      })));
+    }
+
+    /**
      * Rows for the shared FX rack (engine.fx, setters on PolySynthEngine, fx-* knobs)
      */
     static fxParams() {

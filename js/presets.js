@@ -4,6 +4,11 @@
  * Juno-106 Synthwave Pluck, TB-303 Acid Reso, Oberheim Jump Brass, Sci-Fi S&H, etc.)
  */
 
+// Eight unused modulation matrix slots (paths modMatrix.slot1 .. slot8, see SynthBlocks.ModMatrix.SLOTS)
+const emptyModMatrix = () => Object.fromEntries(
+  Array.from({ length: 8 }, (_, i) => [`slot${i + 1}`, { source: 'off', dest: 'off', amount: 0 }])
+);
+
 const FACTORY_PRESETS = [
   {
     id: 'blade-runner-brass',
@@ -19,6 +24,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.08, decay: 0.4, sustain: 0.9, release: 1.5 },
       lfo1: { wave: 'triangle', rate: 1.5, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.5, fadeIn: 1.2, destinations: { pitch: 0.25, vcf: 0.15, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.7 },
@@ -42,6 +48,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.001, decay: 0.28, sustain: 0.0, release: 0.12 },
       lfo1: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
@@ -65,6 +72,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.001, decay: 0.26, sustain: 0.0, release: 0.18 },
       lfo1: { wave: 'triangle', rate: 1.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.45, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'II', mix: 0.8 },
@@ -88,6 +96,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.001, decay: 0.35, sustain: 0.2, release: 0.1 },
       lfo1: { wave: 'sawtooth', rate: 0.4, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.3, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
@@ -111,6 +120,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.005, decay: 0.4, sustain: 0.7, release: 0.35 },
       lfo1: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.5, fadeIn: 0.8, destinations: { pitch: 0.15, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.6 },
@@ -134,6 +144,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.005, decay: 0.4, sustain: 0.8, release: 0.5 },
       lfo1: { wave: 'samplehold', rate: 8.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.85, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'triangle', rate: 0.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.2, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
@@ -157,6 +168,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 1.4, decay: 1.0, sustain: 0.85, release: 3.5 },
       lfo1: { wave: 'triangle', rate: 0.35, fadeIn: 0.0, destinations: { pitch: 0.05, vcf: 0.35, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 1.2, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.15, pwm: 0.0, amp: 0.15 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I+II', mix: 0.75 },
@@ -180,6 +192,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.001, decay: 0.25, sustain: 0.15, release: 0.08 },
       lfo1: { wave: 'triangle', rate: 4.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 6.0, fadeIn: 0.5, destinations: { pitch: 0.2, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.35 },
@@ -203,6 +216,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.35, decay: 0.6, sustain: 0.85, release: 1.5 },
       lfo1: { wave: 'triangle', rate: 0.8, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.65, amp: 0.0 } },
       lfo2: { wave: 'sine', rate: 5.0, fadeIn: 1.5, destinations: { pitch: 0.18, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.85 },
@@ -226,6 +240,7 @@ const FACTORY_PRESETS = [
       ampEnv: { attack: 0.08, decay: 0.2, sustain: 0.95, release: 0.6 },
       lfo1: { wave: 'sine', rate: 5.8, fadeIn: 0.3, destinations: { pitch: 0.22, vcf: 0.0, pwm: 0.0, amp: 0.1 } },
       lfo2: { wave: 'triangle', rate: 2.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: emptyModMatrix(),
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.4 },
@@ -252,6 +267,7 @@ const INIT_PRESET = {
     ampEnv: { attack: 0.003, decay: 0.3, sustain: 0.8, release: 0.3 },
     lfo1: { wave: 'triangle', rate: 2.5, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
     lfo2: { wave: 'sine', rate: 5.0, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+    modMatrix: emptyModMatrix(),
     fx: {
       crusher: { bits: 8, rate: 11000, mix: 0.0 },
       chorus: { mode: 'off', mix: 0.65 },

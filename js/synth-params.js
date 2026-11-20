@@ -47,6 +47,7 @@ const SYNTH_PARAMS = [
   ...lfoParams(1),
   ...lfoParams(2),
 
+  ...SynthBlocks.ParamTable.matrixParams(SynthBlocks.ModMatrix.SLOTS),
   ...SynthBlocks.ParamTable.fxParams(),
 
   { path: 'performance.glide', field: 'glideEnabled', set: (e, v) => e.setGlide(v) },

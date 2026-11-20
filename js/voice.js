@@ -10,6 +10,31 @@
 const LFO_DESTINATIONS = ['pitch', 'vcf', 'pwm', 'amp'];
 const LFO_DEPTH = { pitch: 200, vcf: 3600, pwm: 0.35, amp: 0.45 };
 
+// Modulation matrix: source labels and targets with their depth at amount 1.0 (units as in buildModTargets)
+const SUB1_MOD_SOURCES = {
+  lfo1: 'LFO 1',
+  lfo2: 'LFO 2',
+  filterEnv: 'FILTER ENV',
+  ampEnv: 'AMP ENV',
+  velocity: 'VELOCITY',
+  key: 'KEY',
+  random: 'RANDOM',
+  modWheel: 'MOD WHEEL'
+};
+const SUB1_MOD_TARGETS = {
+  pitch: { label: 'PITCH', depth: 1200 },
+  vco2Pitch: { label: 'VCO 2 PITCH', depth: 1200 },
+  pwm: { label: 'PULSE WIDTH', depth: 0.45 },
+  vcf: { label: 'CUTOFF', depth: 4800 },
+  resonance: { label: 'RESONANCE', depth: 8 },
+  amp: { label: 'AMP', depth: 0.5 },
+  subLevel: { label: 'SUB LEVEL', depth: 0.8 },
+  noiseLevel: { label: 'NOISE LEVEL', depth: 0.8 }
+};
+// KEY source: 0 at middle C, +-1 five octaves away
+const MOD_KEY_CENTER = 60;
+const MOD_KEY_SPAN = 60;
+
 const VOICE_PEAK_GAIN = 0.40;
 
 class Voice {
@@ -53,6 +78,7 @@ class Voice {
     this.buildFilterAndAmp(mixerBus);
     this.modTargets = this.buildModTargets();
     this.connectLfoDestinations();
+    this.buildModMatrix();
 
     // Continuous oscillators
     this.vco[1].start(0);
@@ -149,6 +175,59 @@ class Voice {
     };
   }
 
+  /**
+   * Per-voice matrix sources (envelopes, velocity, key, random as constant signals) plus the
+   * engine's LFOs and mod wheel, routed by engine.modMatrix
+   */
+  buildModMatrix() {
+    const engine = this.engine;
+    const ctx = engine.ctx;
+    const now = ctx.currentTime;
+    const constant = (value) => {
+      const source = ctx.createConstantSource();
+      source.offset.setValueAtTime(value, now);
+      source.start(now);
+      return source;
+    };
+    this.modSources = {
+      filterEnv: constant(0),
+      ampEnv: constant(0),
+      velocity: constant(1),
+      key: constant(0),
+      random: constant(0)
+    };
+    // Same stages as the filter and amp envelopes, normalized to 0..1
+    this.filterModEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [0.0001, 1] });
+    this.ampModEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, 1] });
+
+    const depths = {};
+    for (const [name, target] of Object.entries(SUB1_MOD_TARGETS)) depths[name] = target.depth;
+    const lfoOutput = (n) => (engine.lfos[n] ? engine.lfos[n].output : null);
+    this.modMatrix = new SynthBlocks.ModMatrix(ctx, {
+      sources: {
+        lfo1: lfoOutput(1),
+        lfo2: lfoOutput(2),
+        ...this.modSources,
+        modWheel: engine.modWheelSource
+      },
+      targets: this.modTargets,
+      depths,
+      slots: engine.modSlots()
+    });
+  }
+
+  /**
+   * Note-dependent matrix sources: velocity, key position, a new random value, both mod envelopes
+   */
+  startModSources(midiNote, velocity, now) {
+    const { velocity: vel, key, random } = this.modSources;
+    vel.offset.setValueAtTime(velocity, now);
+    key.offset.setValueAtTime(Math.max(-1, Math.min(1, (midiNote - MOD_KEY_CENTER) / MOD_KEY_SPAN)), now);
+    random.offset.setValueAtTime(Math.random() * 2 - 1, now);
+    this.filterModEnvelope.trigger([this.modSources.filterEnv.offset], now, { start: 0.0001, peak: 1 });
+    this.ampModEnvelope.trigger([this.modSources.ampEnv.offset], now, { start: 0.0001, peak: 1 });
+  }
+
   connectLfoDestinations() {
     for (const lfoNum of [1, 2]) {
       const route = this.lfo[lfoNum];
@@ -215,6 +294,7 @@ class Voice {
     this.startAmpEnvelope(velocity, now);
 
     for (const lfoNum of [1, 2]) this.startLfoFadeIn(lfoNum, now);
+    this.startModSources(midiNote, velocity, now);
 
     return vco1Freq;
   }
@@ -274,6 +354,9 @@ class Voice {
     try {
       this.filterEnvelope.release(this.filterParams, now, this.voiceCutoff);
     } catch (e) {}
+
+    this.filterModEnvelope.release([this.modSources.filterEnv.offset], now, 0);
+    this.ampModEnvelope.release([this.modSources.ampEnv.offset], now, 0);
 
     // Mark voice as idle and unplug it once the tail is inaudible (3x release = 9 time
     // constants, about -78 dB), unless re-triggered meanwhile
@@ -356,3 +439,5 @@ class Voice {
 }
 
 window.Voice = Voice;
+window.SUB1_MOD_SOURCES = SUB1_MOD_SOURCES;
+window.SUB1_MOD_TARGETS = SUB1_MOD_TARGETS;

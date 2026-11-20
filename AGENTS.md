@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.19), scripts & metadata
+├── package.json            # Versioning (v1.8.20), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -48,6 +48,7 @@ websynth/
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
+│   │   ├── mod-matrix.js   # ModMatrix: named sources -> named targets, one gain per slot, empty slots unplugged; SLOTS
 │   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams, fxParams (shared FX rack rows)
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
@@ -56,7 +57,7 @@ websynth/
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
 │   ├── note-router.js      # NoteRouter: keybed notes -> arpeggiator or voices, arp/latch switches (DOM-free)
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
-│   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH)
+│   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH), mod matrix (SUB1_MOD_SOURCES/TARGETS)
 │   ├── fx-chain.js         # Rack: SynthBlocks Crusher -> Chorus -> Delay -> Reverb in series, loads the crusher worklet
 │   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
 │   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets

@@ -9,8 +9,13 @@
  *   createVoice(id)    one pre-built voice: trigger(note, velocity, now) -> frequency, release(now),
  *                      choke(now), updateFrequencies(now), baseFreq, plus the VoicePool fields
  * and may override onOctaveChange() / onModWheelChange() / initVoicePool(count).
+ * A voice with a modulation matrix exposes it as voice.modMatrix (SynthBlocks.ModMatrix over
+ * engine.modSlots()); setModSlot() pushes slot changes to every voice.
  * Arpeggiator, drum machine, UI and PWA manager talk only to this interface.
  */
+
+// Modulation matrix slots (preset paths modMatrix.slot1 .. modMatrix.slot8)
+const MOD_MATRIX_SLOTS = SynthBlocks.ModMatrix.SLOTS;
 
 // ADSR stage limits (attack/decay/release in seconds, sustain as level)
 const ENV_STAGE_RANGE = {
@@ -66,6 +71,12 @@ class PolySynthEngine {
     };
 
     this.fxChain = null;
+
+    // Modulation matrix: { slotN: { source, dest, amount } }, names per synth (voice.js), 'off' = unused
+    this.modMatrix = {};
+    for (const slot of MOD_MATRIX_SLOTS) this.modMatrix[slot] = { source: 'off', dest: 'off', amount: 0 };
+    // Mod wheel as a signal (0..1) for matrix slots, built with the AudioContext
+    this.modWheelSource = null;
 
     // Callbacks for UI updates
     this.onVoiceChange = null;
@@ -130,6 +141,10 @@ class PolySynthEngine {
 
       // Analyser, volume, limiter and safety clipper (shared with the drum machine)
       this.master = new SynthBlocks.MasterBus(this.ctx, { volume: this.masterVolume });
+
+      this.modWheelSource = this.ctx.createConstantSource();
+      this.modWheelSource.offset.setValueAtTime(this.modWheelValue, this.ctx.currentTime);
+      this.modWheelSource.start();
 
       this.initInstrument();
 
@@ -316,7 +331,33 @@ class PolySynthEngine {
 
   setModWheel(value) {
     this.modWheelValue = Math.max(0, Math.min(1, value));
+    if (this.modWheelSource) this.modWheelSource.offset.setTargetAtTime(this.modWheelValue, this.ctx.currentTime, 0.01);
     this.onModWheelChange();
+  }
+
+  // =========================================================================
+  // MODULATION MATRIX
+  // =========================================================================
+
+  /**
+   * Live slot objects in slot order (what a voice's ModMatrix reads)
+   */
+  modSlots() {
+    return MOD_MATRIX_SLOTS.map((slot) => this.modMatrix[slot]);
+  }
+
+  /**
+   * @param field 'source' | 'dest' (names, 'off' unplugs) or 'amount' (-1..1)
+   */
+  setModSlot(slot, field, value) {
+    const index = MOD_MATRIX_SLOTS.indexOf(slot);
+    if (index < 0 || !['source', 'dest', 'amount'].includes(field)) return;
+    this.modMatrix[slot][field] = field === 'amount'
+      ? Math.max(-1, Math.min(1, parseFloat(value) || 0))
+      : String(value);
+    this.forEachVoice((voice) => {
+      if (voice.modMatrix) voice.modMatrix.applySlot(index);
+    });
   }
 
   onModWheelChange() {}
