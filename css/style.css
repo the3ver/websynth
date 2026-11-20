@@ -926,6 +926,14 @@ polyline.fm-alg-out {
   background: linear-gradient(180deg, #14151e 0%, #0d0e14 100%);
 }
 
+/* Titles stay on one line; a title too long for its column ends in an ellipsis instead of wrapping */
+.module-title > span:not(.module-led) {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .module-title {
   display: flex;
   align-items: center;
