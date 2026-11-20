@@ -2292,6 +2292,8 @@ polyline.fm-alg-out {
 .env-tab-btn {
   flex: 1;
   height: 20px;
+  /* Labels stay on one line: keep them short (test/tab-labels.test.js) */
+  white-space: nowrap;
   background: #141720;
   border: 1px solid #282d3b;
   border-radius: 3px;
@@ -4366,6 +4368,7 @@ body.is-pwa-standalone .studio-desk {
 
 .mobile-tab-btn {
   flex: 1;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
