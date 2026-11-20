@@ -41,6 +41,7 @@ class SynthUI {
     this.initMobileTabs();
     this.initPerformanceControls();
     this.initArpeggiatorControls();
+    this.modMatrixPanel = new ModMatrixPanel(this.engine, synth.modMatrix);
     this.presetPanel = new PresetPanel(this.engine, new PresetStore({ key: synth.presetStorageKey }), synth.presets, () => {
       this.notes.releaseLatch();
       this.syncControls();
@@ -83,6 +84,7 @@ class SynthUI {
     if (param) {
       param.set(this.engine, val);
       if (knobId.startsWith('fx-')) this.renderFxLeds();
+      if (knobId.startsWith('mod-') && this.modMatrixPanel) this.modMatrixPanel.render();
     } else if (this.arpKnobActions[knobId]) {
       this.arpKnobActions[knobId](val);
     }
@@ -195,6 +197,7 @@ class SynthUI {
     this.synth.buttonGroups.forEach((group) => this.renderButtonGroup(group));
     this.toggles.forEach((toggle) => this.renderToggle(toggle));
     this.renderFxLeds();
+    if (this.modMatrixPanel) this.modMatrixPanel.render();
     if (this.glideToggle) this.glideToggle.checked = !!this.engine.glideEnabled;
     this.renderOctave();
   }

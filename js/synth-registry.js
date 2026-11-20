@@ -12,6 +12,7 @@
  *   presets            { factory: [...], init, random() -> patch state (RANDOM button) }
  *   presetStorageKey   localStorage key of the user presets
  *   lfoRate(engine, ui) rate in Hz for the LFO LED
+ *   modMatrix          optional { sources: { id: label }, targets: { id: { label, depth } } } for the MOD MATRIX panel
  */
 
 const SYNTH_DEFINITIONS = {
@@ -33,7 +34,8 @@ const SYNTH_DEFINITIONS = {
     envTargets: { amp: 'ampEnv', filter: 'filterEnv' },
     presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET, random: (rng) => PatchRandomizer.sub1(rng) },
     presetStorageKey: 'retrovox_user_presets',
-    lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate
+    lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate,
+    modMatrix: { sources: window.SUB1_MOD_SOURCES, targets: window.SUB1_MOD_TARGETS }
   },
 
   fm: {

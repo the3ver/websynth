@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.20), scripts & metadata
+├── package.json            # Versioning (v1.8.21), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -80,6 +80,7 @@ websynth/
 │   ├── visualizer.js       # CRT oscilloscope, VU meters, woofers
 │   ├── preset-store.js     # User presets in localStorage (DOM-free)
 │   ├── preset-panel.js     # Preset LCD, prev/next, save / overwrite / delete dialog
+│   ├── mod-matrix-panel.js # MOD MATRIX overlay: source/target selects per slot (amount knobs bound by SynthUI), slot LEDs
 │   ├── synth-ui.js         # Panel composer: knobs/faders/buttons via the synth definition, arp strip, perf bay
 │   ├── synth-registry.js   # Synth definitions (engine, param table, button rows, env tabs, presets) + selection
 │   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
@@ -127,6 +128,15 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 - **Engine**: a `PolySynthEngine` subclass (`js/poly-synth-engine.js` lists the hooks: `initInstrument`, `createVoice`, `onOctaveChange`, `onModWheelChange`). Arpeggiator, drums, UI and PWA manager use only the base interface.
 - **Definition**: one entry in `SYNTH_DEFINITIONS` (engine factory, `ParamTable`, button rows, toggles, envelope tabs, presets, preset storage key, LFO LED rate).
 - **Markup**: synth-specific slides, tabs and labels carry `data-synth="<id>"` in `index.html`; `app.js` removes the other synths' elements before `SynthUI` binds controls. Elements without `data-synth` (ADSR faders, FX rack, keyboard, arp) are shared, so shared knob ids (`fx-*`) need a row in every table. `test/synth-registry.test.js` checks knobs and envelope tabs per synth.
+
+---
+
+## 🔀 Modulation Matrix (`js/lib/mod-matrix.js`)
+
+- **Data**: `engine.modMatrix.slot1..slot8 = { source, dest, amount }` (base class), set via `engine.setModSlot(slot, field, value)`, preset rows from `ParamTable.matrixParams(ModMatrix.SLOTS)`. `'off'` or unknown names leave a slot unplugged.
+- **Voice side**: a voice builds `SynthBlocks.ModMatrix` over its sources and `voice.modTargets` and exposes it as `voice.modMatrix`. SUB-1 names and depths: `SUB1_MOD_SOURCES` / `SUB1_MOD_TARGETS` in `voice.js`; the synth definition passes them as `modMatrix` to the panel.
+- **New source or target**: add the node/param in `Voice.buildModMatrix()` / `buildModTargets()` and the entry in `SUB1_MOD_*`; `test/sub1-mod-matrix.test.js` fails if definition and voice drift apart.
+- **UI**: `#modMatrixPanel` and `#openModMatrixBtn` carry `data-synth="sub1"`; the FM-4 has no matrix yet.
 
 ---
 

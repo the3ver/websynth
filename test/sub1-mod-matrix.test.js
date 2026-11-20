@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { createLiveEngine, loadEngineContext } = require('./helpers/synth-engine');
+const { createLiveEngine, loadEngineContext, FM_SCRIPTS } = require('./helpers/synth-engine');
 
 const plain = (v) => JSON.parse(JSON.stringify(v));
 // Same nodes in the same order (arrays from the vm sandbox fail deepEqual against Node arrays)
@@ -93,4 +93,35 @@ test('matrix slots are saved in presets and reloaded', () => {
   b.loadPresetState(state);
   const gain = b.voicePool[0].modMatrix.gains[7];
   assert.ok(b.voicePool[0].modSources.key.connections.includes(gain));
+});
+
+test('the SUB-1 definition lists exactly the sources and targets a voice can route', () => {
+  const context = loadEngineContext('presets.js', ...FM_SCRIPTS, 'patch-randomizer.js', 'synth-registry.js');
+  const { matrix } = { matrix: context.SynthRegistry.get('sub1').modMatrix };
+  const engine = new context.AudioEngine();
+  engine.initAudio();
+  const voice = engine.voicePool[0];
+  assert.deepEqual(Object.keys(matrix.sources).sort(), Object.keys(voice.modMatrix.sources).sort());
+  assert.deepEqual(Object.keys(matrix.targets).sort(), Object.keys(voice.modTargets).sort());
+  for (const [id, target] of Object.entries(matrix.targets)) {
+    assert.equal(typeof target.label, 'string', id);
+    assert.ok(target.depth > 0, id);
+  }
+  for (const source of Object.values(voice.modMatrix.sources)) assert.ok(source, 'every source has a node');
+});
+
+test('the panel counts a slot as active only with known source, known target and an amount', () => {
+  const context = loadEngineContext('dom-utils.js', 'mod-matrix-panel.js');
+  const matrix = { sources: { lfo1: 'LFO 1' }, targets: { vcf: { label: 'CUTOFF' } } };
+  const active = (source, dest, amount) => context.ModMatrixPanel.isActive({ source, dest, amount }, matrix);
+  assert.equal(active('lfo1', 'vcf', 0.2), true);
+  assert.equal(active('lfo1', 'vcf', 0), false);
+  assert.equal(active('off', 'vcf', 0.2), false);
+  assert.equal(active('lfo1', 'pitch', 0.2), false);
+});
+
+test('every matrix slot has its amount knob in the SUB-1 markup', () => {
+  const { knobsOf } = require('./helpers/panel-markup');
+  const knobs = knobsOf('sub1');
+  for (let n = 1; n <= 8; n++) assert.ok(knobs.includes(`mod-slot${n}-amount`), `slot${n}`);
 });

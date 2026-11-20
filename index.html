@@ -130,10 +130,14 @@ window.addEventListener('DOMContentLoaded', () => {
           <span class="btn-icon">🥁</span>
           <span>DRUM RACK</span>
         </button>
+        <button class="btn btn-outline mod-matrix-header-btn" id="openModMatrixBtn" data-synth="sub1" title="Modulationsmatrix ein-/ausblenden">
+          <span class="btn-icon">⇄</span>
+          <span>MOD MATRIX</span>
+        </button>
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.20</span>
+          <span class="version-tag">v1.8.21</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1325,6 +1329,115 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 
+  <!-- Modulation matrix overlay (SUB-1): opened from the MOD MATRIX header button, keybed stays playable -->
+  <aside class="mod-matrix-panel" id="modMatrixPanel" data-synth="sub1" aria-label="Modulationsmatrix">
+    <div class="mod-matrix-header">
+      <span>MOD MATRIX // 8 SLOTS</span>
+      <button class="mod-matrix-close" type="button" aria-label="Schließen">&times;</button>
+    </div>
+    <div class="mod-matrix-legend">
+      <span></span><span>QUELLE</span><span></span><span>ZIEL</span><span>MENGE</span>
+    </div>
+    <div class="mod-matrix-rows">
+      <div class="mod-slot-row" data-slot="slot1">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>1</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 1"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 1"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot1-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot1-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot2">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>2</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 2"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 2"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot2-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot2-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot3">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>3</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 3"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 3"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot3-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot3-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot4">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>4</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 4"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 4"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot4-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot4-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot5">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>5</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 5"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 5"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot5-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot5-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot6">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>6</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 6"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 6"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot6-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot6-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot7">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>7</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 7"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 7"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot7-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot7-amount-readout">0%</span>
+        </div>
+      </div>
+      <div class="mod-slot-row" data-slot="slot8">
+        <span class="mod-slot-num"><i class="mod-slot-led"></i>8</span>
+        <select class="mod-select" data-mod-field="source" aria-label="Quelle Slot 8"></select>
+        <span class="mod-slot-arrow">→</span>
+        <select class="mod-select" data-mod-field="dest" aria-label="Ziel Slot 8"></select>
+        <div class="synth-knob-wrapper mod-amount">
+          <div class="synth-knob-housing" data-param="mod-slot8-amount" data-min="-1.0" data-max="1.0" data-step="0.01" data-default="0.0" data-type="bipolar-percent">
+            <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+          </div>
+          <span class="knob-readout-badge" id="mod-slot8-amount-readout">0%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
   <!-- Floating Right Slide-In Tab for Drum & Bass Machine -->
   <div class="drum-drawer-tab" id="drumDrawerTab" title="Drum & Bass Machine ein-/ausfahren (Shift+D)">
     <span class="tab-pulse-led"></span>
@@ -1561,11 +1674,11 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.20</span>
+            <span class="release-version-number">v1.8.21</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
@@ -1573,6 +1686,20 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="changelog-grid">
 
           <div class="changelog-card highlight-card">
+            <div class="card-icon">⇄</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>Mod-Matrix (SUB-1)</h3>
+              <p>Die Taste MOD MATRIX in der Kopfleiste blendet 8 Modulations-Slots ein. Das Keybed bleibt dabei spielbar.</p>
+              <ul>
+                <li><strong>Quellen:</strong> LFO 1 und 2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel.</li>
+                <li><strong>Ziele:</strong> Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel. Die Menge reicht von -100 % bis +100 %.</li>
+                <li><strong>Presets:</strong> die Matrix wird mitgespeichert, die LED zeigt aktive Slots. Ältere Presets laden fehlende Werte aus INIT.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="changelog-card">
             <div class="card-icon">👾</div>
             <div class="card-content">
               <div class="card-badge perf-badge">NEU</div>
@@ -1856,6 +1983,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/visualizer.js"></script>
   <script src="js/preset-store.js"></script>
   <script src="js/preset-panel.js"></script>
+  <script src="js/mod-matrix-panel.js"></script>
   <script src="js/synth-ui.js"></script>
   <script src="js/synth-registry.js"></script>
   <script src="js/pwa-manager.js"></script>

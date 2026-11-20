@@ -1,6 +1,6 @@
 /**
  * RETROVOX SUB-1 & RETROBEAT D-909 • Progressive Web App Service Worker
- * Version: 1.8.20
+ * Version: 1.8.21
  * Provides 100% offline capability, app shell caching, and font asset caching.
  *
  * One release = one cache (SHELL_CACHE, named after CACHE_VERSION). HTML and assets of a page load
@@ -10,7 +10,7 @@
  * pwa-manager.js reloads the page on controllerchange.
  */
 
-const CACHE_VERSION = 'v1.8.20';
+const CACHE_VERSION = 'v1.8.21';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
@@ -56,6 +56,7 @@ const PRECACHE_ASSETS = [
   './js/visualizer.js',
   './js/preset-store.js',
   './js/preset-panel.js',
+  './js/mod-matrix-panel.js',
   './js/synth-ui.js',
   './js/synth-registry.js',
   './js/arp-engine.js',

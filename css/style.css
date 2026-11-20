@@ -4741,7 +4741,8 @@ body.is-pwa-standalone .studio-desk {
     min-width: 18px !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon),
+  .mod-matrix-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -4975,7 +4976,8 @@ body.is-pwa-standalone .studio-desk {
     font-size: 0.68rem !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon),
+  .mod-matrix-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -5238,7 +5240,8 @@ body.is-pwa-standalone .studio-desk {
     min-width: 18px !important;
   }
 
-  .drum-rack-header-btn span:not(.btn-icon) {
+  .drum-rack-header-btn span:not(.btn-icon),
+  .mod-matrix-header-btn span:not(.btn-icon) {
     display: none !important;
   }
 
@@ -5905,6 +5908,172 @@ body.is-pwa-standalone .studio-desk {
 
 
 
+
+/* ==========================================================================
+   MOD MATRIX OVERLAY (header button MOD MATRIX, SUB-1)
+   ========================================================================== */
+
+.mod-matrix-header-btn {
+  border-color: rgba(0, 229, 255, 0.35);
+  color: #7fefff;
+}
+
+.mod-matrix-header-btn:hover,
+.mod-matrix-header-btn.active {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--led-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+.mod-matrix-header-btn.has-routes .btn-icon {
+  color: var(--led-green);
+  text-shadow: 0 0 5px var(--led-green);
+}
+
+.mod-matrix-panel {
+  display: none;
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  max-height: 58dvh;
+  overflow-y: auto;
+  z-index: 90;
+  background: #141720;
+  border: 1px solid #2e3444;
+  border-radius: 8px;
+  padding: 8px 10px 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 229, 255, 0.08);
+  font-family: var(--font-mono);
+}
+
+.mod-matrix-panel.open {
+  display: block;
+}
+
+.mod-matrix-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #cbd3e6;
+  margin-bottom: 6px;
+}
+
+.mod-matrix-close {
+  background: none;
+  border: 1px solid #2e3444;
+  border-radius: 4px;
+  color: #cbd3e6;
+  font-size: 1rem;
+  line-height: 1;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.mod-matrix-legend,
+.mod-slot-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 14px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 6px;
+}
+
+.mod-matrix-legend {
+  font-size: 0.5rem;
+  color: #6a7488;
+  padding: 0 4px 4px;
+}
+
+.mod-slot-row {
+  padding: 3px 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mod-slot-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6rem;
+  color: #6a7488;
+}
+
+.mod-slot-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.mod-slot-row.active .mod-slot-led {
+  background: var(--led-green);
+  box-shadow: 0 0 5px var(--led-green);
+}
+
+.mod-slot-row.active .mod-slot-num {
+  color: #ffffff;
+}
+
+.mod-slot-arrow {
+  color: #6a7488;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.mod-select {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  background: #131722;
+  border: 1px solid #283348;
+  border-radius: 3px;
+  color: var(--led-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.mod-select option {
+  background: #0d1219;
+  color: #cbd3e6;
+}
+
+.mod-amount {
+  flex-direction: row;
+  gap: 4px;
+}
+
+.mod-amount .knob-readout-badge {
+  min-width: 32px;
+  font-size: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .mod-matrix-panel {
+    top: 48px;
+    width: calc(100vw - 16px);
+    padding: 6px;
+  }
+
+  .mod-matrix-legend,
+  .mod-slot-row {
+    grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) 58px;
+    gap: 4px;
+  }
+
+  .mod-slot-arrow,
+  .mod-matrix-legend span:nth-child(3) {
+    display: none;
+  }
+}
 
 /* ==========================================================================
    FM-4 THEME • cool blue steel and aluminium, green level rings on the knobs
