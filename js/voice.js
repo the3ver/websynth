@@ -190,7 +190,7 @@ class Voice {
     const engine = this.engine;
     const ctx = engine.ctx;
     // Envelopes, velocity, key and random of this voice's note (SynthBlocks.NoteModSources)
-    this.noteModSources = new SynthBlocks.NoteModSources(ctx, engine);
+    this.noteModSources = new SynthBlocks.NoteModSources(ctx, engine.modEnvelopes());
     this.modSources = this.noteModSources.nodes;
 
     const depths = {};

@@ -124,7 +124,7 @@ class AudioEngine extends PolySynthEngine {
    */
   initRackModulation() {
     const ctx = this.ctx;
-    this.fxNoteModSources = new SynthBlocks.NoteModSources(ctx, this);
+    this.fxNoteModSources = new SynthBlocks.NoteModSources(ctx, this.modEnvelopes());
     const depths = {};
     for (const [name, target] of Object.entries(SUB1_FX_MOD_TARGETS)) depths[name] = target.depth;
     this.fxModMatrix = new SynthBlocks.ModMatrix(ctx, {
@@ -141,6 +141,13 @@ class AudioEngine extends PolySynthEngine {
     });
     // CRUSH targets appear with the worklet
     this.fxChain.ready.then(() => this.fxModMatrix.applyAll());
+  }
+
+  /**
+   * Envelopes a matrix offers as sources (settings objects by source name)
+   */
+  modEnvelopes() {
+    return { filterEnv: this.filterEnv, ampEnv: this.ampEnv };
   }
 
   initVoicePool(count) {
