@@ -34,6 +34,7 @@
       // Envelope and modulation targets: both stages move together
       this.frequencyParams = [this.stage1.frequency, this.stage2.frequency];
       this.detuneParams = [this.stage1.detune, this.stage2.detune];
+      this.qParams = [this.stage1.Q, this.stage2.Q];
     }
 
     /**

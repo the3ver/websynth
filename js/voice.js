@@ -51,6 +51,7 @@ class Voice {
 
     const mixerBus = this.buildMixer(this.vco[1], this.vco[2]);
     this.buildFilterAndAmp(mixerBus);
+    this.modTargets = this.buildModTargets();
     this.connectLfoDestinations();
 
     // Continuous oscillators
@@ -131,13 +132,29 @@ class Voice {
     this.filterParams = this.filter.frequencyParams;
   }
 
+  /**
+   * Modulation inputs by name: AudioParams or nodes a modulation signal connects to.
+   * pitch and vcf in cents, pwm in pulse width units, resonance in Q, amp and levels in gain.
+   */
+  buildModTargets() {
+    return {
+      pitch: [this.vco[1].detune, this.vco[2].detune],
+      vco2Pitch: [this.vco[2].detune],
+      pwm: [this.vco[1].pwInput, this.vco[2].pwInput],
+      vcf: this.filter.detuneParams,
+      resonance: this.filter.qParams,
+      amp: [this.vca.tremoloGain],
+      subLevel: [this.mixer.input('subLevel').gain],
+      noiseLevel: [this.mixer.input('noiseLevel').gain]
+    };
+  }
+
   connectLfoDestinations() {
     for (const lfoNum of [1, 2]) {
       const route = this.lfo[lfoNum];
-      route.pitch.connect(this.vco[1].detune);
-      route.pitch.connect(this.vco[2].detune);
-      for (const detune of this.filter.detuneParams) route.vcf.connect(detune);
-      route.amp.connect(this.vca.tremoloGain);
+      for (const dest of ['pitch', 'vcf', 'amp']) {
+        for (const target of this.modTargets[dest]) route[dest].connect(target);
+      }
     }
   }
 
