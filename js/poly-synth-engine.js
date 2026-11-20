@@ -389,8 +389,11 @@ class PolySynthEngine {
     return this.params.readState(this);
   }
 
-  loadPresetState(state) {
-    if (state) this.params.applyState(this, state);
+  /**
+   * @param defaults full patch state (INIT) for parameters the preset lacks
+   */
+  loadPresetState(state, defaults) {
+    if (state) this.params.applyState(this, state, defaults);
   }
 }
 

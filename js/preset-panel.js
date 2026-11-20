@@ -248,7 +248,7 @@ class PresetPanel {
   apply(preset) {
     if (!preset || !preset.state) return;
     this.engine.allNotesOff();
-    this.engine.loadPresetState(preset.state);
+    this.engine.loadPresetState(preset.state, this.initPreset && this.initPreset.state);
     this.onApplied(preset);
 
     if (this.catTag) this.catTag.textContent = preset.category || 'PRESET';

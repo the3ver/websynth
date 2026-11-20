@@ -65,12 +65,14 @@
     }
 
     /**
-     * Applies every parameter present in a (possibly partial) preset state
+     * Applies every parameter present in a (possibly partial) preset state. A parameter the state
+     * lacks (preset saved before it existed) comes from defaults, when given.
      */
-    applyState(engine, state) {
+    applyState(engine, state, defaults) {
       for (const param of this.list) {
         if (param.preset === false) continue;
-        const value = getPath(state, param.path);
+        let value = getPath(state, param.path);
+        if (value === undefined && defaults) value = getPath(defaults, param.path);
         if (value !== undefined) param.set(engine, value);
       }
     }

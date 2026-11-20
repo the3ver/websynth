@@ -282,6 +282,18 @@ describe('preset state', () => {
     }
   });
 
+  test('a preset saved before a parameter existed loads that parameter from the INIT patch', () => {
+    const { AudioEngine, SYNTH_INIT_PRESET } = loadEngineContext('presets.js');
+    const engine = new AudioEngine();
+    engine.setCrusherMix(0.7);
+    const oldPreset = JSON.parse(JSON.stringify(SYNTH_INIT_PRESET.state));
+    delete oldPreset.fx.crusher;
+    oldPreset.vcf.cutoff = 1234;
+    engine.loadPresetState(oldPreset, SYNTH_INIT_PRESET.state);
+    assert.equal(engine.fx.crusher.mix, 0, 'missing in the preset: INIT value');
+    assert.equal(engine.vcf.cutoff, 1234, 'present in the preset: preset value');
+  });
+
   test('getPresetState returns a copy, not live references', () => {
     const engine = createEngine();
     const state = engine.getPresetState();
