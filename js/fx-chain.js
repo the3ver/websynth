@@ -4,6 +4,8 @@
  * Composes the SynthBlocks effects (js/lib/effects.js) on the shared fx parameter object
  * (engine.fx); the engine calls crusher/chorus/delay/reverb.apply*() after changing a setting.
  * The crusher's worklet loads asynchronously; until then it passes the dry signal only.
+ * modTargets names the params a modulation matrix may add to (crusherBits / crusherRate appear
+ * once the worklet is attached, see ready).
  */
 
 // Bitcrusher worklet module, relative to index.html
@@ -22,16 +24,28 @@ class FXChain {
     this.delay.output.connect(this.reverb.input);
     this.reverb.output.connect(output);
 
+    this.modTargets = {
+      delayTime: [this.delay.delayL.delayTime, this.delay.delayR.delayTime],
+      delayFeedback: [this.delay.feedbackGainL.gain, this.delay.feedbackGainR.gain],
+      delayMix: [this.delay.wetGain.gain],
+      reverbMix: [this.reverb.wetGain.gain]
+    };
+
     // Resolves once the crusher's worklet node is attached (or its module failed to load)
     this.ready = ctx.audioWorklet
       ? ctx.audioWorklet.addModule(CRUSHER_WORKLET_URL)
-        .then(() => this.crusher.attach(new AudioWorkletNode(ctx, 'bitcrusher', {
-          numberOfInputs: 1,
-          numberOfOutputs: 1,
-          outputChannelCount: [2],
-          channelCount: 2,
-          channelCountMode: 'explicit'
-        })))
+        .then(() => {
+          const node = new AudioWorkletNode(ctx, 'bitcrusher', {
+            numberOfInputs: 1,
+            numberOfOutputs: 1,
+            outputChannelCount: [2],
+            channelCount: 2,
+            channelCountMode: 'explicit'
+          });
+          this.crusher.attach(node);
+          this.modTargets.crusherBits = [node.parameters.get('bits')];
+          this.modTargets.crusherRate = [node.parameters.get('rate')];
+        })
         .catch((err) => console.error('Bitcrusher worklet failed to load:', err))
       : Promise.resolve();
   }

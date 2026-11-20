@@ -119,3 +119,18 @@ test('crusher bits and rate reach the worklet params and are clamped', async () 
   assert.equal(engine.fx.crusher.bits, 16);
   assert.equal(engine.fx.crusher.rate, 500);
 });
+
+test('the rack names its modulation targets, crusher params once the worklet is attached', async () => {
+  const { engine } = createLiveEngine();
+  const { delay, reverb, modTargets } = engine.fxChain;
+  assert.equal(modTargets.crusherRate, undefined);
+  assert.equal(modTargets.delayTime[0], delay.delayL.delayTime);
+  assert.equal(modTargets.delayTime[1], delay.delayR.delayTime);
+  assert.equal(modTargets.delayFeedback[1], delay.feedbackGainR.gain);
+  assert.equal(modTargets.delayMix[0], delay.wetGain.gain);
+  assert.equal(modTargets.reverbMix[0], reverb.wetGain.gain);
+  await engine.fxChain.ready;
+  const node = engine.fxChain.crusher.node;
+  assert.equal(modTargets.crusherBits[0], node.parameters.get('bits'));
+  assert.equal(modTargets.crusherRate[0], node.parameters.get('rate'));
+});
