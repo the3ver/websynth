@@ -186,3 +186,24 @@ test('note sources on FX targets follow the last note and release with the last 
   engine.noteOff(64);
   assert.equal(ampEnv.offset.lastValue('setTargetAtTime'), 0);
 });
+
+test('MOD ENV is a matrix source with its own ADSR, not routed anywhere by default', () => {
+  const { engine, ctx, context } = createLiveEngine('presets.js');
+  assert.equal(context.SUB1_MOD_SOURCES.modEnv, 'MOD ENV');
+  for (const slot of Object.values(context.SYNTH_INIT_PRESET.state.modMatrix)) assert.notEqual(slot.source, 'modEnv');
+  const voice = engine.voicePool[0];
+  assert.equal(voice.modSources.modEnv.started, null, 'stopped while unrouted');
+
+  engine.setEnvStage('modEnv', 'attack', 0.5);
+  engine.setModSlot('slot1', 'source', 'modEnv');
+  engine.setModSlot('slot1', 'dest', 'vcf');
+  engine.setModSlot('slot1', 'amount', 1);
+  assert.notEqual(voice.modSources.modEnv.started, null);
+
+  ctx.currentTime = 1;
+  engine.noteOn(60, 1);
+  const env = engine.activeVoices.get(60).modSources.modEnv.offset;
+  const attack = env.events.find((e) => e.type === 'exponentialRampToValueAtTime');
+  assert.equal(attack.value, 1);
+  assert.equal(attack.time, 1.5, 'attack from engine.modEnv');
+});

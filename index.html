@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.27</span>
+          <span class="version-tag">v1.8.28</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -958,6 +958,7 @@ window.addEventListener('DOMContentLoaded', () => {
                   <div class="env-tab-group" id="envTabGroup">
                     <button class="env-tab-btn active" data-synth="sub1" data-target="amp" title="VCA Lautstärke-Hüllkurve">VCA (AMP)</button>
                     <button class="env-tab-btn" data-synth="sub1" data-target="filter" title="VCF Filter Cutoff-Hüllkurve">VCF (FILTER)</button>
+                    <button class="env-tab-btn" data-synth="sub1" data-target="mod" title="Mod-Hüllkurve, Quelle MOD ENV in der Mod-Matrix">MOD ENV</button>
                     <button class="env-tab-btn active" data-synth="fm" data-target="op1" title="Hüllkurve Operator C">C</button>
                     <button class="env-tab-btn" data-synth="fm" data-target="op2" title="Hüllkurve Operator A">A</button>
                     <button class="env-tab-btn" data-synth="fm" data-target="op3" title="Hüllkurve Operator B1">B1</button>
@@ -1710,16 +1711,29 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.27</span>
+            <span class="release-version-number">v1.8.28</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">〽️</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>Mod-Hüllkurve</h3>
+              <p>Das Hüllkurven-Modul (DUAL ADSR) hat eine Formanzeige über den Fadern und beim SUB-1 einen dritten Tab MOD ENV.</p>
+              <ul>
+                <li><strong>Anzeige:</strong> zeigt die Form der gewählten Hüllkurve, auch beim FM-4.</li>
+                <li><strong>MOD ENV:</strong> eigene ADSR-Hüllkurve, nur als Quelle in der Mod-Matrix; ab Werk nicht angeschlossen.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">🎛️</div>

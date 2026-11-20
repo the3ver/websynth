@@ -68,6 +68,14 @@ class AudioEngine extends PolySynthEngine {
       release: 0.3    // 0.005 to 8.0s
     };
 
+    // Mod Envelope: only a matrix source (MOD ENV), no fixed routing
+    this.modEnv = {
+      attack: 0.01,
+      decay: 0.6,
+      sustain: 0.0,
+      release: 0.4
+    };
+
     // Dual-LFO Modulation Parameters (Independent LFO 1 & LFO 2)
     this.lfo1 = {
       wave: 'triangle', // 'sine', 'triangle', 'sawtooth', 'square', 'samplehold'
@@ -147,7 +155,7 @@ class AudioEngine extends PolySynthEngine {
    * Envelopes a matrix offers as sources (settings objects by source name)
    */
   modEnvelopes() {
-    return { filterEnv: this.filterEnv, ampEnv: this.ampEnv };
+    return { filterEnv: this.filterEnv, ampEnv: this.ampEnv, modEnv: this.modEnv };
   }
 
   initVoicePool(count) {

@@ -31,7 +31,7 @@ const SYNTH_DEFINITIONS = {
       { path: (ui) => `lfo${ui.currentLfoTarget}.wave`, selector: '#lfoWaveRow .lfo-wave-btn', key: 'wave' }
     ],
     toggles: [{ id: 'vco2SyncBtn', path: 'vco2.hardSync' }],
-    envTargets: { amp: 'ampEnv', filter: 'filterEnv' },
+    envTargets: { amp: 'ampEnv', filter: 'filterEnv', mod: 'modEnv' },
     presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET, random: (rng) => PatchRandomizer.sub1(rng) },
     presetStorageKey: 'retrovox_user_presets',
     lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate,

@@ -16,6 +16,7 @@ const SUB1_MOD_SOURCES = {
   lfo2: 'LFO 2',
   filterEnv: 'FILTER ENV',
   ampEnv: 'AMP ENV',
+  modEnv: 'MOD ENV',
   velocity: 'VELOCITY',
   key: 'KEY',
   random: 'RANDOM',

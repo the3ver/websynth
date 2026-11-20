@@ -47,6 +47,7 @@ const SYNTH_PARAMS = [
 
   ...envParams('filterEnv'),
   ...envParams('ampEnv'),
+  ...envParams('modEnv'),
   ...lfoParams(1),
   ...lfoParams(2),
 

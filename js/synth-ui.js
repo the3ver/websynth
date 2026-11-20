@@ -114,7 +114,10 @@ class SynthUI {
     const adsrModuleBay = document.getElementById('adsrModuleBay');
     this.initTabGroup('envTabGroup', (target) => {
       this.currentEnvTarget = target;
-      if (adsrModuleBay) adsrModuleBay.classList.toggle('env-vcf-mode', target === 'filter');
+      if (adsrModuleBay) {
+        adsrModuleBay.classList.toggle('env-vcf-mode', target === 'filter');
+        adsrModuleBay.classList.toggle('env-mod-mode', target === 'mod');
+      }
       this.faders.forEach((fader) => fader.sync());
       this.renderEnvShape();
     });

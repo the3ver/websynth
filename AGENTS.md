@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.27), scripts & metadata
+├── package.json            # Versioning (v1.8.28), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -138,6 +138,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 - **Data**: `engine.modMatrix.slot1..slot8 = { source, dest, amount }` (base class), set via `engine.setModSlot(slot, field, value)`, preset rows from `ParamTable.matrixParams(ModMatrix.SLOTS)`. `'off'` or unknown names leave a slot unplugged.
 - **Voice side**: a voice builds `SynthBlocks.ModMatrix` over its sources and `voice.modTargets` and exposes it as `voice.modMatrix`. SUB-1 names and depths: `SUB1_MOD_SOURCES` / `SUB1_MOD_TARGETS` in `voice.js`; the synth definition passes them as `modMatrix` to the panel. Per-voice ConstantSources are created unstarted and passed as `idle`: the matrix starts each on its first route (never twice), so an empty matrix runs no extra nodes.
 - **New source or target**: add the node/param in `Voice.buildModMatrix()` / `buildModTargets()` and the entry in `SUB1_MOD_*`; `test/sub1-mod-matrix.test.js` fails if definition and voice drift apart.
+- **Envelopes as sources**: `engine.modEnvelopes()` lists the envelopes a matrix offers (`filterEnv`, `ampEnv`, `modEnv`); `modEnv` (tab MOD ENV) has no fixed routing, it only exists as matrix source.
 - **FX targets**: the rack exists once, so `AudioEngine.initRackModulation()` builds one more matrix, `engine.fxModMatrix`, over `fxChain.modTargets` (crusherBits/crusherRate appear after `fxChain.ready`) with names and depths from `SUB1_FX_MOD_TARGETS`. Its note sources (`engine.fxNoteModSources`, `SynthBlocks.NoteModSources`) follow the last note and release when the last key is up. Every slot goes to all matrices; each one routes only the targets it knows. The definition's `modMatrix.targets` merges both lists.
 - **UI**: `#openModMatrixBtn` sits in the title of module 04 (`#lfoModuleBay`, SUB-1 slide); `#modMatrixPanel` carries `data-synth="sub1"`. The FM-4 has no matrix yet.
 
