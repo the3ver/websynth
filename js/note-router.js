@@ -1,6 +1,6 @@
 /**
  * NOTE ROUTER
- * Sends keybed and PC-keyboard notes to the arpeggiator when it is on, otherwise to the voices.
+ * Sends keybed, PC-keyboard and MIDI notes to the arpeggiator when it is on, otherwise to the voices.
  * The arpeggiator always tracks the held and latched keys, so HOLD works with the arp off too:
  * the voices then sound the held keys plus the latched chord, and the router releases every note
  * that drops out of that set. Arp on takes the latched chord over, arp off hands it back.
@@ -42,9 +42,9 @@ class NoteRouter {
     if (this.onLatchedChange) this.onLatchedChange(this.latchedNotes());
   }
 
-  playNote(midiNote) {
+  playNote(midiNote, velocity = 1.0) {
     this.changeKeys(() => this.arp.handleKeyDown(midiNote));
-    if (!this.arp.enabled) this.engine.noteOn(midiNote);
+    if (!this.arp.enabled) this.engine.noteOn(midiNote, velocity);
   }
 
   stopNote(midiNote) {

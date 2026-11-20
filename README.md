@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.33-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.34-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,9 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.34: MIDI-Keyboard mit Arpeggiator und HOLD
+- **🎹 MIDI:** Noten vom MIDI-Keyboard gehen jetzt über den Arpeggiator und HOLD wie die Bildschirmtastatur; die Anschlagstärke bleibt erhalten. RETROVOX hört auf allen 16 Kanälen (Omni). Web MIDI gibt es in Chrome und Edge, nicht in Safari und nicht auf iPhone/iPad.
 
 ### ⚡ NEU in v1.8.33: Einzeilige Beschriftungen
 - **🏷️ Titel und Knöpfe:** Modultitel, Filtertyp-Knöpfe und Abschnittsköpfe bleiben einzeilig: 01 // DUAL VCO, 02 // MIXER, 03 // VCF 24dB, 06 // FX RACK, LP24/LP12, BBD CHORUS; beim FM-4 01 // OPS C & A, 03 // OPS B1 & B2, 04 // FB · MIX, 05 // OP ENV, OP C/A/B1/B2, VIBRATO +WHEEL. Ein zu langer Modultitel endet mit … statt umzubrechen.

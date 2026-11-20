@@ -34,6 +34,11 @@ class SynthUI {
       ensureAudio: () => this.engine.ensureAudioRunning()
     });
     this.notes.onLatchedChange = (notes) => this.keyboard.setLatched(notes);
+    // MIDI keyboards play through the router too, so arpeggiator and HOLD take their notes
+    this.engine.midiNotes = {
+      noteOn: (midi, velocity) => this.notes.playNote(midi, velocity),
+      noteOff: (midi) => this.notes.stopNote(midi)
+    };
 
     this.initKnobs();
     this.initFaders();

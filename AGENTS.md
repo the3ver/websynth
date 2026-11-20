@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.33), scripts & metadata
+├── package.json            # Versioning (v1.8.34), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -56,7 +56,7 @@ websynth/
 │   ├── dom-utils.js        # blurTarget / onRangeInput helpers
 │   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
 │   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-│   ├── note-router.js      # NoteRouter: keybed notes -> arpeggiator or voices, arp/latch switches (DOM-free)
+│   ├── note-router.js      # NoteRouter: keybed and MIDI notes -> arpeggiator or voices, arp/latch switches (DOM-free)
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH), mod matrix (SUB1_MOD_SOURCES/TARGETS)
 │   ├── fx-chain.js         # Rack: SynthBlocks Crusher -> Chorus -> Delay -> Reverb in series, loads the crusher worklet
@@ -209,7 +209,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 - A note sounds once even when both sources hold it; it stops only when neither does.
 - `window.addEventListener('mouseup')` **ONLY** releases pointer notes, preventing UI parameter tweaking from muting physical keyboard keys.
 - Glissando drag handlers release previous keys instantly on pointer boundary crossings.
-- `NoteRouter` (`js/note-router.js`, used by `SynthUI.playNote()` / `stopNote()`) routes notes to the arpeggiator when it is on, otherwise to the voices. `ArpEngine` tracks held and latched keys in both cases, so HOLD also works with the arp off: the router sounds held + latched notes and releases what leaves that set; `VirtualKeyboard.setLatched()` lights the latched keys (`.latched`).
+- `NoteRouter` (`js/note-router.js`, used by `SynthUI.playNote()` / `stopNote()` and, via `engine.midiNotes`, by MIDI input) routes notes to the arpeggiator when it is on, otherwise to the voices. `ArpEngine` tracks held and latched keys in both cases, so HOLD also works with the arp off: the router sounds held + latched notes and releases what leaves that set; `VirtualKeyboard.setLatched()` lights the latched keys (`.latched`).
 
 ### 4b. Drag Controls (`js/controls.js`)
 - Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (4 in total, not 4 per control).
