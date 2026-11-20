@@ -406,34 +406,47 @@ class PolySynthEngine {
   // WEB MIDI API SUPPORT
   // =========================================================================
 
+  /**
+   * Reports the MIDI state to the UI: { state: 'connected' | 'standby', count }
+   */
+  reportMidiState(state, count = 0) {
+    if (this.onMidiStateChange) this.onMidiStateChange({ state, count });
+  }
+
   async initMidi() {
     if (navigator.requestMIDIAccess) {
       try {
         const midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-        let deviceCount = 0;
-
-        const updateInputs = () => {
-          deviceCount = 0;
-          for (const input of midiAccess.inputs.values()) {
-            deviceCount++;
-            input.onmidimessage = (msg) => this.handleMidiMessage(msg);
-          }
-          if (this.onMidiStateChange) {
-            this.onMidiStateChange(deviceCount > 0, deviceCount);
-          }
-        };
-
-        midiAccess.onstatechange = () => updateInputs();
-        updateInputs();
+        midiAccess.onstatechange = () => this.connectMidiInputs(midiAccess);
+        this.connectMidiInputs(midiAccess);
       } catch (err) {
         console.log('Web MIDI not available or permission denied:', err);
       }
     }
   }
 
+  /**
+   * Listens to every input of midiAccess and reports how many there are
+   */
+  connectMidiInputs(midiAccess) {
+    let count = 0;
+    for (const input of midiAccess.inputs.values()) {
+      count++;
+      input.onmidimessage = (msg) => this.handleMidiMessage(msg);
+    }
+    this.reportMidiState(count > 0 ? 'connected' : 'standby', count);
+  }
+
   handleMidiMessage(event) {
     if (!this.isPowered) return;
-    const [status, note, velocity] = event.data;
+    const [status, data1, data2] = event.data;
+    this.dispatchMidi(status, data1, data2);
+  }
+
+  /**
+   * Acts on one channel message (status byte with any of the 16 channels)
+   */
+  dispatchMidi(status, note, velocity) {
     const command = status >> 4;
 
     if (command === 9 && velocity > 0) {

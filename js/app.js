@@ -188,9 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Web MIDI Status listener
-  audioEngine.onMidiStateChange = (hasDevices, count) => {
+  audioEngine.onMidiStateChange = ({ state, count }) => {
     const dot = midiStatusBadge.querySelector('.status-dot');
-    if (hasDevices) {
+    if (state === 'connected') {
       dot.classList.add('active');
       midiLabel.textContent = `MIDI: ${count} DEVICE${count > 1 ? 'S' : ''} CONNECTED`;
       midiStatusBadge.style.borderColor = 'rgba(0, 229, 255, 0.4)';
