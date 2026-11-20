@@ -31,10 +31,6 @@ const SUB1_MOD_TARGETS = {
   subLevel: { label: 'SUB LEVEL', depth: 0.8 },
   noiseLevel: { label: 'NOISE LEVEL', depth: 0.8 }
 };
-// KEY source: 0 at middle C, +-1 five octaves away
-const MOD_KEY_CENTER = 60;
-const MOD_KEY_SPAN = 60;
-
 const VOICE_PEAK_GAIN = 0.40;
 
 class Voice {
@@ -183,22 +179,9 @@ class Voice {
   buildModMatrix() {
     const engine = this.engine;
     const ctx = engine.ctx;
-    const now = ctx.currentTime;
-    const constant = (value) => {
-      const source = ctx.createConstantSource();
-      source.offset.setValueAtTime(value, now);
-      return source;
-    };
-    this.modSources = {
-      filterEnv: constant(0),
-      ampEnv: constant(0),
-      velocity: constant(1),
-      key: constant(0),
-      random: constant(0)
-    };
-    // Same stages as the filter and amp envelopes, normalized to 0..1
-    this.filterModEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [0.0001, 1] });
-    this.ampModEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, 1] });
+    // Envelopes, velocity, key and random of this voice's note (SynthBlocks.NoteModSources)
+    this.noteModSources = new SynthBlocks.NoteModSources(ctx, engine);
+    this.modSources = this.noteModSources.nodes;
 
     const depths = {};
     for (const [name, target] of Object.entries(SUB1_MOD_TARGETS)) depths[name] = target.depth;
@@ -215,18 +198,6 @@ class Voice {
       slots: engine.modSlots(),
       idle: Object.keys(this.modSources)
     });
-  }
-
-  /**
-   * Note-dependent matrix sources: velocity, key position, a new random value, both mod envelopes
-   */
-  startModSources(midiNote, velocity, now) {
-    const { velocity: vel, key, random } = this.modSources;
-    vel.offset.setValueAtTime(velocity, now);
-    key.offset.setValueAtTime(Math.max(-1, Math.min(1, (midiNote - MOD_KEY_CENTER) / MOD_KEY_SPAN)), now);
-    random.offset.setValueAtTime(Math.random() * 2 - 1, now);
-    this.filterModEnvelope.trigger([this.modSources.filterEnv.offset], now, { start: 0.0001, peak: 1 });
-    this.ampModEnvelope.trigger([this.modSources.ampEnv.offset], now, { start: 0.0001, peak: 1 });
   }
 
   connectLfoDestinations() {
@@ -295,7 +266,7 @@ class Voice {
     this.startAmpEnvelope(velocity, now);
 
     for (const lfoNum of [1, 2]) this.startLfoFadeIn(lfoNum, now);
-    this.startModSources(midiNote, velocity, now);
+    this.noteModSources.trigger(midiNote, velocity, now);
 
     return vco1Freq;
   }
@@ -356,8 +327,7 @@ class Voice {
       this.filterEnvelope.release(this.filterParams, now, this.voiceCutoff);
     } catch (e) {}
 
-    this.filterModEnvelope.release([this.modSources.filterEnv.offset], now, 0);
-    this.ampModEnvelope.release([this.modSources.ampEnv.offset], now, 0);
+    this.noteModSources.release(now);
 
     // Mark voice as idle and unplug it once the tail is inaudible (3x release = 9 time
     // constants, about -78 dB), unless re-triggered meanwhile

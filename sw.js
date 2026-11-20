@@ -29,6 +29,7 @@ const PRECACHE_ASSETS = [
   './js/lib/lfo.js',
   './js/lib/master-bus.js',
   './js/lib/mod-matrix.js',
+  './js/lib/note-mod-sources.js',
   './js/lib/param-table.js',
   './js/lib/effects.js',
   './js/dom-utils.js',

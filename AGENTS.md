@@ -49,6 +49,7 @@ websynth/
 │   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
 │   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
 │   │   ├── mod-matrix.js   # ModMatrix: named sources -> named targets, one gain per slot, empty slots unplugged; SLOTS
+│   │   ├── note-mod-sources.js # NoteModSources: filterEnv/ampEnv/velocity/key/random of a note as unstarted ConstantSources
 │   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams, fxParams (shared FX rack rows)
 │   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
 │   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
