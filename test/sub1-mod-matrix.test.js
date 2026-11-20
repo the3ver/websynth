@@ -102,7 +102,10 @@ test('the SUB-1 definition lists exactly the sources and targets a voice can rou
   engine.initAudio();
   const voice = engine.voicePool[0];
   assert.deepEqual(Object.keys(matrix.sources).sort(), Object.keys(voice.modMatrix.sources).sort());
-  assert.deepEqual(Object.keys(matrix.targets).sort(), Object.keys(voice.modTargets).sort());
+  const fxTargets = Object.keys(context.SUB1_FX_MOD_TARGETS);
+  assert.deepEqual(Object.keys(matrix.targets).filter((t) => !fxTargets.includes(t)).sort(), Object.keys(voice.modTargets).sort());
+  assert.deepEqual(fxTargets.sort(), Object.keys(engine.fxChain.modTargets).concat('crusherBits', 'crusherRate').sort());
+  assert.deepEqual(Object.keys(engine.fxModMatrix.sources).sort(), Object.keys(matrix.sources).sort());
   for (const [id, target] of Object.entries(matrix.targets)) {
     assert.equal(typeof target.label, 'string', id);
     assert.ok(target.depth > 0, id);
@@ -138,4 +141,48 @@ test('per-voice constant sources stay stopped until a slot routes them', () => {
     assert.notEqual(voice.modSources.random.started, null);
     assert.equal(voice.modSources.velocity.started, null);
   }
+});
+
+test('an FX target is routed once by the engine matrix, not by the voices', () => {
+  const { engine, context } = createLiveEngine();
+  engine.setModSlot('slot2', 'source', 'lfo1');
+  engine.setModSlot('slot2', 'dest', 'delayTime');
+  engine.setModSlot('slot2', 'amount', 0.5);
+  const gain = engine.fxModMatrix.gains[1];
+  const { delay } = engine.fxChain;
+  assert.ok(engine.lfos[1].output.connections.includes(gain));
+  sameNodes(gain.connections, [delay.delayL.delayTime, delay.delayR.delayTime]);
+  assert.equal(gain.gain.value, 0.5 * context.SUB1_FX_MOD_TARGETS.delayTime.depth);
+  for (const voice of engine.voicePool) assert.equal(voice.modMatrix.routes[1], null);
+});
+
+test('CRUSH RATE routes once the crusher worklet is attached', async () => {
+  const { engine } = createLiveEngine();
+  engine.setModSlot('slot1', 'source', 'modWheel');
+  engine.setModSlot('slot1', 'dest', 'crusherRate');
+  engine.setModSlot('slot1', 'amount', -1);
+  assert.equal(engine.fxModMatrix.routes[0], null, 'no worklet yet');
+  await engine.fxChain.ready;
+  const rate = engine.fxChain.crusher.node.parameters.get('rate');
+  sameNodes(engine.fxModMatrix.gains[0].connections, [rate]);
+  assert.ok(engine.modWheelSource.connections.includes(engine.fxModMatrix.gains[0]));
+});
+
+test('note sources on FX targets follow the last note and release with the last key', () => {
+  const { engine, ctx } = createLiveEngine();
+  engine.setModSlot('slot1', 'source', 'velocity');
+  engine.setModSlot('slot1', 'dest', 'reverbMix');
+  engine.setModSlot('slot1', 'amount', 1);
+  const { velocity, ampEnv } = engine.fxNoteModSources.nodes;
+  assert.notEqual(velocity.started, null);
+  assert.equal(ampEnv.started, null, 'unrouted source stays stopped');
+  engine.noteOn(60, 0.6);
+  engine.noteOn(64, 0.3);
+  assert.equal(velocity.offset.value, 0.3);
+
+  ctx.currentTime = 0.5;
+  engine.noteOff(60);
+  assert.ok(!ampEnv.offset.events.some((e) => e.type === 'setTargetAtTime'), 'one key still held');
+  engine.noteOff(64);
+  assert.equal(ampEnv.offset.lastValue('setTargetAtTime'), 0);
 });

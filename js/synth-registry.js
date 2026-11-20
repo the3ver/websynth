@@ -35,7 +35,7 @@ const SYNTH_DEFINITIONS = {
     presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET, random: (rng) => PatchRandomizer.sub1(rng) },
     presetStorageKey: 'retrovox_user_presets',
     lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate,
-    modMatrix: { sources: window.SUB1_MOD_SOURCES, targets: window.SUB1_MOD_TARGETS }
+    modMatrix: { sources: window.SUB1_MOD_SOURCES, targets: { ...window.SUB1_MOD_TARGETS, ...window.SUB1_FX_MOD_TARGETS } }
   },
 
   fm: {

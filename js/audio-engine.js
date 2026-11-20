@@ -116,6 +116,31 @@ class AudioEngine extends PolySynthEngine {
   /**
    * Shared white noise source, then the 12 persistent voices (see voice.js)
    */
+  /**
+   * FX targets exist once per synth: LFOs and mod wheel route directly, the note sources
+   * (envelopes, velocity, key, random) follow the last played note
+   */
+  initRackModulation() {
+    const ctx = this.ctx;
+    this.fxNoteModSources = new SynthBlocks.NoteModSources(ctx, this);
+    const depths = {};
+    for (const [name, target] of Object.entries(SUB1_FX_MOD_TARGETS)) depths[name] = target.depth;
+    this.fxModMatrix = new SynthBlocks.ModMatrix(ctx, {
+      sources: {
+        lfo1: this.lfos[1].output,
+        lfo2: this.lfos[2].output,
+        ...this.fxNoteModSources.nodes,
+        modWheel: this.modWheelSource
+      },
+      targets: this.fxChain.modTargets,
+      depths,
+      slots: this.modSlots(),
+      idle: Object.keys(this.fxNoteModSources.nodes)
+    });
+    // CRUSH targets appear with the worklet
+    this.fxChain.ready.then(() => this.fxModMatrix.applyAll());
+  }
+
   initVoicePool(count) {
     if (this.voicePool.length > 0) return;
     this.getNoiseBuffer();

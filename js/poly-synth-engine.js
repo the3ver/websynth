@@ -10,7 +10,8 @@
  *                      choke(now), updateFrequencies(now), baseFreq, plus the VoicePool fields
  * and may override onOctaveChange() / onModWheelChange() / initVoicePool(count).
  * A voice with a modulation matrix exposes it as voice.modMatrix (SynthBlocks.ModMatrix over
- * engine.modSlots()); setModSlot() pushes slot changes to every voice.
+ * engine.modSlots()); setModSlot() pushes slot changes to every voice and to fxModMatrix, the
+ * synth's single matrix over the FX rack. Each matrix routes only the targets it knows.
  * Arpeggiator, drum machine, UI and PWA manager talk only to this interface.
  */
 
@@ -77,6 +78,9 @@ class PolySynthEngine {
     for (const slot of MOD_MATRIX_SLOTS) this.modMatrix[slot] = { source: 'off', dest: 'off', amount: 0 };
     // Mod wheel as a signal (0..1) for matrix slots, built with the AudioContext
     this.modWheelSource = null;
+    // Matrix over the shared FX rack (initRackModulation) and its last-note sources
+    this.fxModMatrix = null;
+    this.fxNoteModSources = null;
 
     // Callbacks for UI updates
     this.onVoiceChange = null;
@@ -150,6 +154,7 @@ class PolySynthEngine {
 
       // Stereo FX rack between the voice bus and the master bus (see fx-chain.js)
       this.fxChain = new FXChain(this.ctx, this.fx, this.masterVoiceBus, this.master.input);
+      this.initRackModulation();
 
       // Persistent polyphonic pool (Zero GC on note events)
       this.initVoicePool(this.maxVoices);
@@ -165,6 +170,12 @@ class PolySynthEngine {
   }
 
   initInstrument() {}
+
+  /**
+   * Optional: build fxModMatrix (SynthBlocks.ModMatrix over fxChain.modTargets) and
+   * fxNoteModSources (SynthBlocks.NoteModSources, follow the last played note)
+   */
+  initRackModulation() {}
 
   initVoicePool(count) {
     if (this.voicePool.length > 0) return;
@@ -200,6 +211,7 @@ class PolySynthEngine {
 
     this.lastFrequency = voice.trigger(midiNote, velocity, now);
     this.pool.assign(midiNote, voice);
+    if (this.fxNoteModSources) this.fxNoteModSources.trigger(midiNote, velocity, now);
 
     if (this.onVoiceChange) {
       this.onVoiceChange(this.activeVoices.size, this.lastFrequency);
@@ -212,6 +224,7 @@ class PolySynthEngine {
     if (!voice) return;
 
     voice.release(this.ctx.currentTime);
+    if (this.fxNoteModSources && this.activeVoices.size === 0) this.fxNoteModSources.release(this.ctx.currentTime);
 
     if (this.onVoiceChange) {
       this.onVoiceChange(this.activeVoices.size, this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null);
@@ -358,6 +371,7 @@ class PolySynthEngine {
     this.forEachVoice((voice) => {
       if (voice.modMatrix) voice.modMatrix.applySlot(index);
     });
+    if (this.fxModMatrix) this.fxModMatrix.applySlot(index);
   }
 
   onModWheelChange() {}

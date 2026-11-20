@@ -31,6 +31,16 @@ const SUB1_MOD_TARGETS = {
   subLevel: { label: 'SUB LEVEL', depth: 0.8 },
   noiseLevel: { label: 'NOISE LEVEL', depth: 0.8 }
 };
+// Targets in the shared FX rack (FXChain.modTargets), routed once per synth by engine.fxModMatrix:
+// bits, Hz, seconds, gain. CRUSH targets only sound while CRUSH MIX is above 0.
+const SUB1_FX_MOD_TARGETS = {
+  crusherBits: { label: 'CRUSH BITS', depth: 8 },
+  crusherRate: { label: 'CRUSH RATE', depth: 10000 },
+  delayTime: { label: 'DELAY TIME', depth: 0.25 },
+  delayFeedback: { label: 'DELAY FEEDBACK', depth: 0.3 },
+  delayMix: { label: 'DELAY MIX', depth: 0.5 },
+  reverbMix: { label: 'REVERB MIX', depth: 0.5 }
+};
 const VOICE_PEAK_GAIN = 0.40;
 
 class Voice {
@@ -412,3 +422,4 @@ class Voice {
 window.Voice = Voice;
 window.SUB1_MOD_SOURCES = SUB1_MOD_SOURCES;
 window.SUB1_MOD_TARGETS = SUB1_MOD_TARGETS;
+window.SUB1_FX_MOD_TARGETS = SUB1_FX_MOD_TARGETS;
