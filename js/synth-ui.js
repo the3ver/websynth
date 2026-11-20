@@ -168,10 +168,17 @@ class SynthUI {
     });
 
     // FX rack: one effect page at a time, LEDs on the tabs mark the audible effects
-    this.fxPages = document.querySelectorAll('.fx-page');
     this.fxLeds = document.querySelectorAll('[data-fx-led]');
-    this.initTabGroup('fxTabGroup', (target) => {
-      this.fxPages.forEach((page) => page.classList.toggle('active', page.dataset.fxPage === target));
+    this.initTabPages('fxTabGroup', '.fx-page', 'fxPage');
+  }
+
+  /**
+   * Tab group that shows one page at a time: the page whose data-<pageKey> equals the tab's data-target
+   */
+  initTabPages(groupId, pageSelector, pageKey) {
+    const pages = document.querySelectorAll(pageSelector);
+    this.initTabGroup(groupId, (target) => {
+      pages.forEach((page) => page.classList.toggle('active', page.dataset[pageKey] === target));
     });
   }
 
