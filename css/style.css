@@ -2529,7 +2529,8 @@ polyline.fm-alg-out {
   box-shadow: 0 0 5px var(--led-green);
 }
 
-.fx-page {
+.fx-page,
+.osc-page {
   display: none;
   flex: 1;
   flex-direction: column;
@@ -2541,8 +2542,29 @@ polyline.fm-alg-out {
   padding: 6px;
 }
 
-.fx-page.active {
+.fx-page.active,
+.osc-page.active {
   display: flex;
+}
+
+/* Oscillator pages: same frame as the FX pages, four knobs per oscillator */
+.osc-knobs-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.osc-page .sub-oct-group {
+  justify-content: center;
+}
+
+.osc-page-hint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  color: #6a7488;
+  text-align: center;
 }
 
 .fx-page .chorus-mode-row .chorus-mode-btn {

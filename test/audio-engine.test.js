@@ -98,6 +98,25 @@ describe('pitch calculation', () => {
     assert.ok(Math.abs(engine.getVCO2Frequency(440) - 440 * Math.pow(2, 1 / 12)) < 1e-9);
   });
 
+  test('VCO1 has its own semitone and cents detune', () => {
+    const engine = createEngine();
+    engine.setVcoSemitone(1, -5);
+    engine.setVcoDetune(1, 30);
+    assert.ok(Math.abs(engine.getVCO1Frequency(440) - 440 * Math.pow(2, -4.7 / 12)) < 1e-9);
+    assert.equal(engine.vco1.semitone, -5);
+    assert.equal(engine.vco1.detuneCents, 30);
+  });
+
+  test('VCO2 pulse width drives its own comparator offset', () => {
+    const { createLiveEngine } = require('./helpers/synth-engine');
+    const { engine } = createLiveEngine();
+    assert.equal(engine.vco2PwOffset.offset.value, 0, 'square at 50%');
+    engine.setVcoPW(2, 0.75);
+    assert.equal(engine.vco2.pulseWidth, 0.75);
+    assert.ok(Math.abs(engine.vco2PwOffset.offset.value - 0.2) < 1e-9);
+    assert.equal(engine.vco1PwOffset.offset.value, 0, 'VCO 1 untouched');
+  });
+
   test('pitch bend scales both VCOs', () => {
     const engine = createEngine();
     engine.setVCO2Detune(0);

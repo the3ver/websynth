@@ -65,12 +65,19 @@ const PatchRandomizer = (() => {
       };
     };
     return {
-      vco1: { wave: t.pick(waves), octave: t.pick([-1, 0, 0, 0, 1]), pulseWidth: t.range(0.2, 0.8) },
+      vco1: {
+        wave: t.pick(waves),
+        octave: t.pick([-1, 0, 0, 0, 1]),
+        semitone: 0,
+        detuneCents: t.chance(0.3) ? Math.round(t.range(-8, 8)) : 0,
+        pulseWidth: t.range(0.2, 0.8)
+      },
       vco2: {
         wave: t.pick(waves),
         octave: t.pick([-1, 0, 0, 1]),
         semitone: t.pick([0, 0, 0, 0, 7, 12, -12, 5, -5]),
         detuneCents: t.chance(0.6) ? Math.round(t.range(-15, 15)) : 0,
+        pulseWidth: t.range(0.2, 0.8),
         hardSync: t.chance(0.15)
       },
       mixer: {

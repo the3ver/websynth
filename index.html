@@ -137,7 +137,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.24</span>
+          <span class="version-tag">v1.8.25</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -273,15 +273,19 @@ window.addEventListener('DOMContentLoaded', () => {
                     <span class="module-led cyan"></span>
                   </div>
                 
-                <div class="vco-subgrid">
-                  <!-- VCO 1 Section -->
-                  <div class="vco-section-block">
+                <div class="vco-subgrid osc-rack">
+                  <!-- Oscillator selector: one page per oscillator, same controls on OSC 1 and OSC 2 -->
+                  <div class="env-tab-group osc-tab-group" id="oscTabGroup">
+                    <button class="env-tab-btn active" data-target="vco1" title="Oszillator 1 einblenden">OSC 1</button>
+                    <button class="env-tab-btn" data-target="vco2" title="Oszillator 2 einblenden">OSC 2</button>
+                    <button class="env-tab-btn" data-target="sub" title="Sub-Oszillator einblenden">SUB</button>
+                  </div>
+
+                  <div class="osc-page active" data-osc-page="vco1">
                     <div class="vco-section-header">
                       <span>VCO 1 (MAIN)</span>
                       <span class="tag">PRIMARY</span>
                     </div>
-
-                    <!-- Waveform Selector -->
                     <div class="wave-btn-row" data-vco="1">
                       <button class="wave-btn active" data-wave="sawtooth" title="Sägezahn (Sawtooth)">
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18L18 6v12"/></svg>
@@ -296,9 +300,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 12c4-8 4 8 8 0s4-8 8 0"/></svg>
                       </button>
                     </div>
-
-                    <!-- Knobs Row -->
-                    <div class="knobs-row">
+                    <div class="knobs-row osc-knobs-row">
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="vco1-octave" data-min="-2" data-max="2" data-step="1" data-default="0" data-type="octave">
                           <div class="synth-knob-dial">
@@ -309,7 +311,26 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-label-text">OCTAVE</span>
                         <span class="knob-readout-badge" id="vco1-octave-readout">8'</span>
                       </div>
-
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco1-semitone" data-min="-24" data-max="24" data-step="1" data-default="0" data-type="semitone">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">SEMI</span>
+                        <span class="knob-readout-badge" id="vco1-semitone-readout">0 ST</span>
+                      </div>
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco1-detune" data-min="-50" data-max="50" data-step="1" data-default="0" data-type="cents">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">DETUNE</span>
+                        <span class="knob-readout-badge" id="vco1-detune-readout">0 CT</span>
+                      </div>
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="vco1-pw" data-min="0.1" data-max="0.9" data-step="0.01" data-default="0.5" data-type="percent">
                           <div class="synth-knob-dial">
@@ -323,14 +344,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     </div>
                   </div>
 
-                  <!-- VCO 2 Section -->
-                  <div class="vco-section-block">
+                  <div class="osc-page" data-osc-page="vco2">
                     <div class="vco-section-header">
                       <span>VCO 2 (DETUNE)</span>
                       <button class="sync-toggle-btn" id="vco2SyncBtn" title="Hard Sync VCO 2 auf VCO 1">SYNC</button>
                     </div>
-
-                    <!-- Waveform Selector -->
                     <div class="wave-btn-row" data-vco="2">
                       <button class="wave-btn" data-wave="sawtooth" title="Sägezahn (Sawtooth)">
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 18L18 6v12"/></svg>
@@ -345,9 +363,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 12c4-8 4 8 8 0s4-8 8 0"/></svg>
                       </button>
                     </div>
-
-                    <!-- Knobs Row -->
-                    <div class="knobs-row">
+                    <div class="knobs-row osc-knobs-row">
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="vco2-octave" data-min="-2" data-max="2" data-step="1" data-default="0" data-type="octave">
                           <div class="synth-knob-dial">
@@ -358,7 +374,6 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-label-text">OCTAVE</span>
                         <span class="knob-readout-badge" id="vco2-octave-readout">8'</span>
                       </div>
-
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="vco2-semitone" data-min="-24" data-max="24" data-step="1" data-default="0" data-type="semitone">
                           <div class="synth-knob-dial">
@@ -369,7 +384,6 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-label-text">SEMI</span>
                         <span class="knob-readout-badge" id="vco2-semitone-readout">0 ST</span>
                       </div>
-
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="vco2-detune" data-min="-50" data-max="50" data-step="1" data-default="8" data-type="cents">
                           <div class="synth-knob-dial">
@@ -380,7 +394,32 @@ window.addEventListener('DOMContentLoaded', () => {
                         <span class="knob-label-text">DETUNE</span>
                         <span class="knob-readout-badge" id="vco2-detune-readout">+8 CT</span>
                       </div>
+                      <div class="synth-knob-wrapper">
+                        <div class="synth-knob-housing" data-param="vco2-pw" data-min="0.1" data-max="0.9" data-step="0.01" data-default="0.5" data-type="percent">
+                          <div class="synth-knob-dial">
+                            <div class="knob-pointer"></div>
+                            <div class="knob-dial-center"></div>
+                          </div>
+                        </div>
+                        <span class="knob-label-text">PULSE W.</span>
+                        <span class="knob-readout-badge" id="vco2-pw-readout">50%</span>
+                      </div>
                     </div>
+                  </div>
+
+                  <div class="osc-page" data-osc-page="sub">
+                    <div class="vco-section-header">
+                      <span>SUB OSC</span>
+                      <span class="tag">TRIANGLE</span>
+                    </div>
+                    <div class="mini-switch-group sub-oct-group">
+                      <span class="mini-switch-label">SUB OCT</span>
+                      <div class="sub-oct-selector" id="subOctSelector">
+                        <button class="sub-oct-btn active" data-suboct="-1">-1</button>
+                        <button class="sub-oct-btn" data-suboct="-2">-2</button>
+                      </div>
+                    </div>
+                    <p class="osc-page-hint">Eine oder zwei Oktaven unter VCO 1. Pegel: SUB BASS im Mixer.</p>
                   </div>
                 </div>
               </div>
@@ -425,14 +464,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
                   <!-- Mixer Knobs Bottom Row: Sub Osc & White Noise -->
                   <div class="vco-section-block">
-                    <div class="mini-switch-group">
-                      <span class="mini-switch-label">SUB OCT</span>
-                      <div class="sub-oct-selector" id="subOctSelector">
-                        <button class="sub-oct-btn active" data-suboct="-1">-1</button>
-                        <button class="sub-oct-btn" data-suboct="-2">-2</button>
-                      </div>
+                    <div class="vco-section-header">
+                      <span>SUB &amp; NOISE</span>
                     </div>
-
                     <div class="knobs-row">
                       <div class="synth-knob-wrapper">
                         <div class="synth-knob-housing" data-param="mixer-sub" data-min="0" data-max="1" data-step="0.01" data-default="0.35" data-type="percent">
@@ -1674,16 +1708,29 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.24</span>
+            <span class="release-version-number">v1.8.25</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🎛️</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>Oszillator-Tabs</h3>
+              <p>Das VCO-Modul zeigt wie das FX-Panel eine Seite pro Oszillator: OSC 1, OSC 2 und SUB.</p>
+              <ul>
+                <li><strong>Gleiche Regler:</strong> OSC 1 und OSC 2 haben Welle, OCTAVE, SEMI, DETUNE und PULSE W. Neu: SEMI und DETUNE für VCO 1, eigene Pulsbreite für VCO 2.</li>
+                <li><strong>SUB:</strong> SUB OCT sitzt im Tab SUB, die Pegel bleiben im Mixer.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">⇄</div>

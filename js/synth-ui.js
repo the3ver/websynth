@@ -170,6 +170,8 @@ class SynthUI {
     // FX rack: one effect page at a time, LEDs on the tabs mark the audible effects
     this.fxLeds = document.querySelectorAll('[data-fx-led]');
     this.initTabPages('fxTabGroup', '.fx-page', 'fxPage');
+    // Oscillators: OSC 1, OSC 2 and SUB, one page at a time
+    this.initTabPages('oscTabGroup', '.osc-page', 'oscPage');
   }
 
   /**

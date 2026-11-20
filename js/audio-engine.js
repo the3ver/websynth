@@ -19,6 +19,8 @@ class AudioEngine extends PolySynthEngine {
     this.vco1 = {
       wave: 'sawtooth', // 'sawtooth', 'square', 'triangle', 'sine'
       octave: 0,        // -2 (32'), -1 (16'), 0 (8'), 1 (4'), 2 (2')
+      semitone: 0,      // -24 to +24
+      detuneCents: 0,   // -50 to +50 cents
       pulseWidth: 0.5   // 0.1 to 0.9
     };
 
@@ -27,6 +29,7 @@ class AudioEngine extends PolySynthEngine {
       octave: 0,
       semitone: 0,      // -24 to +24
       detuneCents: 8,   // -50 to +50 cents
+      pulseWidth: 0.5,
       hardSync: false
     };
 
@@ -280,13 +283,21 @@ class AudioEngine extends PolySynthEngine {
   }
 
   setVCO2Semitone(semitone) {
-    this.vco2.semitone = parseInt(semitone, 10);
+    this.setVcoSemitone(2, semitone);
+  }
+
+  setVcoSemitone(n, semitone) {
+    this[`vco${n}`].semitone = parseInt(semitone, 10);
+    this.updateAllVoiceFrequencies();
+  }
+
+  setVcoDetune(n, cents) {
+    this[`vco${n}`].detuneCents = parseFloat(cents);
     this.updateAllVoiceFrequencies();
   }
 
   setVCO2Detune(cents) {
-    this.vco2.detuneCents = parseFloat(cents);
-    this.updateAllVoiceFrequencies();
+    this.setVcoDetune(2, cents);
   }
 
   setVCO2Sync(sync) {
