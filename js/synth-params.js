@@ -48,6 +48,7 @@ const SYNTH_PARAMS = [
   ...envParams('filterEnv'),
   ...envParams('ampEnv'),
   ...envParams('modEnv'),
+  { path: 'modEnv.loop', set: (e, v) => e.setEnvLoop('modEnv', v) },
   ...lfoParams(1),
   ...lfoParams(2),
 

@@ -97,7 +97,7 @@ const PatchRandomizer = (() => {
       },
       filterEnv: { attack: t.logRange(0.002, 1.2), decay: t.logRange(0.05, 2), sustain: t.range(0, 1), release: t.logRange(0.05, 2) },
       ampEnv: { attack: t.chance(0.7) ? t.logRange(0.002, 0.05) : t.logRange(0.05, 1.2), decay: t.logRange(0.1, 2), sustain: t.range(0.3, 1), release: t.logRange(0.05, 2.5) },
-      modEnv: { attack: t.logRange(0.002, 1.5), decay: t.logRange(0.05, 3), sustain: t.range(0, 1), release: t.logRange(0.05, 3) },
+      modEnv: { attack: t.logRange(0.002, 1.5), decay: t.logRange(0.05, 3), sustain: t.range(0, 1), release: t.logRange(0.05, 3), loop: t.chance(0.25) },
       lfo1: lfo(),
       lfo2: lfo(),
       modMatrix: modMatrix(t),

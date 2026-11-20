@@ -263,6 +263,14 @@ class PolySynthEngine {
   /**
    * Sets one ADSR stage of an envelope settings object on the engine, e.g. setEnvStage('ampEnv', 'attack', 0.2)
    */
+  /**
+   * Loop switch of an envelope settings object (envelopes with a loop field, e.g. modEnv)
+   */
+  setEnvLoop(envName, on) {
+    const env = this.params.getPath(this, envName);
+    if (env && 'loop' in env) env.loop = !!on;
+  }
+
   setEnvStage(envName, stage, val) {
     const env = this.params.getPath(this, envName);
     if (!env || !(stage in env)) return;

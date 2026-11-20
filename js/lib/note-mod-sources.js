@@ -5,11 +5,16 @@
  *   velocity            0..1, key  -1..1 (0 at middle C, +-1 five octaves away), random  -1..1 per note
  * The sources are created unstarted: pass Object.keys(nodes) as the matrix's idle list, so only
  * routed sources ever run. trigger() on note on, release() on note off.
+ * An envelope whose settings have loop: true repeats attack and decay while the note is held
+ * (LFO-like); cycles are scheduled LOOP_HORIZON ahead and refilled every LOOP_REFILL_MS.
  * Classic script: attaches to the window.SynthBlocks namespace.
  */
 (function (blocks) {
   const KEY_CENTER = 60;
   const KEY_SPAN = 60;
+  const LOOP_HORIZON = 2;
+  const LOOP_REFILL_MS = 500;
+  const SHAPE = { start: 0.0001, peak: 1 };
 
   class NoteModSources {
     /**
@@ -17,6 +22,8 @@
      */
     constructor(ctx, envelopes) {
       const now = ctx.currentTime;
+      this.ctx = ctx;
+      this.loopTimer = null;
       const constant = (value) => {
         const source = ctx.createConstantSource();
         source.offset.setValueAtTime(value, now);
@@ -36,11 +43,38 @@
       vel.offset.setValueAtTime(velocity, now);
       key.offset.setValueAtTime(Math.max(-1, Math.min(1, (midiNote - KEY_CENTER) / KEY_SPAN)), now);
       random.offset.setValueAtTime(Math.random() * 2 - 1, now);
-      for (const { node, envelope } of this.envelopes) envelope.trigger([node.offset], now, { start: 0.0001, peak: 1 });
+      this.stopLoop();
+      for (const env of this.envelopes) {
+        if (env.stages.loop) {
+          env.loopEnd = env.envelope.loop([env.node.offset], now, now + LOOP_HORIZON, { ...SHAPE, first: true });
+        } else {
+          env.envelope.trigger([env.node.offset], now, SHAPE);
+        }
+      }
+      if (this.envelopes.some((env) => env.stages.loop)) this.scheduleRefill();
     }
 
     release(now) {
+      this.stopLoop();
       for (const { node, envelope } of this.envelopes) envelope.release([node.offset], now, 0);
+    }
+
+    // Keeps looping envelopes scheduled LOOP_HORIZON ahead while the note is held
+    scheduleRefill() {
+      this.loopTimer = setTimeout(() => {
+        const until = this.ctx.currentTime + LOOP_HORIZON;
+        for (const env of this.envelopes) {
+          if (env.stages.loop && env.loopEnd < until) {
+            env.loopEnd = env.envelope.loop([env.node.offset], env.loopEnd, until, SHAPE);
+          }
+        }
+        this.scheduleRefill();
+      }, LOOP_REFILL_MS);
+    }
+
+    stopLoop() {
+      if (this.loopTimer) clearTimeout(this.loopTimer);
+      this.loopTimer = null;
     }
   }
 

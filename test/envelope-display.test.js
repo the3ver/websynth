@@ -31,3 +31,11 @@ test('stage widths follow the fader scale (logarithmic) and clamp outside the ra
   assert.equal(w(100), w(4));
   assert.equal(w(0), w(0.001));
 });
+
+test('a looping envelope draws two peaks and stays inside the display', () => {
+  const stages = { attack: 4, decay: 6, sustain: 0.5, release: 8, loop: true };
+  const p = points(EnvelopeDisplay.path(stages, RANGES));
+  const peaks = p.filter((v, i) => i % 2 === 1 && v === 2);
+  assert.equal(peaks.length, 2);
+  assert.ok(Math.max(...p.filter((v, i) => i % 2 === 0)) <= 200);
+});

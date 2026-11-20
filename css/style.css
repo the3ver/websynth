@@ -2346,6 +2346,39 @@ polyline.fm-alg-out {
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
 }
 
+.env-shape-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* LOOP switch of the mod envelope: only on the MOD ENV tab */
+.env-loop-btn {
+  display: none;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  padding: 1px 5px;
+  background: #141720;
+  border: 1px solid #282d3b;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #6a7488;
+  cursor: pointer;
+}
+
+.env-mod-mode .env-loop-btn {
+  display: block;
+}
+
+.env-loop-btn.active {
+  border-color: var(--led-green);
+  color: #ffffff;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+  text-shadow: 0 0 4px var(--led-green);
+}
+
 .env-shape {
   fill: rgba(0, 229, 255, 0.12);
   stroke: var(--led-cyan);

@@ -73,7 +73,8 @@ class AudioEngine extends PolySynthEngine {
       attack: 0.01,
       decay: 0.6,
       sustain: 0.0,
-      release: 0.4
+      release: 0.4,
+      loop: false       // true: attack/decay repeat while a key is held (LFO-like)
     };
 
     // Dual-LFO Modulation Parameters (Independent LFO 1 & LFO 2)

@@ -59,6 +59,36 @@
     }
 
     /**
+     * Looping attack/decay (LFO-like): peak, down to the sustain level, back to peak ... from
+     * `from` until at least `until`. first: jump to start before the first attack (note on);
+     * later calls continue from the level the last cycle ended on. Returns the end of the last
+     * scheduled cycle, where the next call continues.
+     */
+    loop(params, from, until, { start, peak, base = start, first = false }) {
+      const { attack, decay, sustain } = this.stages;
+      const attackTime = Math.max(this.minStageTime, attack);
+      const decayTime = Math.max(this.minStageTime, decay);
+      const [lo, hi] = this.range;
+      const sustainLevel = Math.max(lo, Math.min(hi, base + ((peak - base) * sustain)));
+
+      for (const param of params) {
+        if (first) {
+          param.cancelScheduledValues(from);
+          param.setValueAtTime(start, from);
+        }
+      }
+      let t = from;
+      do {
+        for (const param of params) {
+          param.exponentialRampToValueAtTime(peak, t + attackTime);
+          param.exponentialRampToValueAtTime(sustainLevel, t + attackTime + decayTime);
+        }
+        t += attackTime + decayTime;
+      } while (t < until);
+      return t;
+    }
+
+    /**
      * Asymptotic release towards target: three time constants per release time
      */
     release(params, now, target) {

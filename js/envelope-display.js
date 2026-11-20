@@ -3,7 +3,8 @@
  * Small SVG above the ADSR faders that draws the shape of the envelope the faders edit.
  * Time axis per stage like the faders: logarithmic between the stage's min and max, so short and
  * long times both stay readable. Attack, decay and release each get up to STAGE_WIDTH of the
- * width, the sustain plateau a fixed SUSTAIN_WIDTH.
+ * width, the sustain plateau a fixed SUSTAIN_WIDTH. A looping envelope (loop: true) draws a
+ * second attack/decay cycle in place of the plateau; a shape wider than the view box is scaled in.
  * EnvelopeDisplay.path() is pure (tested in Node); render() writes it into the SVG path.
  */
 
@@ -39,25 +40,30 @@ class EnvelopeDisplay {
   /**
    * Closed SVG path: attack line up, decay and release as exponential-looking curves
    */
-  static path({ attack, decay, sustain, release }, ranges) {
+  static path({ attack, decay, sustain, release, loop = false }, ranges) {
     const top = ENV_DISPLAY_PAD;
     const bottom = ENV_DISPLAY_HEIGHT - ENV_DISPLAY_PAD;
     const level = bottom - (bottom - top) * Math.max(0, Math.min(1, sustain));
     const round = (v) => Math.round(v * 10) / 10;
 
-    const xA = EnvelopeDisplay.stageWidth(attack, ranges.attack);
-    const xD = xA + EnvelopeDisplay.stageWidth(decay, ranges.decay);
-    const xS = xD + ENV_DISPLAY_WIDTH * ENV_SUSTAIN_WIDTH;
-    const xR = xS + EnvelopeDisplay.stageWidth(release, ranges.release);
+    const wA = EnvelopeDisplay.stageWidth(attack, ranges.attack);
+    const wD = EnvelopeDisplay.stageWidth(decay, ranges.decay);
+    const wR = EnvelopeDisplay.stageWidth(release, ranges.release);
+    const total = loop ? 2 * (wA + wD) + wR : wA + wD + ENV_DISPLAY_WIDTH * ENV_SUSTAIN_WIDTH + wR;
+    const scale = Math.min(1, ENV_DISPLAY_WIDTH / total);
+    const x = (v) => round(v * scale);
 
-    return [
-      `M0 ${bottom}`,
-      `L${round(xA)} ${top}`,
-      `Q${round(xA)} ${round(level)} ${round(xD)} ${round(level)}`,
-      `L${round(xS)} ${round(level)}`,
-      `Q${round(xS)} ${bottom} ${round(xR)} ${bottom}`,
-      'Z'
-    ].join(' ');
+    const parts = [`M0 ${bottom}`, `L${x(wA)} ${top}`, `Q${x(wA)} ${round(level)} ${x(wA + wD)} ${round(level)}`];
+    let end = wA + wD;
+    if (loop) {
+      parts.push(`L${x(end + wA)} ${top}`, `Q${x(end + wA)} ${round(level)} ${x(end + wA + wD)} ${round(level)}`);
+      end += wA + wD;
+    } else {
+      end += ENV_DISPLAY_WIDTH * ENV_SUSTAIN_WIDTH;
+      parts.push(`L${x(end)} ${round(level)}`);
+    }
+    parts.push(`Q${x(end)} ${bottom} ${x(end + wR)} ${bottom}`, 'Z');
+    return parts.join(' ');
   }
 }
 

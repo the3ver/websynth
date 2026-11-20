@@ -207,3 +207,15 @@ test('MOD ENV is a matrix source with its own ADSR, not routed anywhere by defau
   assert.equal(attack.value, 1);
   assert.equal(attack.time, 1.5, 'attack from engine.modEnv');
 });
+
+test('the MOD ENV loop switch is a preset parameter with a toggle button', () => {
+  const { engine } = createLiveEngine();
+  assert.equal(engine.modEnv.loop, false);
+  engine.setEnvLoop('modEnv', 1);
+  assert.equal(engine.modEnv.loop, true);
+  assert.equal(engine.getPresetState().modEnv.loop, true);
+  engine.setEnvLoop('ampEnv', true);
+  assert.equal(engine.ampEnv.loop, undefined, 'only envelopes with a loop field');
+  const html = require('fs').readFileSync(require('path').resolve(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /<button class="env-loop-btn" id="modEnvLoopBtn" data-synth="sub1"/);
+});

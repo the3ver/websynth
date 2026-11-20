@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.28</span>
+          <span class="version-tag">v1.8.29</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -966,9 +966,12 @@ window.addEventListener('DOMContentLoaded', () => {
                   </div>
 
                   <!-- Shape of the envelope the faders edit (envelope-display.js) -->
-                  <svg class="env-shape-display" id="envShapeDisplay" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
-                    <path class="env-shape" d=""></path>
-                  </svg>
+                  <div class="env-shape-wrap">
+                    <svg class="env-shape-display" id="envShapeDisplay" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+                      <path class="env-shape" d=""></path>
+                    </svg>
+                    <button class="env-loop-btn" id="modEnvLoopBtn" data-synth="sub1" title="MOD ENV wiederholt Attack und Decay, solange die Taste gehalten wird (wie ein LFO)">LOOP</button>
+                  </div>
 
                   <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
                   <div class="synth-fader-bank" id="adsrFaderBank">
@@ -1711,7 +1714,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.28</span>
+            <span class="release-version-number">v1.8.29</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1731,6 +1734,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <ul>
                 <li><strong>Anzeige:</strong> zeigt die Form der gewählten Hüllkurve, auch beim FM-4.</li>
                 <li><strong>MOD ENV:</strong> eigene ADSR-Hüllkurve, nur als Quelle in der Mod-Matrix; ab Werk nicht angeschlossen.</li>
+                <li><strong>LOOP:</strong> wiederholt Attack und Decay, solange die Taste gehalten wird, wie ein LFO pro Note.</li>
               </ul>
             </div>
           </div>

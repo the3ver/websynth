@@ -175,6 +175,7 @@ class SynthUI {
       toggle.btn.addEventListener('click', () => {
         this.params.set(this.engine, toggle.path, !this.params.getPath(this.engine, toggle.path));
         this.renderToggle(toggle);
+        this.renderEnvShape();
       });
     }
 
