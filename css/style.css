@@ -5931,6 +5931,22 @@ body.is-pwa-standalone .studio-desk {
   text-shadow: 0 0 5px var(--led-green);
 }
 
+/* Header buttons scale with the viewport: below 1680px the full labels overflow the header
+   (reload and power slide out), so the drum and matrix buttons show icons only; below 1366px
+   (iPad landscape) the changelog button keeps only sparkle and version */
+@media (max-width: 1679px) {
+  .drum-rack-header-btn span:not(.btn-icon),
+  .mod-matrix-header-btn span:not(.btn-icon) {
+    display: none;
+  }
+}
+
+@media (max-width: 1365px) {
+  .changelog-trigger-btn span:not(.changelog-sparkle):not(.version-tag) {
+    display: none;
+  }
+}
+
 .mod-matrix-panel {
   display: none;
   position: fixed;

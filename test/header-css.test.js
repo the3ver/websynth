@@ -50,3 +50,22 @@ test('no CSS rule hides the synth selector or its header ancestors', () => {
   }
   assert.deepStrictEqual(hiding, []);
 });
+
+// Header buttons scale with the viewport; measured in Chromium, their full labels need about
+// 1680px (iPad landscape 1180px: reload and power slid out of the header)
+const rawCss = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8');
+function widestMaxWidthHiding(selector) {
+  let widest = 0;
+  for (const [, width, block] of rawCss.matchAll(/@media \(max-width: (\d+)px\) \{([\s\S]*?)\n\}/g)) {
+    const hidden = Array.from(block.matchAll(/([^{}]+)\{([^{}]*)\}/g))
+      .some(([, sels, body]) => /display\s*:\s*none/.test(body) && sels.split(',').map((s) => s.trim()).includes(selector));
+    if (hidden) widest = Math.max(widest, Number(width));
+  }
+  return widest;
+}
+
+test('header labels collapse to icons below the width the full labels need', () => {
+  assert.ok(widestMaxWidthHiding('.drum-rack-header-btn span:not(.btn-icon)') >= 1679);
+  assert.ok(widestMaxWidthHiding('.mod-matrix-header-btn span:not(.btn-icon)') >= 1679);
+  assert.ok(widestMaxWidthHiding('.changelog-trigger-btn span:not(.changelog-sparkle):not(.version-tag)') >= 1365);
+});
