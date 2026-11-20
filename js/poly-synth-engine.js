@@ -18,6 +18,9 @@
 // Modulation matrix slots (preset paths modMatrix.slot1 .. modMatrix.slot8)
 const MOD_MATRIX_SLOTS = SynthBlocks.ModMatrix.SLOTS;
 
+// Rescans of the MIDI input list after access (ms), for inputs that appear without statechange
+const MIDI_RESCAN_DELAYS = [500, 2000];
+
 // ADSR stage limits (attack/decay/release in seconds, sustain as level)
 const ENV_STAGE_RANGE = {
   attack: [0.001, Infinity],
@@ -85,6 +88,12 @@ class PolySynthEngine {
     // Callbacks for UI updates
     this.onVoiceChange = null;
     this.onMidiStateChange = null;
+    // MIDI byte stream parser (running status survives packet borders)
+    this.midiRunningStatus = 0;
+    this.midiData = [0, 0];
+    this.midiDataCount = 0;
+    this.midiInputHandler = null;
+    this.lastMidiEvent = null;
     this.onAudioStateChange = null;
     // Where MIDI note on/off go; the panel can point it elsewhere (e.g. the NoteRouter)
     this.midiNotes = {
@@ -132,7 +141,7 @@ class PolySynthEngine {
   }
 
   /**
-   * Initializes AudioContext, master bus, the instrument's shared sources, FX rack, voice pool and MIDI.
+   * Initializes AudioContext, master bus, the instrument's shared sources, FX rack and voice pool.
    */
   initAudio() {
     if (!this.ctx) {
@@ -163,8 +172,6 @@ class PolySynthEngine {
 
       // Persistent polyphonic pool (Zero GC on note events)
       this.initVoicePool(this.maxVoices);
-
-      this.initMidi();
     }
 
     if (this.ctx.state !== 'running') {
@@ -407,40 +414,79 @@ class PolySynthEngine {
   // =========================================================================
 
   /**
-   * Reports the MIDI state to the UI: { state: 'connected' | 'standby', count }
+   * Reports the MIDI state to the UI: { state: 'connected' | 'standby' | 'error' | 'unsupported', count }
    */
   reportMidiState(state, count = 0) {
     if (this.onMidiStateChange) this.onMidiStateChange({ state, count });
   }
 
+  /**
+   * Requests Web MIDI at page load, independent of the AudioContext. Some browsers (iOS Web MIDI
+   * apps) add inputs late without a statechange, so the input list is scanned again after 500 ms and 2 s.
+   */
   async initMidi() {
-    if (navigator.requestMIDIAccess) {
-      try {
-        const midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-        midiAccess.onstatechange = () => this.connectMidiInputs(midiAccess);
-        this.connectMidiInputs(midiAccess);
-      } catch (err) {
-        console.log('Web MIDI not available or permission denied:', err);
-      }
+    if (!navigator.requestMIDIAccess) {
+      this.reportMidiState('unsupported');
+      return;
     }
+    let midiAccess;
+    try {
+      midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    } catch (err) {
+      console.log('Web MIDI not available or permission denied:', err);
+      this.reportMidiState('error');
+      return;
+    }
+    midiAccess.onstatechange = () => this.connectMidiInputs(midiAccess);
+    this.connectMidiInputs(midiAccess);
+    for (const ms of MIDI_RESCAN_DELAYS) setTimeout(() => this.connectMidiInputs(midiAccess), ms);
   }
 
   /**
-   * Listens to every input of midiAccess and reports how many there are
+   * Listens to every input of midiAccess (once per input, listener and onmidimessage for shims)
+   * and reports how many there are
    */
   connectMidiInputs(midiAccess) {
+    if (!this.midiInputHandler) {
+      this.midiInputHandler = (event) => {
+        // A shim may deliver the same event to the listener and to onmidimessage
+        if (event === this.lastMidiEvent) return;
+        this.lastMidiEvent = event;
+        this.handleMidiMessage(event);
+      };
+    }
     let count = 0;
     for (const input of midiAccess.inputs.values()) {
       count++;
-      input.onmidimessage = (msg) => this.handleMidiMessage(msg);
+      if (typeof input.addEventListener === 'function') input.addEventListener('midimessage', this.midiInputHandler);
+      input.onmidimessage = this.midiInputHandler;
     }
     this.reportMidiState(count > 0 ? 'connected' : 'standby', count);
   }
 
+  /**
+   * Parses event.data (Uint8Array or plain Array) as a byte stream: several messages per packet,
+   * running status across packets, realtime and system bytes skipped, all 16 channels
+   */
   handleMidiMessage(event) {
     if (!this.isPowered) return;
-    const [status, data1, data2] = event.data;
-    this.dispatchMidi(status, data1, data2);
+    for (const byte of event.data) {
+      if (byte >= 0xf8) continue; // realtime (clock, start, stop) may sit between data bytes
+      if (byte >= 0xf0) {
+        this.midiRunningStatus = 0; // sysex / system common: ignore its data bytes
+      } else if (byte >= 0x80) {
+        this.midiRunningStatus = byte;
+        this.midiDataCount = 0;
+      } else if (this.midiRunningStatus) {
+        this.midiData[this.midiDataCount++] = byte;
+        const command = this.midiRunningStatus >> 4;
+        const length = (command === 0xc || command === 0xd) ? 1 : 2;
+        if (this.midiDataCount === length) {
+          this.midiDataCount = 0;
+          this.dispatchMidi(this.midiRunningStatus, this.midiData[0], this.midiData[1]);
+        }
+      }
+    }
   }
 
   /**
@@ -450,6 +496,8 @@ class PolySynthEngine {
     const command = status >> 4;
 
     if (command === 9 && velocity > 0) {
+      // Starts audio as far as the browser allows; the arp path never calls noteOn itself
+      this.ensureAudioRunning();
       this.midiNotes.noteOn(note, velocity / 127);
     } else if (command === 8 || (command === 9 && velocity === 0)) {
       this.midiNotes.noteOff(note);

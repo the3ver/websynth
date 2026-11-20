@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.8.34';
+  const CURRENT_APP_VERSION = '1.8.35';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements
@@ -188,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Web MIDI Status listener
+  const MIDI_LABELS = { standby: 'MIDI: STANDBY', error: 'MIDI: ERROR', unsupported: 'MIDI: NOT SUPPORTED' };
   audioEngine.onMidiStateChange = ({ state, count }) => {
     const dot = midiStatusBadge.querySelector('.status-dot');
     if (state === 'connected') {
@@ -196,10 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
       midiStatusBadge.style.borderColor = 'rgba(0, 229, 255, 0.4)';
     } else {
       dot.classList.remove('active');
-      midiLabel.textContent = 'MIDI: STANDBY';
-      midiStatusBadge.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+      midiLabel.textContent = MIDI_LABELS[state] || MIDI_LABELS.standby;
+      midiStatusBadge.style.borderColor = state === 'standby' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 82, 82, 0.5)';
     }
   };
+  // MIDI at page load, not only once audio starts: iOS Web MIDI browsers never sent notes before
+  audioEngine.initMidi();
 
   // Changelog Modal Handling
   const openChangelog = () => {

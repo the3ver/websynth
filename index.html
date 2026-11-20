@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.34</span>
+          <span class="version-tag">v1.8.35</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1714,16 +1714,30 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.34</span>
+            <span class="release-version-number">v1.8.35</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🔌</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">FIX</div>
+              <h3>MIDI-Keyboard auf iPad und iPhone</h3>
+              <p>RETROVOX verbindet sich direkt beim Laden mit dem MIDI-Keyboard, auch in iOS-Browsern mit Web MIDI (z. B. Web MIDI Browser).</p>
+              <ul>
+                <li><strong>Sofort bereit:</strong> die erste Note vom Keyboard startet das Audio, kein Antippen des Bildschirms vorher nötig, soweit der Browser das zulässt.</li>
+                <li><strong>Anzeige:</strong> das MIDI-Feld zeigt jetzt auch MIDI: ERROR (Zugriff verweigert) und MIDI: NOT SUPPORTED (Browser ohne Web MIDI).</li>
+                <li><strong>Geräte:</strong> spät erkannte Keyboards wie der Arturia KeyStep tauchen nach bis zu 2 Sekunden auf.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">🎹</div>
@@ -1734,7 +1748,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <ul>
                 <li><strong>Arpeggiator:</strong> bei ARP ON arpeggiert der Arp die Akkorde vom MIDI-Keyboard.</li>
                 <li><strong>HOLD:</strong> hält auch MIDI-Noten, die gehaltenen Tasten leuchten auf der Bildschirmtastatur.</li>
-                <li><strong>Kanal:</strong> RETROVOX hört auf allen 16 MIDI-Kanälen. Web MIDI braucht Chrome oder Edge, Safari und iOS-Browser bieten es nicht an.</li>
+                <li><strong>Kanal:</strong> RETROVOX hört auf allen 16 MIDI-Kanälen. Web MIDI braucht Chrome, Edge oder einen iOS-Browser mit Web MIDI, Safari bietet es nicht an.</li>
               </ul>
             </div>
           </div>

@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.34), scripts & metadata
+├── package.json            # Versioning (v1.8.35), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -60,7 +60,7 @@ websynth/
 │   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
 │   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH), mod matrix (SUB1_MOD_SOURCES/TARGETS)
 │   ├── fx-chain.js         # Rack: SynthBlocks Crusher -> Chorus -> Delay -> Reverb in series, loads the crusher worklet
-│   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI, presets
+│   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI (initMidi() at page load from app.js, byte-stream parser), presets
 │   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
 │   ├── fm-algorithms.js    # FM-4 operators C/A/B1/B2, 8 algorithms (mods, feedback op, outputs X/Y), ratio steps, watch-hand B knob
 │   ├── fm-params.js        # FM-4 parameter table (FmParams)
