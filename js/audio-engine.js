@@ -101,13 +101,12 @@ class AudioEngine extends PolySynthEngine {
     this.pwmCurve = SynthBlocks.pwmComparatorCurve();
 
     if (this.ctx.createConstantSource) {
-      this.vco1PwOffset = this.ctx.createConstantSource();
-      this.vco1PwOffset.offset.setValueAtTime((this.vco1.pulseWidth - 0.5) * 0.8, this.ctx.currentTime);
-      this.vco1PwOffset.start();
-
-      this.vco2PwOffset = this.ctx.createConstantSource();
-      this.vco2PwOffset.offset.setValueAtTime(0.0, this.ctx.currentTime);
-      this.vco2PwOffset.start();
+      for (const n of [1, 2]) {
+        const offset = this.ctx.createConstantSource();
+        offset.offset.setValueAtTime(AudioEngine.pwOffset(this[`vco${n}`].pulseWidth), this.ctx.currentTime);
+        offset.start();
+        this[`vco${n}PwOffset`] = offset;
+      }
     }
 
     this.initLfoEngines();
@@ -213,18 +212,26 @@ class AudioEngine extends PolySynthEngine {
   }
 
   /**
-   * Calculate exact VCO 1 Frequency (including VCO1 Octave)
+   * VCO frequency from its octave, semitones and cents (missing fields count as 0) plus pitch bend
    */
+  vcoFrequency(vco, baseFreq) {
+    const totalSemitones = (vco.octave * 12) + (vco.semitone || 0) + ((vco.detuneCents || 0) / 100);
+    return baseFreq * Math.pow(2, totalSemitones / 12) * this.pitchBendFactor;
+  }
+
   getVCO1Frequency(baseFreq) {
-    return baseFreq * Math.pow(2, this.vco1.octave) * this.pitchBendFactor;
+    return this.vcoFrequency(this.vco1, baseFreq);
+  }
+
+  getVCO2Frequency(baseFreq) {
+    return this.vcoFrequency(this.vco2, baseFreq);
   }
 
   /**
-   * Calculate exact VCO 2 Frequency (including VCO2 Octave, Semitones, and Cents Detune)
+   * Comparator offset for a pulse width (0.5 = square, missing = 0.5)
    */
-  getVCO2Frequency(baseFreq) {
-    const totalSemitones = (this.vco2.octave * 12) + this.vco2.semitone + (this.vco2.detuneCents / 100);
-    return baseFreq * Math.pow(2, totalSemitones / 12) * this.pitchBendFactor;
+  static pwOffset(pulseWidth = 0.5) {
+    return (pulseWidth - 0.5) * 0.8;
   }
 
   /**
@@ -252,11 +259,14 @@ class AudioEngine extends PolySynthEngine {
   }
 
   setVCO1PW(pw) {
-    this.vco1.pulseWidth = parseFloat(pw);
-    if (this.vco1PwOffset && this.ctx) {
-      const offsetVal = (this.vco1.pulseWidth - 0.5) * 0.8;
-      this.vco1PwOffset.offset.setTargetAtTime(offsetVal, this.ctx.currentTime, 0.015);
-    }
+    this.setVcoPW(1, pw);
+  }
+
+  setVcoPW(n, pw) {
+    const vco = this[`vco${n}`];
+    vco.pulseWidth = parseFloat(pw);
+    const offset = this[`vco${n}PwOffset`];
+    if (offset && this.ctx) offset.offset.setTargetAtTime(AudioEngine.pwOffset(vco.pulseWidth), this.ctx.currentTime, 0.015);
   }
 
   setVCO2Wave(wave) {
