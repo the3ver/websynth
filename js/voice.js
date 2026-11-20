@@ -177,7 +177,8 @@ class Voice {
 
   /**
    * Per-voice matrix sources (envelopes, velocity, key, random as constant signals) plus the
-   * engine's LFOs and mod wheel, routed by engine.modMatrix
+   * engine's LFOs and mod wheel, routed by engine.modMatrix. The constant sources start on their
+   * first route, so a voice whose matrix stays empty runs none of them.
    */
   buildModMatrix() {
     const engine = this.engine;
@@ -186,7 +187,6 @@ class Voice {
     const constant = (value) => {
       const source = ctx.createConstantSource();
       source.offset.setValueAtTime(value, now);
-      source.start(now);
       return source;
     };
     this.modSources = {
@@ -212,7 +212,8 @@ class Voice {
       },
       targets: this.modTargets,
       depths,
-      slots: engine.modSlots()
+      slots: engine.modSlots(),
+      idle: Object.keys(this.modSources)
     });
   }
 

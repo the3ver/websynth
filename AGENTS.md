@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.21), scripts & metadata
+├── package.json            # Versioning (v1.8.22), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -134,7 +134,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 ## 🔀 Modulation Matrix (`js/lib/mod-matrix.js`)
 
 - **Data**: `engine.modMatrix.slot1..slot8 = { source, dest, amount }` (base class), set via `engine.setModSlot(slot, field, value)`, preset rows from `ParamTable.matrixParams(ModMatrix.SLOTS)`. `'off'` or unknown names leave a slot unplugged.
-- **Voice side**: a voice builds `SynthBlocks.ModMatrix` over its sources and `voice.modTargets` and exposes it as `voice.modMatrix`. SUB-1 names and depths: `SUB1_MOD_SOURCES` / `SUB1_MOD_TARGETS` in `voice.js`; the synth definition passes them as `modMatrix` to the panel.
+- **Voice side**: a voice builds `SynthBlocks.ModMatrix` over its sources and `voice.modTargets` and exposes it as `voice.modMatrix`. SUB-1 names and depths: `SUB1_MOD_SOURCES` / `SUB1_MOD_TARGETS` in `voice.js`; the synth definition passes them as `modMatrix` to the panel. Per-voice ConstantSources are created unstarted and passed as `idle`: the matrix starts each on its first route (never twice), so an empty matrix runs no extra nodes.
 - **New source or target**: add the node/param in `Voice.buildModMatrix()` / `buildModTargets()` and the entry in `SUB1_MOD_*`; `test/sub1-mod-matrix.test.js` fails if definition and voice drift apart.
 - **UI**: `#modMatrixPanel` and `#openModMatrixBtn` carry `data-synth="sub1"`; the FM-4 has no matrix yet.
 

@@ -125,3 +125,17 @@ test('every matrix slot has its amount knob in the SUB-1 markup', () => {
   const knobs = knobsOf('sub1');
   for (let n = 1; n <= 8; n++) assert.ok(knobs.includes(`mod-slot${n}-amount`), `slot${n}`);
 });
+
+test('per-voice constant sources stay stopped until a slot routes them', () => {
+  const { engine } = createLiveEngine();
+  for (const voice of engine.voicePool) {
+    for (const source of Object.values(voice.modSources)) assert.equal(source.started, null);
+  }
+  engine.setModSlot('slot1', 'source', 'random');
+  engine.setModSlot('slot1', 'dest', 'pitch');
+  engine.setModSlot('slot1', 'amount', 0.2);
+  for (const voice of engine.voicePool) {
+    assert.notEqual(voice.modSources.random.started, null);
+    assert.equal(voice.modSources.velocity.started, null);
+  }
+});

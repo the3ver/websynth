@@ -5,6 +5,8 @@
  *   targets  { name: [AudioParam | AudioNode] } where a routed signal is added
  *   depths   { targetName: number }             target units at amount 1.0 (cents, Q, gain)
  *   slots    live [{ source, dest, amount }]    amount -1..1; 'off' or unknown names leave a slot unplugged
+ *   idle     [sourceName]                       scheduled sources not started yet: each starts on its first
+ *                                               route, so sources no slot uses never run
  * applySlot(i) / applyAll() push slot changes. A slot is only connected while it has a known source,
  * a known target and an amount other than 0, so empty slots cost no DSP time.
  * Classic script: attaches to the window.SynthBlocks namespace.
@@ -13,12 +15,13 @@
   const AMOUNT_RAMP = 0.015;
 
   class ModMatrix {
-    constructor(ctx, { sources, targets, depths, slots }) {
+    constructor(ctx, { sources, targets, depths, slots, idle = [] }) {
       this.ctx = ctx;
       this.sources = sources;
       this.targets = targets;
       this.depths = depths;
       this.slots = slots;
+      this.idle = new Set(idle);
       const now = ctx.currentTime;
       this.gains = slots.map(() => {
         const g = ctx.createGain();
@@ -46,7 +49,9 @@
         this.routes[index] = null;
       }
       if (wanted && !this.routes[index]) {
-        this.sources[wanted.source].connect(gain);
+        const source = this.sources[wanted.source];
+        if (this.idle.delete(wanted.source)) source.start(this.ctx.currentTime);
+        source.connect(gain);
         for (const target of this.targets[wanted.dest]) gain.connect(target);
         this.routes[index] = { source: wanted.source, dest: wanted.dest };
       }

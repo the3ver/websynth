@@ -88,3 +88,30 @@ test('two slots on the same source keep their own connections', () => {
   assert.ok(!lfo.connections.includes(matrix.gains[0]));
   assert.ok(lfo.connections.includes(matrix.gains[1]));
 });
+
+test('an idle source starts on its first route only', () => {
+  const ctx = new FakeAudioContext();
+  const vel = ctx.createConstantSource();
+  const q = ctx.createGain().gain;
+  const slots = [{ source: 'off', dest: 'off', amount: 0 }];
+  const matrix = new SynthBlocks.ModMatrix(ctx, {
+    sources: { vel },
+    targets: { resonance: [q] },
+    depths: { resonance: 10 },
+    slots,
+    idle: ['vel']
+  });
+  assert.equal(vel.started, null);
+
+  Object.assign(slots[0], { source: 'vel', dest: 'resonance', amount: 1 });
+  matrix.applySlot(0);
+  assert.equal(vel.started, 0);
+
+  // Unplugging and routing again must not call start() a second time (would throw in a browser)
+  slots[0].amount = 0;
+  matrix.applySlot(0);
+  vel.start = () => assert.fail('started twice');
+  slots[0].amount = 1;
+  matrix.applySlot(0);
+  assert.ok(vel.connections.includes(matrix.gains[0]));
+});
