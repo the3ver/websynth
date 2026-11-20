@@ -2334,6 +2334,26 @@ polyline.fm-alg-out {
   flex-shrink: 0;
 }
 
+/* ADSR shape above the faders, follows the selected envelope tab */
+.env-shape-display {
+  display: block;
+  width: 100%;
+  height: 36px;
+  flex-shrink: 0;
+  background: #07090d;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 3px;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.env-shape {
+  fill: rgba(0, 229, 255, 0.12);
+  stroke: var(--led-cyan);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
 .synth-fader-bank {
   display: flex;
   justify-content: space-around;
@@ -2361,8 +2381,9 @@ polyline.fm-alg-out {
 .synth-fader-track-housing {
   width: 20px;
   flex: 1;
-  min-height: 52px;
-  max-height: 125px;
+  /* 40px shorter than before the envelope display (36px + gap) above the bank */
+  min-height: 40px;
+  max-height: 85px;
   background: #08090d;
   border: 1px solid #1f232e;
   border-radius: 3px;
@@ -5644,9 +5665,13 @@ body.is-pwa-standalone .studio-desk {
   }
 
   .synth-fader-track-housing {
-    min-height: 38px !important;
-    max-height: 56px !important;
+    min-height: 26px !important;
+    max-height: 44px !important;
     width: 14px !important;
+  }
+
+  .env-shape-display {
+    height: 24px;
   }
 
   .synth-fader-thumb {
@@ -5961,6 +5986,17 @@ body.is-pwa-standalone .studio-desk {
 .mod-matrix-module-btn.has-routes .btn-icon {
   color: var(--led-green);
   text-shadow: 0 0 5px var(--led-green);
+}
+
+/* Phones in portrait: compact envelope display, faders give up the room it takes */
+@media (max-width: 900px) and (orientation: portrait) {
+  .env-shape-display {
+    height: 24px;
+  }
+
+  .synth-fader-track-housing {
+    min-height: 30px;
+  }
 }
 
 /* Header buttons scale with the viewport: below 1366px (iPad landscape) the full labels overflow

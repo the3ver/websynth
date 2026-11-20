@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.26</span>
+          <span class="version-tag">v1.8.27</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -948,7 +948,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <!-- Module 5: Dual ADSR Envelopes (VCA & VCF) -->
               <div class="module-bay env-module active-module" id="adsrModuleBay" data-tab-group="env-fx">
                 <div class="module-title">
-                  <span data-synth="sub1">05 // DUAL ADSR ENVELOPES</span>
+                  <span data-synth="sub1">05 // DUAL ADSR</span>
                   <span data-synth="fm">05 // OPERATOR ENVELOPES</span>
                   <span class="module-led cyan"></span>
                 </div>
@@ -963,6 +963,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     <button class="env-tab-btn" data-synth="fm" data-target="op3" title="Hüllkurve Operator B1">B1</button>
                     <button class="env-tab-btn" data-synth="fm" data-target="op4" title="Hüllkurve Operator B2">B2</button>
                   </div>
+
+                  <!-- Shape of the envelope the faders edit (envelope-display.js) -->
+                  <svg class="env-shape-display" id="envShapeDisplay" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="env-shape" d=""></path>
+                  </svg>
 
                   <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
                   <div class="synth-fader-bank" id="adsrFaderBank">
@@ -1705,7 +1710,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.26</span>
+            <span class="release-version-number">v1.8.27</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -2026,6 +2031,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <script src="js/drum-ui.js"></script>
   <script src="js/knob-scale.js"></script>
   <script src="js/controls.js"></script>
+  <script src="js/envelope-display.js"></script>
   <script src="js/virtual-keyboard.js"></script>
   <script src="js/visualizer.js"></script>
   <script src="js/preset-store.js"></script>

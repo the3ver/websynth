@@ -99,16 +99,29 @@ class SynthUI {
       const stage = housing.dataset.fader;
       return new Fader(housing, {
         read: () => this.params.getPath(this.engine, this.envPath(stage)),
-        onChange: (val) => this.params.set(this.engine, this.envPath(stage), val)
+        onChange: (val) => {
+          this.params.set(this.engine, this.envPath(stage), val);
+          this.renderEnvShape();
+        }
       });
     });
+
+    const ranges = {};
+    for (const fader of this.faders) ranges[fader.stage] = [fader.min, fader.max];
+    this.envDisplay = new EnvelopeDisplay(document.getElementById('envShapeDisplay'), ranges);
+    this.renderEnvShape();
 
     const adsrModuleBay = document.getElementById('adsrModuleBay');
     this.initTabGroup('envTabGroup', (target) => {
       this.currentEnvTarget = target;
       if (adsrModuleBay) adsrModuleBay.classList.toggle('env-vcf-mode', target === 'filter');
       this.faders.forEach((fader) => fader.sync());
+      this.renderEnvShape();
     });
+  }
+
+  renderEnvShape() {
+    if (this.envDisplay) this.envDisplay.render(this.params.getPath(this.engine, this.synth.envTargets[this.currentEnvTarget]));
   }
 
   /**
@@ -203,6 +216,7 @@ class SynthUI {
       if (param) knob.setValue(this.params.read(this.engine, param));
     }
     this.faders.forEach((fader) => fader.sync());
+    this.renderEnvShape();
     this.synth.buttonGroups.forEach((group) => this.renderButtonGroup(group));
     this.toggles.forEach((toggle) => this.renderToggle(toggle));
     this.renderFxLeds();

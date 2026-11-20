@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.26), scripts & metadata
+├── package.json            # Versioning (v1.8.27), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -77,6 +77,7 @@ websynth/
 │   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync
 │   ├── knob-scale.js       # Pure knob math: value <-> ratio, rounding, readout formatting
 │   ├── controls.js         # DragController + Knob, Fader, PerformanceWheel
+│   ├── envelope-display.js # EnvelopeDisplay: SVG shape of the envelope the ADSR faders edit (path() pure, log time axis like the faders)
 │   ├── virtual-keyboard.js # Keybed rendering, mouse glissando, multi-touch, PC keyboard
 │   ├── visualizer.js       # CRT oscilloscope, VU meters, woofers
 │   ├── preset-store.js     # User presets in localStorage (DOM-free)
