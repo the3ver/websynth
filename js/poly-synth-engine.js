@@ -86,6 +86,11 @@ class PolySynthEngine {
     this.onVoiceChange = null;
     this.onMidiStateChange = null;
     this.onAudioStateChange = null;
+    // Where MIDI note on/off go; the panel can point it elsewhere (e.g. the NoteRouter)
+    this.midiNotes = {
+      noteOn: (midiNote, velocity) => this.noteOn(midiNote, velocity),
+      noteOff: (midiNote) => this.noteOff(midiNote)
+    };
   }
 
   // =========================================================================
@@ -432,9 +437,9 @@ class PolySynthEngine {
     const command = status >> 4;
 
     if (command === 9 && velocity > 0) {
-      this.noteOn(note, velocity / 127);
+      this.midiNotes.noteOn(note, velocity / 127);
     } else if (command === 8 || (command === 9 && velocity === 0)) {
-      this.noteOff(note);
+      this.midiNotes.noteOff(note);
     } else if (command === 14) {
       const bendValue = ((velocity << 7) + note) - 8192;
       const bendSemitones = (bendValue / 8192) * 2;
