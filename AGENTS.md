@@ -27,7 +27,7 @@ websynth/
 ├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
 ├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
 ├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.31), scripts & metadata
+├── package.json            # Versioning (v1.8.32), scripts & metadata
 ├── README.md               # User & feature documentation
 ├── AGENTS.md               # Developer & agent architectural guide
 ├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
@@ -140,7 +140,7 @@ One synth plays per page load; switching reloads with `?synth=<id>` (stored in `
 - **New source or target**: add the node/param in `Voice.buildModMatrix()` / `buildModTargets()` and the entry in `SUB1_MOD_*`; `test/sub1-mod-matrix.test.js` fails if definition and voice drift apart.
 - **Envelopes as sources**: `engine.modEnvelopes()` lists the envelopes a matrix offers (`filterEnv`, `ampEnv`, `modEnv`); `modEnv` (tab MOD ENV) has no fixed routing, it only exists as matrix source. `modEnv.loop` (button `#modEnvLoopBtn`) makes `NoteModSources` call `Envelope.loop()`: attack/decay cycles scheduled 2 s ahead, refilled by a 500 ms timeout per held note, stopped on release.
 - **FX targets**: the rack exists once, so `AudioEngine.initRackModulation()` builds one more matrix, `engine.fxModMatrix`, over `fxChain.modTargets` (crusherBits/crusherRate appear after `fxChain.ready`) with names and depths from `SUB1_FX_MOD_TARGETS`. Its note sources (`engine.fxNoteModSources`, `SynthBlocks.NoteModSources`) follow the last note and release when the last key is up. Every slot goes to all matrices; each one routes only the targets it knows. The definition's `modMatrix.targets` merges both lists.
-- **UI**: `#openModMatrixBtn` sits in the title of module 04 (`#lfoModuleBay`, SUB-1 slide); `#modMatrixPanel` carries `data-synth="sub1"`. The FM-4 has no matrix yet.
+- **UI**: `#openModMatrixBtn` sits in the preset bar next to RANDOM; it and `#modMatrixPanel` carry `data-synth="sub1"`. The FM-4 has no matrix yet.
 
 ---
 

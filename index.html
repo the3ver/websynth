@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.31</span>
+          <span class="version-tag">v1.8.32</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -220,6 +220,7 @@ window.addEventListener('DOMContentLoaded', () => {
                   <button class="preset-btn-action" id="savePresetBtn" title="Aktuellen Sound als User Preset speichern">SAVE</button>
                   <button class="preset-btn-action" id="initPatchBtn" title="Neutralen Grundzustand laden (Init Patch)">INIT</button>
                   <button class="preset-btn-action" id="randomPatchBtn" title="Zufälligen Patch erzeugen (Oktave und Glide bleiben)">RANDOM</button>
+                  <button class="preset-btn-action mod-matrix-btn" id="openModMatrixBtn" data-synth="sub1" title="Modulationsmatrix ein-/ausblenden"><span class="btn-icon">⇄</span> MATRIX</button>
                 </div>
               </div>
 
@@ -580,7 +581,6 @@ window.addEventListener('DOMContentLoaded', () => {
               <div class="module-bay lfo-module active-module" id="lfoModuleBay" data-tab-group="vcf-lfo">
                 <div class="module-title">
                   <span>04 // DUAL LFO & MOD</span>
-                  <button class="mod-matrix-module-btn" id="openModMatrixBtn" title="Modulationsmatrix ein-/ausblenden"><span class="btn-icon">⇄</span>MOD MATRIX</button>
                   <span class="module-led amber"></span>
                 </div>
 
@@ -1369,7 +1369,7 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 
-  <!-- Modulation matrix overlay (SUB-1): opened from the MOD MATRIX button in module 04, keybed stays playable -->
+  <!-- Modulation matrix overlay (SUB-1): opened from the MATRIX button in the preset bar, keybed stays playable -->
   <aside class="mod-matrix-panel" id="modMatrixPanel" data-synth="sub1" aria-label="Modulationsmatrix">
     <div class="mod-matrix-header">
       <span>MOD MATRIX // 8 SLOTS</span>
@@ -1714,7 +1714,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.31</span>
+            <span class="release-version-number">v1.8.32</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1757,7 +1757,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="card-content">
               <div class="card-badge perf-badge">NEU</div>
               <h3>Mod-Matrix (SUB-1)</h3>
-              <p>Die Taste MOD MATRIX im Titel von Modul 04 (DUAL LFO &amp; MOD) blendet 8 Modulations-Slots ein. Das Keybed bleibt dabei spielbar.</p>
+              <p>Die Taste MATRIX in der Preset-Leiste neben RANDOM blendet 8 Modulations-Slots ein. Das Keybed bleibt dabei spielbar.</p>
               <ul>
                 <li><strong>Quellen:</strong> LFO 1 und 2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel.</li>
                 <li><strong>Ziele:</strong> Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel. Die Menge reicht von -100 % bis +100 %.</li>

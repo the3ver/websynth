@@ -4,7 +4,9 @@
  * Time axis per stage like the faders: logarithmic between the stage's min and max, so short and
  * long times both stay readable. Attack, decay and release each get up to STAGE_WIDTH of the
  * width, the sustain plateau a fixed SUSTAIN_WIDTH. A looping envelope (loop: true) draws a
- * second attack/decay cycle in place of the plateau; a shape wider than the view box is scaled in.
+ * second attack/decay cycle in place of the plateau. The shape is then stretched or squeezed to
+ * the full display width, so it always fills the display and sits centered; the stage widths
+ * show the proportions between the stages.
  * EnvelopeDisplay.path() is pure (tested in Node); render() writes it into the SVG path.
  */
 
@@ -50,10 +52,10 @@ class EnvelopeDisplay {
     const wD = EnvelopeDisplay.stageWidth(decay, ranges.decay);
     const wR = EnvelopeDisplay.stageWidth(release, ranges.release);
     const total = loop ? 2 * (wA + wD) + wR : wA + wD + ENV_DISPLAY_WIDTH * ENV_SUSTAIN_WIDTH + wR;
-    const scale = Math.min(1, ENV_DISPLAY_WIDTH / total);
-    const x = (v) => round(v * scale);
+    const scale = (ENV_DISPLAY_WIDTH - 2 * ENV_DISPLAY_PAD) / total;
+    const x = (v) => round(ENV_DISPLAY_PAD + v * scale);
 
-    const parts = [`M0 ${bottom}`, `L${x(wA)} ${top}`, `Q${x(wA)} ${round(level)} ${x(wA + wD)} ${round(level)}`];
+    const parts = [`M${ENV_DISPLAY_PAD} ${bottom}`, `L${x(wA)} ${top}`, `Q${x(wA)} ${round(level)} ${x(wA + wD)} ${round(level)}`];
     let end = wA + wD;
     if (loop) {
       parts.push(`L${x(end + wA)} ${top}`, `Q${x(end + wA)} ${round(level)} ${x(end + wA + wD)} ${round(level)}`);

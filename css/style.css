@@ -6013,46 +6013,23 @@ body.is-pwa-standalone .studio-desk {
    MOD MATRIX OVERLAY (header button MOD MATRIX, SUB-1)
    ========================================================================== */
 
-.mod-matrix-module-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: auto;
-  margin-right: 6px;
-  padding: 1px 6px;
-  background: #141720;
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  border-radius: 2px;
-  font-family: var(--font-mono);
-  font-size: 0.5rem;
-  font-weight: 700;
+/* MOD MATRIX button in the preset bar (SUB-1): cyan like the matrix panel, green icon with routes */
+.preset-btn-action.mod-matrix-btn {
+  border-color: rgba(0, 229, 255, 0.35);
   color: #7fefff;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.mod-matrix-module-btn:hover,
-.mod-matrix-module-btn.active {
+.preset-btn-action.mod-matrix-btn:hover,
+.preset-btn-action.mod-matrix-btn.active {
   background: rgba(0, 229, 255, 0.12);
   border-color: var(--led-cyan);
   color: #ffffff;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
 }
 
-.mod-matrix-module-btn.has-routes .btn-icon {
+.mod-matrix-btn.has-routes .btn-icon {
   color: var(--led-green);
   text-shadow: 0 0 5px var(--led-green);
-}
-
-/* Phones in portrait: compact envelope display, faders give up the room it takes */
-@media (max-width: 900px) and (orientation: portrait) {
-  .env-shape-display {
-    height: 24px;
-  }
-
-  .synth-fader-track-housing {
-    min-height: 30px;
-  }
 }
 
 /* Header buttons scale with the viewport: below 1366px (iPad landscape) the full labels overflow

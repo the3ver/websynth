@@ -1,6 +1,6 @@
 /**
  * MOD MATRIX PANEL
- * Overlay opened from the MOD MATRIX button in the LFO module title: one row per matrix slot with source and
+ * Overlay opened from the MATRIX button in the preset bar (next to RANDOM): one row per matrix slot with source and
  * target selects and the amount knob. SynthUI binds the knob like every other knob
  * (data-param mod-slotN-amount); this panel fills the selects from the synth definition
  * (modMatrix: { sources: { id: label }, targets: { id: { label } } }) and lights a slot LED

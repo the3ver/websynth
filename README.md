@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.31-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.32-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,10 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.32: Hüllkurvenanzeige in voller Breite, MATRIX neben RANDOM
+- **📈 Anzeige:** Die Hüllkurve füllt immer das ganze Display und sitzt mittig; die Breiten der Stufen zeigen ihr Verhältnis zueinander.
+- **⇄ MATRIX:** Die Taste für die Mod-Matrix sitzt jetzt in der Preset-Leiste neben RANDOM; der Titel von Modul 04 bleibt einzeilig.
 
 ### ⚡ NEU in v1.8.31: Breiteres Filter-Modul
 - **↔️ Layout:** Am Desktop ist das FX-Modul schmaler (133 statt 183 px bei 1180 px Fensterbreite), das VCF-Modul breiter (161 statt 137 px). Die FX-Tabs heißen dafür CHO, DLY, REV und BIT; die vollen Namen stehen im Tooltip und über jeder Effektseite.
@@ -36,7 +40,7 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 - **🔄 RELOAD:** Unter 1366 px Breite zeigt DRUM RACK nur sein Symbol und "Was gibt's Neues?" nur ✨ und die Version. RELOAD und POWER rutschen auf dem iPad nicht mehr aus der Kopfleiste.
 
 ### ⚡ NEU in v1.8.21/v1.8.22: Mod-Matrix (SUB-1)
-- **⇄ MOD MATRIX:** Die Taste MOD MATRIX (seit v1.8.26 in Modul 04) blendet eine Matrix mit 8 Slots ein. Jeder Slot verbindet eine Quelle (LFO 1/2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel) mit einem Ziel (Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel), die Menge geht von -100 % bis +100 %. Eine LED zeigt aktive Slots, das Keybed bleibt spielbar. Die Matrix wird mit dem Preset gespeichert; die festen LFO-Regler bleiben. Ungenutzte Slots und Quellen sind abgeklemmt und kosten keine Rechenzeit (v1.8.22).
+- **⇄ MOD MATRIX:** Die Taste MATRIX (seit v1.8.32 neben RANDOM) blendet eine Matrix mit 8 Slots ein. Jeder Slot verbindet eine Quelle (LFO 1/2, Filter- und Amp-Hüllkurve, Velocity, Tonhöhe, Zufall pro Note, Mod Wheel) mit einem Ziel (Pitch, Pitch VCO 2, Pulsbreite, Cutoff, Resonanz, Amp, Sub- und Noise-Pegel), die Menge geht von -100 % bis +100 %. Eine LED zeigt aktive Slots, das Keybed bleibt spielbar. Die Matrix wird mit dem Preset gespeichert; die festen LFO-Regler bleiben. Ungenutzte Slots und Quellen sind abgeklemmt und kosten keine Rechenzeit (v1.8.22).
 - **💾 Alte Presets:** Fehlt einem älteren User-Preset ein neuer Parameter (Crusher, Matrix), lädt er den INIT-Wert, statt den laufenden Wert stehen zu lassen.
 
 ### ⚡ NEU in v1.8.18: Bitcrusher
