@@ -38,7 +38,9 @@ class FmVoice {
     this.envelopes = [null];
     for (const n of FM_OPERATORS) {
       this.ops.push({ frequency: param(`freq${n}`), gain: param(`gain${n}`) });
-      this.envelopes.push(new SynthBlocks.Envelope(engine.getOp(n).env, { range: [0.0001, Infinity], holdOnTrigger: true }));
+      this.envelopes.push(
+        new SynthBlocks.Envelope(engine.getOp(n).env, { range: [0.0001, Infinity], holdOnTrigger: true })
+      );
     }
     this.detune = param('detune');
     this.algorithmParam = param('algorithm');

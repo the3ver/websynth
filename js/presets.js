@@ -5,9 +5,8 @@
  */
 
 // Eight unused modulation matrix slots (paths modMatrix.slot1 .. slot8, see SynthBlocks.ModMatrix.SLOTS)
-const emptyModMatrix = () => Object.fromEntries(
-  Array.from({ length: 8 }, (_, i) => [`slot${i + 1}`, { source: 'off', dest: 'off', amount: 0 }])
-);
+const emptyModMatrix = () =>
+  Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`slot${i + 1}`, { source: 'off', dest: 'off', amount: 0 }]));
 
 const FACTORY_PRESETS = [
   {

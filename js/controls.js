@@ -17,10 +17,14 @@ const DragController = {
       e.preventDefault();
       this.begin(control, e.clientY);
     });
-    el.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      this.begin(control, e.touches[0].clientY);
-    }, { passive: false });
+    el.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault();
+        this.begin(control, e.touches[0].clientY);
+      },
+      { passive: false }
+    );
   },
 
   begin(control, clientY) {
@@ -83,11 +87,15 @@ class Knob {
     this.render();
     DragController.bind(housing, this);
     housing.addEventListener('dblclick', () => this.commit(this.defaultValue));
-    housing.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const next = KnobScale.wheelStep(this.spec, this.value, e.deltaY < 0 ? 1 : -1);
-      if (next !== this.value) this.commit(next);
-    }, { passive: false });
+    housing.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        const next = KnobScale.wheelStep(this.spec, this.value, e.deltaY < 0 ? 1 : -1);
+        if (next !== this.value) this.commit(next);
+      },
+      { passive: false }
+    );
   }
 
   /**
@@ -105,7 +113,7 @@ class Knob {
 
   render() {
     const ratio = KnobScale.clampRatio(KnobScale.valueToRatio(this.spec, this.value));
-    this.dial.style.transform = `rotate(${-135 + (ratio * 270)}deg)`;
+    this.dial.style.transform = `rotate(${-135 + ratio * 270}deg)`;
     // Knob position 0..1 for CSS (e.g. a level ring around the knob)
     this.housing.style.setProperty('--knob-ratio', ratio.toFixed(4));
     if (this.readout) this.readout.textContent = KnobScale.formatReadout(this.spec.type, this.value);
@@ -154,7 +162,7 @@ class Fader {
 
   ratioToValue(ratio) {
     if (this.type === 'time') return this.min * Math.pow(this.max / this.min, ratio);
-    return this.min + (ratio * (this.max - this.min));
+    return this.min + ratio * (this.max - this.min);
   }
 
   quantize(val) {
@@ -221,7 +229,7 @@ class PerformanceWheel {
       this.el.style.transform = `translateY(${-bend * 16}px)`;
       this.onChange(bend);
     } else {
-      this.value = Math.max(0, Math.min(1, this.value + (deltaY / 100)));
+      this.value = Math.max(0, Math.min(1, this.value + deltaY / 100));
       this.startY = clientY;
       this.el.style.transform = `translateY(${-(this.value * 30 - 15)}px)`;
       this.onChange(this.value);
@@ -233,7 +241,9 @@ class PerformanceWheel {
     this.el.style.transition = 'transform 0.15s ease-out';
     this.el.style.transform = 'translateY(0px)';
     this.onChange(0);
-    setTimeout(() => { this.el.style.transition = ''; }, 150);
+    setTimeout(() => {
+      this.el.style.transition = '';
+    }, 150);
   }
 }
 

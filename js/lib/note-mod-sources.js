@@ -79,4 +79,4 @@
   }
 
   Object.assign(blocks, { NoteModSources });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

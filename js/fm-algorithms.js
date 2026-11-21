@@ -15,20 +15,82 @@ const FmAlgorithms = (() => {
   const NAMES = { 1: 'C', 2: 'A', 3: 'B1', 4: 'B2' };
 
   const ALGORITHMS = {
-    1: { mods: [[A, C], [B1, C], [B2, B1]], feedback: A, x: [C], y: [B1] },
-    2: { mods: [[A, C], [B2, B1]], feedback: B2, x: [C], y: [B1] },
-    3: { mods: [[A, C], [A, B2], [A, B1]], feedback: A, x: [C, B2], y: [B1] },
-    4: { mods: [[A, C], [B1, A], [B2, B1]], feedback: B2, x: [C], y: [A] },
-    5: { mods: [[A, C], [B1, A], [B2, A]], feedback: B1, x: [C], y: [A] },
-    6: { mods: [[A, C], [A, B1], [B2, C], [B2, B1]], feedback: A, x: [C], y: [B1] },
-    7: { mods: [[A, C], [B2, B1]], feedback: A, x: [C, A], y: [B1, B2] },
+    1: {
+      mods: [
+        [A, C],
+        [B1, C],
+        [B2, B1]
+      ],
+      feedback: A,
+      x: [C],
+      y: [B1]
+    },
+    2: {
+      mods: [
+        [A, C],
+        [B2, B1]
+      ],
+      feedback: B2,
+      x: [C],
+      y: [B1]
+    },
+    3: {
+      mods: [
+        [A, C],
+        [A, B2],
+        [A, B1]
+      ],
+      feedback: A,
+      x: [C, B2],
+      y: [B1]
+    },
+    4: {
+      mods: [
+        [A, C],
+        [B1, A],
+        [B2, B1]
+      ],
+      feedback: B2,
+      x: [C],
+      y: [A]
+    },
+    5: {
+      mods: [
+        [A, C],
+        [B1, A],
+        [B2, A]
+      ],
+      feedback: B1,
+      x: [C],
+      y: [A]
+    },
+    6: {
+      mods: [
+        [A, C],
+        [A, B1],
+        [B2, C],
+        [B2, B1]
+      ],
+      feedback: A,
+      x: [C],
+      y: [B1]
+    },
+    7: {
+      mods: [
+        [A, C],
+        [B2, B1]
+      ],
+      feedback: A,
+      x: [C, A],
+      y: [B1, B2]
+    },
     8: { mods: [[A, C]], feedback: B1, x: [C, B2], y: [B1] }
   };
 
   const C_RATIOS = [0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
   const A_RATIOS = [
-    0.25, 0.5, 0.75, 1, 1.41, 1.5, 1.73, 2, 2.5, 2.82, 3, 3.14, 3.5, 4, 4.24, 5, 5.5, 6, 6.28,
-    7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    0.25, 0.5, 0.75, 1, 1.41, 1.5, 1.73, 2, 2.5, 2.82, 3, 3.14, 3.5, 4, 4.24, 5, 5.5, 6, 6.28, 7, 8, 9, 10, 11, 12, 13,
+    14, 15, 16
   ];
   const B_RATIOS = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
   const B_STEPS = B_RATIOS.length * B_RATIOS.length;
@@ -58,7 +120,22 @@ const FmAlgorithms = (() => {
     return `${formatRatio(b1)} / ${formatRatio(b2)}`;
   };
 
-  return { C, A, B1, B2, NAMES, ALGORITHMS, C_RATIOS, A_RATIOS, B_RATIOS, B_STEPS, nearestIndex, bPair, bStep, formatB };
+  return {
+    C,
+    A,
+    B1,
+    B2,
+    NAMES,
+    ALGORITHMS,
+    C_RATIOS,
+    A_RATIOS,
+    B_RATIOS,
+    B_STEPS,
+    nearestIndex,
+    bPair,
+    bStep,
+    formatB
+  };
 })();
 
 window.FmAlgorithms = FmAlgorithms;

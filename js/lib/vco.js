@@ -88,4 +88,4 @@
   }
 
   Object.assign(blocks, { Vco });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

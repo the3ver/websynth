@@ -7,11 +7,11 @@
  * layout() and svg() are DOM-free (unit tested); render() writes into the panel.
  */
 const FmAlgorithmDisplay = (() => {
-  const BOX = 22;      // operator box size
-  const COL = 36;      // horizontal distance between columns
-  const ROW = 34;      // vertical distance between rows
+  const BOX = 22; // operator box size
+  const COL = 36; // horizontal distance between columns
+  const ROW = 34; // vertical distance between rows
   const PAD = 10;
-  const BUS_GAP = 12;  // bottom box edge to bus X; bus Y sits BUS_STEP below
+  const BUS_GAP = 12; // bottom box edge to bus X; bus Y sits BUS_STEP below
   const BUS_STEP = 9;
 
   /**
@@ -36,10 +36,13 @@ const FmAlgorithmDisplay = (() => {
     ops.forEach(depth);
 
     // Bottom row left to right: output X operators, unrouted ones, output Y operators
-    const side = (op) => (alg.x.includes(op) ? alg.x.indexOf(op) : alg.y.includes(op) ? 20 + alg.y.indexOf(op) : 10 + op);
+    const side = (op) =>
+      alg.x.includes(op) ? alg.x.indexOf(op) : alg.y.includes(op) ? 20 + alg.y.indexOf(op) : 10 + op;
     const x = {};
     const bottom = ops.filter((op) => rowOf[op] === 0).sort((a, b) => side(a) - side(b));
-    bottom.forEach((op, i) => { x[op] = i - (bottom.length - 1) / 2; });
+    bottom.forEach((op, i) => {
+      x[op] = i - (bottom.length - 1) / 2;
+    });
 
     const rows = Math.max(...ops.map((op) => rowOf[op])) + 1;
     for (let row = 1; row < rows; row++) {
@@ -52,7 +55,9 @@ const FmAlgorithmDisplay = (() => {
       const byX = {};
       for (const op of inRow) (byX[x[op]] = byX[x[op]] || []).push(op);
       for (const group of Object.values(byX)) {
-        group.forEach((op, i) => { x[op] += (i - (group.length - 1) / 2); });
+        group.forEach((op, i) => {
+          x[op] += i - (group.length - 1) / 2;
+        });
       }
     }
 
@@ -123,11 +128,16 @@ const FmAlgorithmDisplay = (() => {
         busLines[n.out].push(cx);
       } else {
         const sx = cx + BOX / 2 + 4;
-        parts.push(`<polyline class="${cls}" points="${cx + BOX / 2},${top + BOX / 2} ${sx},${top + BOX / 2} ${sx},${busYPos}"/>`);
+        parts.push(
+          `<polyline class="${cls}" points="${cx + BOX / 2},${top + BOX / 2} ${sx},${top + BOX / 2} ${sx},${busYPos}"/>`
+        );
         busLines[n.out].push(sx);
       }
     }
-    for (const [bus, yPos] of [['x', busX], ['y', busY]]) {
+    for (const [bus, yPos] of [
+      ['x', busX],
+      ['y', busY]
+    ]) {
       const pts = busLines[bus];
       const left = Math.min(...pts);
       const right = Math.max(...pts);
@@ -144,17 +154,21 @@ const FmAlgorithmDisplay = (() => {
       const { cx, top } = pos[n.op];
       const left = cx - BOX / 2;
       if (n.feedback) {
-        parts.push(`<polyline class="fm-alg-fb" points="${left},${top + 7} ${left - 5},${top + 7} ${left - 5},${top - 5} ${cx},${top - 5} ${cx},${top}"/>`);
+        parts.push(
+          `<polyline class="fm-alg-fb" points="${left},${top + 7} ${left - 5},${top + 7} ${left - 5},${top - 5} ${cx},${top - 5} ${cx},${top}"/>`
+        );
       }
       const cls = n.out ? 'fm-alg-op carrier' : 'fm-alg-op';
       parts.push(
         `<g class="${cls}"><rect x="${left}" y="${top}" width="${BOX}" height="${BOX}" rx="3"/>` +
-        `<text x="${cx}" y="${top + BOX / 2}">${n.name}</text></g>`
+          `<text x="${cx}" y="${top + BOX / 2}">${n.name}</text></g>`
       );
     }
 
-    return `<svg class="fm-alg-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" ` +
-      `aria-label="Algorithmus ${algorithm}: ${caption(algorithm)}">${parts.join('')}</svg>`;
+    return (
+      `<svg class="fm-alg-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" ` +
+      `aria-label="Algorithmus ${algorithm}: ${caption(algorithm)}">${parts.join('')}</svg>`
+    );
   }
 
   // Writes diagram and caption into the display element (ids from index.html)

@@ -62,10 +62,7 @@ test('create() persists preset with id, formatted name, and description', () => 
 
   assert.deepStrictEqual(toPlain(created), expected);
   assert.deepStrictEqual(toPlain(store.list()), [expected]);
-  assert.strictEqual(
-    storage.getItem('retrovox_user_presets'),
-    JSON.stringify([expected])
-  );
+  assert.strictEqual(storage.getItem('retrovox_user_presets'), JSON.stringify([expected]));
 });
 
 test('update() updates existing preset and returns it, or returns null if not found', () => {

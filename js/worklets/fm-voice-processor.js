@@ -60,8 +60,16 @@ class FmVoiceCore {
     const g = p.gain;
 
     // Silent voice (all envelopes at rest): skip the sines
-    if (g[1].length === 1 && g[2].length === 1 && g[3].length === 1 && g[4].length === 1 &&
-        g[1][0] < 1e-6 && g[2][0] < 1e-6 && g[3][0] < 1e-6 && g[4][0] < 1e-6) {
+    if (
+      g[1].length === 1 &&
+      g[2].length === 1 &&
+      g[3].length === 1 &&
+      g[4].length === 1 &&
+      g[1][0] < 1e-6 &&
+      g[2][0] < 1e-6 &&
+      g[3][0] < 1e-6 &&
+      g[4][0] < 1e-6
+    ) {
       output.fill(0);
       if (!this.silent) {
         this.out.fill(0);

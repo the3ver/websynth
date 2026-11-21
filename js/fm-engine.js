@@ -28,8 +28,8 @@ class FmEngine extends PolySynthEngine {
     this.op4 = op(3, 0.0, { attack: 0.005, decay: 0.4, sustain: 0.1, release: 0.4 });
 
     this.vibrato = {
-      rate: 5.0,  // 0.1 to 12 Hz
-      depth: 0.0  // 0.0 to 1.0
+      rate: 5.0, // 0.1 to 12 Hz
+      depth: 0.0 // 0.0 to 1.0
     };
     this.vibratoLfo = null;
   }
@@ -47,7 +47,8 @@ class FmEngine extends PolySynthEngine {
    */
   initVoicePool(count) {
     if (this.ready) return;
-    this.ready = this.ctx.audioWorklet.addModule(FM_WORKLET_URL)
+    this.ready = this.ctx.audioWorklet
+      .addModule(FM_WORKLET_URL)
       .then(() => super.initVoicePool(count))
       .catch((err) => console.error('FM-4 voice worklet failed to load:', err));
   }

@@ -9,7 +9,7 @@
 class ArpEngine {
   constructor(audioEngine) {
     this.audio = audioEngine;
-    
+
     // Parameters
     this.enabled = false;
     this.latch = false;
@@ -176,9 +176,9 @@ class ArpEngine {
 
     let shouldTrigger = true;
     if (this.division === '1/8') {
-      shouldTrigger = (stepIndex % 2 === 0);
+      shouldTrigger = stepIndex % 2 === 0;
     } else if (this.division === '1/4') {
-      shouldTrigger = (stepIndex % 4 === 0);
+      shouldTrigger = stepIndex % 4 === 0;
     }
 
     if (shouldTrigger) {
@@ -250,7 +250,7 @@ class ArpEngine {
    * Handle Key Up from Keyboard / MIDI
    */
   handleKeyUp(midiNote) {
-    this.heldKeys = this.heldKeys.filter(n => n !== midiNote);
+    this.heldKeys = this.heldKeys.filter((n) => n !== midiNote);
     if (!this.latch) {
       if (this.enabled && this.heldKeys.length === 0) {
         this.stopClock();
@@ -266,14 +266,14 @@ class ArpEngine {
    * Builds the note array based on held notes, mode, and octave range
    */
   rebuildSequence() {
-    const sourceNotes = (this.latch && this.heldKeys.length === 0) ? this.latchedKeys : this.heldKeys;
+    const sourceNotes = this.latch && this.heldKeys.length === 0 ? this.latchedKeys : this.heldKeys;
     if (!sourceNotes || sourceNotes.length === 0) {
       this.currentSequence = [];
       return;
     }
 
     let baseNotes = [...sourceNotes];
-    
+
     // Sort for pitch-based modes
     if (['up', 'down', 'updown'].includes(this.mode)) {
       baseNotes.sort((a, b) => a - b);
@@ -282,7 +282,7 @@ class ArpEngine {
     const multiOctaveNotes = [];
     for (let oct = 0; oct < this.octaves; oct++) {
       for (const note of baseNotes) {
-        multiOctaveNotes.push(note + (oct * 12));
+        multiOctaveNotes.push(note + oct * 12);
       }
     }
 
@@ -323,20 +323,32 @@ class ArpEngine {
     let baseSec = beatSec * 0.25; // 1/16th note default
 
     switch (this.division) {
-      case '1/4': baseSec = beatSec; break;
-      case '1/8': baseSec = beatSec * 0.5; break;
-      case '1/8t': baseSec = (beatSec * 0.5) * (2 / 3); break;
-      case '1/16': baseSec = beatSec * 0.25; break;
-      case '1/16t': baseSec = (beatSec * 0.25) * (2 / 3); break;
-      case '1/32': baseSec = beatSec * 0.125; break;
+      case '1/4':
+        baseSec = beatSec;
+        break;
+      case '1/8':
+        baseSec = beatSec * 0.5;
+        break;
+      case '1/8t':
+        baseSec = beatSec * 0.5 * (2 / 3);
+        break;
+      case '1/16':
+        baseSec = beatSec * 0.25;
+        break;
+      case '1/16t':
+        baseSec = beatSec * 0.25 * (2 / 3);
+        break;
+      case '1/32':
+        baseSec = beatSec * 0.125;
+        break;
     }
 
     // Apply Swing on odd steps (1, 3, 5...)
     if (this.swing > 0.01) {
       if (stepNum % 2 === 1) {
-        return baseSec * (1.0 - (this.swing * 0.45));
+        return baseSec * (1.0 - this.swing * 0.45);
       } else {
-        return baseSec * (1.0 + (this.swing * 0.45));
+        return baseSec * (1.0 + this.swing * 0.45);
       }
     }
 
@@ -423,11 +435,14 @@ class ArpEngine {
         }
       }, delayMs);
 
-      setTimeout(() => {
-        if (this.enabled) {
-          this.audio.noteOff(midiNote);
-        }
-      }, delayMs + (duration * 1000));
+      setTimeout(
+        () => {
+          if (this.enabled) {
+            this.audio.noteOff(midiNote);
+          }
+        },
+        delayMs + duration * 1000
+      );
     }
 
     // Schedule UI LED Visualizer callback

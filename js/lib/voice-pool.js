@@ -76,4 +76,4 @@
   }
 
   Object.assign(blocks, { VoicePool });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

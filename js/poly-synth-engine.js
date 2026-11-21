@@ -55,22 +55,22 @@ class PolySynthEngine {
     // Vintage Stereo FX Rack Parameters
     this.fx = {
       crusher: {
-        bits: 8,        // 1 to 16
-        rate: 11000,    // hold rate, 500 to 48000 Hz
-        mix: 0.0        // 0.0 to 1.0
+        bits: 8, // 1 to 16
+        rate: 11000, // hold rate, 500 to 48000 Hz
+        mix: 0.0 // 0.0 to 1.0
       },
       chorus: {
-        mode: 'off',    // 'off', 'I', 'II', 'I+II'
-        mix: 0.65       // 0.0 to 1.0
+        mode: 'off', // 'off', 'I', 'II', 'I+II'
+        mix: 0.65 // 0.0 to 1.0
       },
       delay: {
-        time: 0.32,     // 0.02 to 1.0s
+        time: 0.32, // 0.02 to 1.0s
         feedback: 0.45, // 0.0 to 0.9
-        mix: 0.0        // 0.0 to 1.0
+        mix: 0.0 // 0.0 to 1.0
       },
       reverb: {
-        decay: 3.2,     // 0.5 to 10.0s
-        mix: 0.0        // 0.0 to 1.0
+        decay: 3.2, // 0.5 to 10.0s
+        mix: 0.0 // 0.0 to 1.0
       }
     };
 
@@ -204,7 +204,7 @@ class PolySynthEngine {
    * Calculate base note frequency with Global Octave Shift
    */
   midiNoteToFrequency(midiNote) {
-    const shiftedNote = midiNote + (this.octaveShift * 12);
+    const shiftedNote = midiNote + this.octaveShift * 12;
     return 440 * Math.pow(2, (shiftedNote - 69) / 12);
   }
 
@@ -239,7 +239,10 @@ class PolySynthEngine {
     if (this.fxNoteModSources && this.activeVoices.size === 0) this.fxNoteModSources.release(this.ctx.currentTime);
 
     if (this.onVoiceChange) {
-      this.onVoiceChange(this.activeVoices.size, this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null);
+      this.onVoiceChange(
+        this.activeVoices.size,
+        this.activeVoices.size > 0 ? Array.from(this.activeVoices.values())[0].baseFreq : null
+      );
     }
   }
 
@@ -385,9 +388,8 @@ class PolySynthEngine {
   setModSlot(slot, field, value) {
     const index = MOD_MATRIX_SLOTS.indexOf(slot);
     if (index < 0 || !['source', 'dest', 'amount'].includes(field)) return;
-    this.modMatrix[slot][field] = field === 'amount'
-      ? Math.max(-1, Math.min(1, parseFloat(value) || 0))
-      : String(value);
+    this.modMatrix[slot][field] =
+      field === 'amount' ? Math.max(-1, Math.min(1, parseFloat(value) || 0)) : String(value);
     this.forEachVoice((voice) => {
       if (voice.modMatrix) voice.modMatrix.applySlot(index);
     });
@@ -480,7 +482,7 @@ class PolySynthEngine {
       } else if (this.midiRunningStatus) {
         this.midiData[this.midiDataCount++] = byte;
         const command = this.midiRunningStatus >> 4;
-        const length = (command === 0xc || command === 0xd) ? 1 : 2;
+        const length = command === 0xc || command === 0xd ? 1 : 2;
         if (this.midiDataCount === length) {
           this.midiDataCount = 0;
           this.dispatchMidi(this.midiRunningStatus, this.midiData[0], this.midiData[1]);
@@ -502,7 +504,7 @@ class PolySynthEngine {
     } else if (command === 8 || (command === 9 && velocity === 0)) {
       this.midiNotes.noteOff(note);
     } else if (command === 14) {
-      const bendValue = ((velocity << 7) + note) - 8192;
+      const bendValue = (velocity << 7) + note - 8192;
       const bendSemitones = (bendValue / 8192) * 2;
       this.setPitchBend(Math.pow(2, bendSemitones / 12));
     } else if (command === 11 && note === 1) {

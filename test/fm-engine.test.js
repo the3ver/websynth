@@ -113,7 +113,9 @@ describe('FM-4 notes', () => {
     const { engine } = await createLiveFmEngine();
     engine.setOpParam(4, 'level', 0);
     engine.noteOn(60, 1.0);
-    const ramps = engine.activeVoices.get(60).ops[4].gain.events.filter((e) => e.type === 'exponentialRampToValueAtTime');
+    const ramps = engine.activeVoices
+      .get(60)
+      .ops[4].gain.events.filter((e) => e.type === 'exponentialRampToValueAtTime');
     assert.ok(ramps.length >= 2 && ramps.every((e) => e.value > 0));
   });
 
@@ -148,7 +150,10 @@ describe('FM-4 notes', () => {
   test('release frees the voice after the longest operator tail', async () => {
     const { engine, context, ctx } = await createLiveFmEngine();
     const delays = [];
-    context.setTimeout = (fn, ms) => { delays.push({ fn, ms }); return delays.length; };
+    context.setTimeout = (fn, ms) => {
+      delays.push({ fn, ms });
+      return delays.length;
+    };
     engine.setEnvStage('op3.env', 'release', 2);
     ctx.currentTime = 1;
     engine.noteOn(60, 1.0);
@@ -170,7 +175,9 @@ describe('FM-4 notes', () => {
     engine.noteOn(72, 1.0);
     assert.equal(engine.activeVoices.get(72), oldest);
     for (const n of [1, 2, 3, 4]) {
-      assert.ok(oldest.ops[n].gain.events.some((e) => e.type === 'setTargetAtTime' && e.time === 3 && e.timeConstant === 0.002));
+      assert.ok(
+        oldest.ops[n].gain.events.some((e) => e.type === 'setTargetAtTime' && e.time === 3 && e.timeConstant === 0.002)
+      );
     }
   });
 });

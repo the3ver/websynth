@@ -49,4 +49,4 @@
   }
 
   Object.assign(blocks, { MasterBus });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

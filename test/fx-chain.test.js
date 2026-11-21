@@ -74,12 +74,37 @@ test('reverb decay regenerates a stereo impulse of matching length', () => {
 
 test('activeEffects: an effect counts as on only when it is audible', () => {
   const { context } = createLiveEngine();
-  const fx = (mode, cMix, dMix, rMix, xMix = 0) => ({ crusher: { mix: xMix }, chorus: { mode, mix: cMix }, delay: { mix: dMix }, reverb: { mix: rMix } });
+  const fx = (mode, cMix, dMix, rMix, xMix = 0) => ({
+    crusher: { mix: xMix },
+    chorus: { mode, mix: cMix },
+    delay: { mix: dMix },
+    reverb: { mix: rMix }
+  });
   const plain = (v) => JSON.parse(JSON.stringify(v));
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0.6, 0, 0))), { crusher: false, chorus: false, delay: false, reverb: false });
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('I', 0.6, 0.2, 0))), { crusher: false, chorus: true, delay: true, reverb: false });
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('II', 0, 0, 0.1))), { crusher: false, chorus: false, delay: false, reverb: true });
-  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0, 0, 0, 0.5))), { crusher: true, chorus: false, delay: false, reverb: false });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0.6, 0, 0))), {
+    crusher: false,
+    chorus: false,
+    delay: false,
+    reverb: false
+  });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('I', 0.6, 0.2, 0))), {
+    crusher: false,
+    chorus: true,
+    delay: true,
+    reverb: false
+  });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('II', 0, 0, 0.1))), {
+    crusher: false,
+    chorus: false,
+    delay: false,
+    reverb: true
+  });
+  assert.deepEqual(plain(context.FXChain.activeEffects(fx('off', 0, 0, 0, 0.5))), {
+    crusher: true,
+    chorus: false,
+    delay: false,
+    reverb: false
+  });
 });
 
 test('crusher loads its worklet, then feeds it only while mix > 0', async () => {

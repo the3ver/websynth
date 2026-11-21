@@ -11,11 +11,33 @@ FakeAudioWorkletNode.define('fm4-voice', FM_WORKLET_PARAMS);
 // Params of the bitcrusher worklet (js/worklets/crusher-processor.js)
 FakeAudioWorkletNode.define('bitcrusher', { bits: 16, rate: 48000 });
 
-const ENGINE_SCRIPTS = ['lib/curves.js', 'lib/envelope.js', 'lib/filter.js', 'lib/vco.js', 'lib/lfo.js', 'lib/effects.js', 'lib/gain-stages.js', 'lib/master-bus.js', 'lib/mod-matrix.js', 'lib/note-mod-sources.js', 'lib/param-table.js', 'lib/voice-pool.js', 'synth-params.js', 'voice.js', 'fx-chain.js', 'poly-synth-engine.js', 'audio-engine.js'];
+const ENGINE_SCRIPTS = [
+  'lib/curves.js',
+  'lib/envelope.js',
+  'lib/filter.js',
+  'lib/vco.js',
+  'lib/lfo.js',
+  'lib/effects.js',
+  'lib/gain-stages.js',
+  'lib/master-bus.js',
+  'lib/mod-matrix.js',
+  'lib/note-mod-sources.js',
+  'lib/param-table.js',
+  'lib/voice-pool.js',
+  'synth-params.js',
+  'voice.js',
+  'fx-chain.js',
+  'poly-synth-engine.js',
+  'audio-engine.js'
+];
 const FM_SCRIPTS = ['fm-algorithms.js', 'fm-params.js', 'fm-presets.js', 'fm-voice.js', 'fm-engine.js'];
 
 function loadEngineContext(...extraScripts) {
-  return loadScriptsWith({ AudioContext: FakeAudioContext, AudioWorkletNode: FakeAudioWorkletNode, navigator: {} }, ...ENGINE_SCRIPTS, ...extraScripts);
+  return loadScriptsWith(
+    { AudioContext: FakeAudioContext, AudioWorkletNode: FakeAudioWorkletNode, navigator: {} },
+    ...ENGINE_SCRIPTS,
+    ...extraScripts
+  );
 }
 
 /**

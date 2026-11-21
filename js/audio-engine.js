@@ -18,17 +18,17 @@ class AudioEngine extends PolySynthEngine {
     // Dual-VCO Parameters
     this.vco1 = {
       wave: 'sawtooth', // 'sawtooth', 'square', 'triangle', 'sine'
-      octave: 0,        // -2 (32'), -1 (16'), 0 (8'), 1 (4'), 2 (2')
-      semitone: 0,      // -24 to +24
-      detuneCents: 0,   // -50 to +50 cents
-      pulseWidth: 0.5   // 0.1 to 0.9
+      octave: 0, // -2 (32'), -1 (16'), 0 (8'), 1 (4'), 2 (2')
+      semitone: 0, // -24 to +24
+      detuneCents: 0, // -50 to +50 cents
+      pulseWidth: 0.5 // 0.1 to 0.9
     };
 
     this.vco2 = {
       wave: 'square',
       octave: 0,
-      semitone: 0,      // -24 to +24
-      detuneCents: 8,   // -50 to +50 cents
+      semitone: 0, // -24 to +24
+      detuneCents: 8, // -50 to +50 cents
       pulseWidth: 0.5,
       hardSync: false
     };
@@ -38,34 +38,34 @@ class AudioEngine extends PolySynthEngine {
       vco1Level: 0.75,
       vco2Level: 0.55,
       subLevel: 0.35,
-      subOctave: -1,    // -1 or -2
+      subOctave: -1, // -1 or -2
       noiseLevel: 0.0
     };
 
     // 24dB Resonant VCF Filter Parameters
     this.vcf = {
-      cutoff: 2800,          // 20 Hz to 20000 Hz
-      resonance: 3.5,        // 0.1 to 24.0
-      type: 'lowpass24',     // 'lowpass24', 'lowpass12', 'bandpass', 'highpass'
-      drive: 0.15,           // 0.0 to 1.0 (analog saturation)
-      keyTrack: 0.5,         // 0.0 to 1.0 (keyboard tracking)
-      envMod: 0.6            // -1.0 to +1.0 (envelope modulation amount)
+      cutoff: 2800, // 20 Hz to 20000 Hz
+      resonance: 3.5, // 0.1 to 24.0
+      type: 'lowpass24', // 'lowpass24', 'lowpass12', 'bandpass', 'highpass'
+      drive: 0.15, // 0.0 to 1.0 (analog saturation)
+      keyTrack: 0.5, // 0.0 to 1.0 (keyboard tracking)
+      envMod: 0.6 // -1.0 to +1.0 (envelope modulation amount)
     };
 
     // Filter Envelope (VCF ADSR)
     this.filterEnv = {
-      attack: 0.006,  // 0.003 to 4.0s (safe de-clicked attack)
-      decay: 0.35,    // 0.001 to 6.0s
-      sustain: 0.35,  // 0.0 to 1.0
-      release: 0.35   // 0.005 to 8.0s
+      attack: 0.006, // 0.003 to 4.0s (safe de-clicked attack)
+      decay: 0.35, // 0.001 to 6.0s
+      sustain: 0.35, // 0.0 to 1.0
+      release: 0.35 // 0.005 to 8.0s
     };
 
     // Amp Envelope (VCA ADSR)
     this.ampEnv = {
-      attack: 0.005,  // 0.003 to 4.0s (safe de-clicked attack)
-      decay: 0.25,    // 0.001 to 6.0s
-      sustain: 0.7,   // 0.0 to 1.0
-      release: 0.3    // 0.005 to 8.0s
+      attack: 0.005, // 0.003 to 4.0s (safe de-clicked attack)
+      decay: 0.25, // 0.001 to 6.0s
+      sustain: 0.7, // 0.0 to 1.0
+      release: 0.3 // 0.005 to 8.0s
     };
 
     // Mod Envelope: only a matrix source (MOD ENV), no fixed routing
@@ -74,26 +74,26 @@ class AudioEngine extends PolySynthEngine {
       decay: 0.6,
       sustain: 0.0,
       release: 0.4,
-      loop: false       // true: attack/decay repeat while a key is held (LFO-like)
+      loop: false // true: attack/decay repeat while a key is held (LFO-like)
     };
 
     // Dual-LFO Modulation Parameters (Independent LFO 1 & LFO 2)
     this.lfo1 = {
       wave: 'triangle', // 'sine', 'triangle', 'sawtooth', 'square', 'samplehold'
-      rate: 2.5,        // 0.05 Hz to 30.0 Hz
-      fadeIn: 0.0,      // 0.0 to 4.0 seconds
+      rate: 2.5, // 0.05 Hz to 30.0 Hz
+      fadeIn: 0.0, // 0.0 to 4.0 seconds
       destinations: {
-        pitch: 0.0,     // 0.0 to 1.0 (±1200 cents)
-        vcf: 0.0,       // 0.0 to 1.0 (±3600 cents)
-        pwm: 0.0,       // 0.0 to 1.0 (±0.35 PW)
-        amp: 0.0        // 0.0 to 1.0 (Tremolo)
+        pitch: 0.0, // 0.0 to 1.0 (±1200 cents)
+        vcf: 0.0, // 0.0 to 1.0 (±3600 cents)
+        pwm: 0.0, // 0.0 to 1.0 (±0.35 PW)
+        amp: 0.0 // 0.0 to 1.0 (Tremolo)
       }
     };
 
     this.lfo2 = {
       wave: 'sine',
       rate: 5.0,
-      fadeIn: 1.0,      // Default 1.0s delay for natural vibrato
+      fadeIn: 1.0, // Default 1.0s delay for natural vibrato
       destinations: {
         pitch: 0.0,
         vcf: 0.0,
@@ -234,7 +234,7 @@ class AudioEngine extends PolySynthEngine {
    * VCO frequency from its octave, semitones and cents (missing fields count as 0) plus pitch bend
    */
   vcoFrequency(vco, baseFreq) {
-    const totalSemitones = (vco.octave * 12) + (vco.semitone || 0) + ((vco.detuneCents || 0) / 100);
+    const totalSemitones = vco.octave * 12 + (vco.semitone || 0) + (vco.detuneCents || 0) / 100;
     return baseFreq * Math.pow(2, totalSemitones / 12) * this.pitchBendFactor;
   }
 
@@ -285,7 +285,8 @@ class AudioEngine extends PolySynthEngine {
     const vco = this[`vco${n}`];
     vco.pulseWidth = parseFloat(pw);
     const offset = this[`vco${n}PwOffset`];
-    if (offset && this.ctx) offset.offset.setTargetAtTime(AudioEngine.pwOffset(vco.pulseWidth), this.ctx.currentTime, 0.015);
+    if (offset && this.ctx)
+      offset.offset.setTargetAtTime(AudioEngine.pwOffset(vco.pulseWidth), this.ctx.currentTime, 0.015);
   }
 
   setVCO2Wave(wave) {

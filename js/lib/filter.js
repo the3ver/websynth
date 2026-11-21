@@ -60,4 +60,4 @@
   Filter.MAX_CUTOFF = MAX_CUTOFF;
 
   Object.assign(blocks, { Filter });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

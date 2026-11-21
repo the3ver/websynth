@@ -8,7 +8,10 @@ const SR = 48000;
 const N = 4800; // 100 ms
 
 // Renders N samples with constant params; gains/freqs are { opNumber: value }
-function render({ algorithm = 1, gains = {}, freqs = {}, feedback = 0, mix = 0, detune = 0 }, core = new FmVoiceCore(FmAlgorithms.ALGORITHMS, SR)) {
+function render(
+  { algorithm = 1, gains = {}, freqs = {}, feedback = 0, mix = 0, detune = 0 },
+  core = new FmVoiceCore(FmAlgorithms.ALGORITHMS, SR)
+) {
   const p = { freq: [null], gain: [null], detune: [detune], algorithm: [algorithm], feedback: [feedback], mix: [mix] };
   for (let n = 1; n <= 4; n++) {
     p.freq[n] = [freqs[n] ?? 440];
@@ -85,7 +88,13 @@ test('vibrato detune shifts every operator', () => {
 test('every algorithm renders bounded audio from all four operators at full level', () => {
   for (const alg of Object.keys(FmAlgorithms.ALGORITHMS).map(Number)) {
     for (const mix of [0, 0.5, 1]) {
-      const out = render({ algorithm: alg, gains: { 1: 1, 2: 1, 3: 1, 4: 1 }, freqs: { 1: 220, 2: 440, 3: 660, 4: 880 }, feedback: 1, mix });
+      const out = render({
+        algorithm: alg,
+        gains: { 1: 1, 2: 1, 3: 1, 4: 1 },
+        freqs: { 1: 220, 2: 440, 3: 660, 4: 880 },
+        feedback: 1,
+        mix
+      });
       assert.ok(peak(out) > 0.05 && peak(out) <= 1.0001, `alg ${alg} mix ${mix}: ${peak(out)}`);
       assert.ok(!out.some(Number.isNaN), `alg ${alg} NaN`);
     }

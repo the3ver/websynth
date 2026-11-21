@@ -5,10 +5,7 @@ const { loadScripts } = require('./helpers/load-browser-script');
 const { KnobScale } = loadScripts('knob-scale.js');
 
 function assertClose(actual, expected, tol = 1e-9) {
-  assert.ok(
-    Math.abs(actual - expected) <= tol,
-    `Expected ${actual} to be within ${tol} of ${expected}`
-  );
+  assert.ok(Math.abs(actual - expected) <= tol, `Expected ${actual} to be within ${tol} of ${expected}`);
 }
 
 test('clampRatio clamps values strictly between 0 and 1', () => {
@@ -21,11 +18,11 @@ test('clampRatio clamps values strictly between 0 and 1', () => {
 
 test('formatReadout handles all types correctly', () => {
   assert.equal(KnobScale.formatReadout('bits', 7.6), '8 BIT');
-  assert.equal(KnobScale.formatReadout('octave', -2), '32\'');
-  assert.equal(KnobScale.formatReadout('octave', -1), '16\'');
-  assert.equal(KnobScale.formatReadout('octave', 0), '8\'');
-  assert.equal(KnobScale.formatReadout('octave', 1), '4\'');
-  assert.equal(KnobScale.formatReadout('octave', 2), '2\'');
+  assert.equal(KnobScale.formatReadout('octave', -2), "32'");
+  assert.equal(KnobScale.formatReadout('octave', -1), "16'");
+  assert.equal(KnobScale.formatReadout('octave', 0), "8'");
+  assert.equal(KnobScale.formatReadout('octave', 1), "4'");
+  assert.equal(KnobScale.formatReadout('octave', 2), "2'");
   assert.equal(KnobScale.formatReadout('octave', 3), '3');
 
   assert.equal(KnobScale.formatReadout('percent', 0.5), '50%');

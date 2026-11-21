@@ -33,20 +33,21 @@ class FXChain {
 
     // Resolves once the crusher's worklet node is attached (or its module failed to load)
     this.ready = ctx.audioWorklet
-      ? ctx.audioWorklet.addModule(CRUSHER_WORKLET_URL)
-        .then(() => {
-          const node = new AudioWorkletNode(ctx, 'bitcrusher', {
-            numberOfInputs: 1,
-            numberOfOutputs: 1,
-            outputChannelCount: [2],
-            channelCount: 2,
-            channelCountMode: 'explicit'
-          });
-          this.crusher.attach(node);
-          this.modTargets.crusherBits = [node.parameters.get('bits')];
-          this.modTargets.crusherRate = [node.parameters.get('rate')];
-        })
-        .catch((err) => console.error('Bitcrusher worklet failed to load:', err))
+      ? ctx.audioWorklet
+          .addModule(CRUSHER_WORKLET_URL)
+          .then(() => {
+            const node = new AudioWorkletNode(ctx, 'bitcrusher', {
+              numberOfInputs: 1,
+              numberOfOutputs: 1,
+              outputChannelCount: [2],
+              channelCount: 2,
+              channelCountMode: 'explicit'
+            });
+            this.crusher.attach(node);
+            this.modTargets.crusherBits = [node.parameters.get('bits')];
+            this.modTargets.crusherRate = [node.parameters.get('rate')];
+          })
+          .catch((err) => console.error('Bitcrusher worklet failed to load:', err))
       : Promise.resolve();
   }
 

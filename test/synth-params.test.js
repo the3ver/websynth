@@ -8,11 +8,11 @@ const { SynthParams, SYNTH_INIT_PRESET, AudioEngine } = context;
 
 // Collects every leaf path, e.g. "vcf.cutoff" or "lfo1.destinations.pitch"
 function leafPaths(obj, prefix = '') {
-  return Object.entries(obj).flatMap(([key, value]) =>
-    value !== null && typeof value === 'object'
-      ? leafPaths(value, `${prefix}${key}.`)
-      : [`${prefix}${key}`]
-  ).sort();
+  return Object.entries(obj)
+    .flatMap(([key, value]) =>
+      value !== null && typeof value === 'object' ? leafPaths(value, `${prefix}${key}.`) : [`${prefix}${key}`]
+    )
+    .sort();
 }
 
 test('the table covers exactly the parameters of a preset state', () => {

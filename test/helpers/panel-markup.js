@@ -5,7 +5,21 @@
 const fs = require('fs');
 const path = require('path');
 
-const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+const VOID_TAGS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'source',
+  'track',
+  'wbr'
+]);
 const attr = (attrs, name) => {
   const m = attrs.match(new RegExp(`\\s${name}="([^"]*)"`));
   return m ? m[1] : null;
@@ -38,7 +52,9 @@ function readPanelMarkup() {
 
 // Knobs a synth shows: its own plus the shared ones
 function knobsOf(synthId) {
-  return readPanelMarkup().knobs.filter((k) => k.synth === null || k.synth === synthId).map((k) => k.param);
+  return readPanelMarkup()
+    .knobs.filter((k) => k.synth === null || k.synth === synthId)
+    .map((k) => k.param);
 }
 
 module.exports = { readPanelMarkup, knobsOf };

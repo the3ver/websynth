@@ -103,8 +103,16 @@ test('the SUB-1 definition lists exactly the sources and targets a voice can rou
   const voice = engine.voicePool[0];
   assert.deepEqual(Object.keys(matrix.sources).sort(), Object.keys(voice.modMatrix.sources).sort());
   const fxTargets = Object.keys(context.SUB1_FX_MOD_TARGETS);
-  assert.deepEqual(Object.keys(matrix.targets).filter((t) => !fxTargets.includes(t)).sort(), Object.keys(voice.modTargets).sort());
-  assert.deepEqual(fxTargets.sort(), Object.keys(engine.fxChain.modTargets).concat('crusherBits', 'crusherRate').sort());
+  assert.deepEqual(
+    Object.keys(matrix.targets)
+      .filter((t) => !fxTargets.includes(t))
+      .sort(),
+    Object.keys(voice.modTargets).sort()
+  );
+  assert.deepEqual(
+    fxTargets.sort(),
+    Object.keys(engine.fxChain.modTargets).concat('crusherBits', 'crusherRate').sort()
+  );
   assert.deepEqual(Object.keys(engine.fxModMatrix.sources).sort(), Object.keys(matrix.sources).sort());
   for (const [id, target] of Object.entries(matrix.targets)) {
     assert.equal(typeof target.label, 'string', id);

@@ -13,7 +13,7 @@ describe('driveCurve', () => {
     assert.equal(curve.length, 512);
     assert.equal(curve[0], -1);
     assert.equal(curve[511], 1);
-    assert.ok(Math.abs(curve[255] - (255 * 2 / 511 - 1)) < 1e-6);
+    assert.ok(Math.abs(curve[255] - ((255 * 2) / 511 - 1)) < 1e-6);
   });
 
   test('is normalized to +-1 at the edges for any drive amount', () => {

@@ -60,14 +60,22 @@ test('channels keep separate hold state', () => {
 
 test('the registered processor crushes every input channel with its params', () => {
   const registered = {};
-  loadScriptsWith({
-    AudioWorkletProcessor: class {},
-    registerProcessor: (name, cls) => { registered[name] = cls; },
-    sampleRate: SR
-  }, 'worklets/crusher-processor.js');
+  loadScriptsWith(
+    {
+      AudioWorkletProcessor: class {},
+      registerProcessor: (name, cls) => {
+        registered[name] = cls;
+      },
+      sampleRate: SR
+    },
+    'worklets/crusher-processor.js'
+  );
   const Processor = registered.bitcrusher;
   assert.ok(Processor, 'registered as bitcrusher');
-  assert.deepEqual(Array.from(Processor.parameterDescriptors, (d) => d.name), ['bits', 'rate']);
+  assert.deepEqual(
+    Array.from(Processor.parameterDescriptors, (d) => d.name),
+    ['bits', 'rate']
+  );
 
   const proc = new Processor();
   const left = Float32Array.of(0.3, 0.3, 0.9, 0.9);

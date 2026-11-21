@@ -35,7 +35,10 @@ test('noteOn connects the voice, release cleanup disconnects it again', () => {
 test('release cleanup waits until the tail is below -70 dB', () => {
   const { engine, context } = createLiveEngine();
   const delays = [];
-  context.setTimeout = (fn, ms) => { delays.push(ms); return 1; };
+  context.setTimeout = (fn, ms) => {
+    delays.push(ms);
+    return 1;
+  };
   engine.ampEnv.release = 0.3;
   engine.filterEnv.release = 0.3;
   engine.noteOn(60, 1.0);
@@ -65,7 +68,9 @@ test('noteOn sets frequency, VCA envelope ramps to peak and sustain, and updates
   assert.ok(peakEvent);
   assert.equal(peakEvent.time, 10 + 0.02);
 
-  const sustainEvent = vcaEvents.find((e) => e.type === 'exponentialRampToValueAtTime' && Math.abs(e.value - 0.2) < 1e-4);
+  const sustainEvent = vcaEvents.find(
+    (e) => e.type === 'exponentialRampToValueAtTime' && Math.abs(e.value - 0.2) < 1e-4
+  );
   assert.ok(sustainEvent);
   assert.equal(sustainEvent.time, 10 + 0.02 + 0.05);
 });
@@ -256,13 +261,19 @@ test('LFO fade-in ramps destination gain linearly when fadeIn > 0 and sets immed
   engine.noteOn(60, 1.0);
   const voice = engine.activeVoices.get(60);
 
-  const lfo1Direct = voice.lfo[1].pitch.gain.events.find((e) => e.type === 'setValueAtTime' && e.value === 100 && e.time === 10);
+  const lfo1Direct = voice.lfo[1].pitch.gain.events.find(
+    (e) => e.type === 'setValueAtTime' && e.value === 100 && e.time === 10
+  );
   assert.ok(lfo1Direct);
 
-  const lfo2Zero = voice.lfo[2].pitch.gain.events.find((e) => e.type === 'setValueAtTime' && e.value === 0 && e.time === 10);
+  const lfo2Zero = voice.lfo[2].pitch.gain.events.find(
+    (e) => e.type === 'setValueAtTime' && e.value === 0 && e.time === 10
+  );
   assert.ok(lfo2Zero);
 
-  const lfo2Ramp = voice.lfo[2].pitch.gain.events.find((e) => e.type === 'linearRampToValueAtTime' && e.value === 100 && e.time === 11);
+  const lfo2Ramp = voice.lfo[2].pitch.gain.events.find(
+    (e) => e.type === 'linearRampToValueAtTime' && e.value === 100 && e.time === 11
+  );
   assert.ok(lfo2Ramp);
 });
 
@@ -286,12 +297,33 @@ test('configureFilter stages filter types and Q factor for lowpass12 and lowpass
 test('filter modes: stage types and clamped Q for every mode and resonance', () => {
   const { engine } = createLiveEngine();
   const voice = engine.voicePool[0];
-  const stages = () => [voice.filter.stage1.type, voice.filter.stage2.type, voice.filter.stage1.Q.value, voice.filter.stage2.Q.value];
+  const stages = () => [
+    voice.filter.stage1.type,
+    voice.filter.stage2.type,
+    voice.filter.stage1.Q.value,
+    voice.filter.stage2.Q.value
+  ];
   const expected = {
-    lowpass24: { 0: ['lowpass', 'lowpass', 0.5, 0.5], 10: ['lowpass', 'lowpass', 3.8, 4.8], 30: ['lowpass', 'lowpass', 7.5, 9.0] },
-    lowpass12: { 0: ['lowpass', 'allpass', 0.5, 0.1], 10: ['lowpass', 'allpass', 7.0, 0.1], 30: ['lowpass', 'allpass', 14.0, 0.1] },
-    bandpass: { 0: ['bandpass', 'bandpass', 0.6, 0.6], 10: ['bandpass', 'bandpass', 4.2, 4.2], 30: ['bandpass', 'bandpass', 8.0, 8.0] },
-    highpass: { 0: ['highpass', 'highpass', 0.5, 0.5], 10: ['highpass', 'highpass', 3.8, 4.8], 30: ['highpass', 'highpass', 7.5, 9.0] }
+    lowpass24: {
+      0: ['lowpass', 'lowpass', 0.5, 0.5],
+      10: ['lowpass', 'lowpass', 3.8, 4.8],
+      30: ['lowpass', 'lowpass', 7.5, 9.0]
+    },
+    lowpass12: {
+      0: ['lowpass', 'allpass', 0.5, 0.1],
+      10: ['lowpass', 'allpass', 7.0, 0.1],
+      30: ['lowpass', 'allpass', 14.0, 0.1]
+    },
+    bandpass: {
+      0: ['bandpass', 'bandpass', 0.6, 0.6],
+      10: ['bandpass', 'bandpass', 4.2, 4.2],
+      30: ['bandpass', 'bandpass', 8.0, 8.0]
+    },
+    highpass: {
+      0: ['highpass', 'highpass', 0.5, 0.5],
+      10: ['highpass', 'highpass', 3.8, 4.8],
+      30: ['highpass', 'highpass', 7.5, 9.0]
+    }
   };
   for (const [type, byRes] of Object.entries(expected)) {
     for (const [res, want] of Object.entries(byRes)) {

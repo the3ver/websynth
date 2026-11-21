@@ -45,7 +45,9 @@ function bump(step = 'patch', root = ROOT) {
   const current = found[0].version;
   const bad = found.filter((f) => f.version !== current);
   if (!current || bad.length) {
-    throw new Error(`versions out of step with package.json ${current}: ${bad.map((f) => `${f.file}=${f.version}`).join(', ')}`);
+    throw new Error(
+      `versions out of step with package.json ${current}: ${bad.map((f) => `${f.file}=${f.version}`).join(', ')}`
+    );
   }
   const next = nextVersion(current, step);
   const contents = new Map();

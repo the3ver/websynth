@@ -47,20 +47,29 @@ class SynthUI {
     this.initPerformanceControls();
     this.initArpeggiatorControls();
     this.modMatrixPanel = new ModMatrixPanel(this.engine, synth.modMatrix);
-    this.presetPanel = new PresetPanel(this.engine, new PresetStore({ key: synth.presetStorageKey }), synth.presets, () => {
-      this.notes.releaseLatch();
-      this.syncControls();
-    });
+    this.presetPanel = new PresetPanel(
+      this.engine,
+      new PresetStore({ key: synth.presetStorageKey }),
+      synth.presets,
+      () => {
+        this.notes.releaseLatch();
+        this.syncControls();
+      }
+    );
 
-    this.visualizer = new Visualizer(this.engine, {
-      canvas: document.getElementById('scopeCanvas'),
-      // One LED per synth region; app.js has already removed the other synth's markup
-      lfoRateLed: document.querySelector('.lfo-rate-led'),
-      wooferLeft: document.getElementById('wooferLeft'),
-      wooferRight: document.getElementById('wooferRight'),
-      vuMeterL: document.getElementById('vuMeterL'),
-      vuMeterR: document.getElementById('vuMeterR')
-    }, () => synth.lfoRate(this.engine, this));
+    this.visualizer = new Visualizer(
+      this.engine,
+      {
+        canvas: document.getElementById('scopeCanvas'),
+        // One LED per synth region; app.js has already removed the other synth's markup
+        lfoRateLed: document.querySelector('.lfo-rate-led'),
+        wooferLeft: document.getElementById('wooferLeft'),
+        wooferRight: document.getElementById('wooferRight'),
+        vuMeterL: document.getElementById('vuMeterL'),
+        vuMeterR: document.getElementById('vuMeterR')
+      },
+      () => synth.lfoRate(this.engine, this)
+    );
     this.visualizer.start();
   }
 
@@ -81,8 +90,9 @@ class SynthUI {
   // =========================================================================
 
   initKnobs() {
-    this.knobs = Array.from(document.querySelectorAll('.synth-knob-housing'))
-      .map((housing) => new Knob(housing, (val) => this.dispatchKnob(housing.dataset.param, val)));
+    this.knobs = Array.from(document.querySelectorAll('.synth-knob-housing')).map(
+      (housing) => new Knob(housing, (val) => this.dispatchKnob(housing.dataset.param, val))
+    );
   }
 
   dispatchKnob(knobId, val) {
@@ -130,7 +140,8 @@ class SynthUI {
   }
 
   renderEnvShape() {
-    if (this.envDisplay) this.envDisplay.render(this.params.getPath(this.engine, this.synth.envTargets[this.currentEnvTarget]));
+    if (this.envDisplay)
+      this.envDisplay.render(this.params.getPath(this.engine, this.synth.envTargets[this.currentEnvTarget]));
   }
 
   /**
@@ -255,7 +266,7 @@ class SynthUI {
         if (targetSlide) {
           modularSurface.scrollTo({
             left: targetSlide.offsetLeft,
-            behavior: 'smooth',
+            behavior: 'smooth'
           });
         }
         tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
@@ -265,20 +276,21 @@ class SynthUI {
 
     // Horizontal swipe listener updates active tab highlight
     let isScrolling = null;
-    modularSurface.addEventListener('scroll', () => {
-      if (isScrolling) cancelAnimationFrame(isScrolling);
-      isScrolling = requestAnimationFrame(() => {
-        const scrollLeft = modularSurface.scrollLeft;
-        const slideWidth = modularSurface.clientWidth || 1;
-        const activeIndex = Math.min(
-          tabButtons.length - 1,
-          Math.max(0, Math.round(scrollLeft / slideWidth))
-        );
-        tabButtons.forEach((btn, idx) => {
-          btn.classList.toggle('active', idx === activeIndex);
+    modularSurface.addEventListener(
+      'scroll',
+      () => {
+        if (isScrolling) cancelAnimationFrame(isScrolling);
+        isScrolling = requestAnimationFrame(() => {
+          const scrollLeft = modularSurface.scrollLeft;
+          const slideWidth = modularSurface.clientWidth || 1;
+          const activeIndex = Math.min(tabButtons.length - 1, Math.max(0, Math.round(scrollLeft / slideWidth)));
+          tabButtons.forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === activeIndex);
+          });
         });
-      });
-    }, { passive: true });
+      },
+      { passive: true }
+    );
   }
 
   // =========================================================================
@@ -336,8 +348,18 @@ class SynthUI {
         btn.textContent = next ? labels[0] : labels[1];
       });
     };
-    toggleButton('arpPowerBtn', () => this.arp.enabled, (on) => this.notes.setArpEnabled(on), ['ARP ON', 'ARP OFF']);
-    toggleButton('arpLatchBtn', () => this.arp.latch, (on) => this.notes.setLatch(on), ['LATCH', 'HOLD']);
+    toggleButton(
+      'arpPowerBtn',
+      () => this.arp.enabled,
+      (on) => this.notes.setArpEnabled(on),
+      ['ARP ON', 'ARP OFF']
+    );
+    toggleButton(
+      'arpLatchBtn',
+      () => this.arp.latch,
+      (on) => this.notes.setLatch(on),
+      ['LATCH', 'HOLD']
+    );
 
     // Master clock sync switch (INT / DRUM SYNC), mirrored by the drum rack's sync button
     const arpSyncIndicator = document.getElementById('arpSyncIndicator');
@@ -354,10 +376,11 @@ class SynthUI {
 
     const onSelect = (id, apply) => {
       const select = document.getElementById(id);
-      if (select) select.addEventListener('change', (e) => {
-        apply(e.target.value);
-        DomUtils.blurTarget(e);
-      });
+      if (select)
+        select.addEventListener('change', (e) => {
+          apply(e.target.value);
+          DomUtils.blurTarget(e);
+        });
     };
     onSelect('arpModeSelect', (v) => this.arp.setMode(v));
     onSelect('arpOctaveSelect', (v) => this.arp.setOctaves(parseInt(v, 10)));

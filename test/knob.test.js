@@ -16,7 +16,11 @@ function housing(data) {
     dataset: data,
     props,
     dial,
-    style: { setProperty: (k, v) => { props[k] = v; } },
+    style: {
+      setProperty: (k, v) => {
+        props[k] = v;
+      }
+    },
     querySelector: () => dial,
     addEventListener: noop
   };

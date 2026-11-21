@@ -47,7 +47,7 @@ class DrumEngine {
     // Track Mute & Solo States (0: BD, 1: SD, 2: CH, 3: OH, 4: CP, 5: BASS)
     this.trackMutes = [false, false, false, false, false, false];
     this.trackSolos = [false, false, false, false, false, false];
-    this.trackVolumes = [0.95, 0.85, 0.75, 0.75, 0.80, 0.85];
+    this.trackVolumes = [0.95, 0.85, 0.75, 0.75, 0.8, 0.85];
 
     // Sound Design Parameters
     this.params = {
@@ -70,26 +70,26 @@ class DrumEngine {
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], // SD
         [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1], // CH
         [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0], // OH (Off-beat)
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]  // CP
+        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0] // CP
       ],
       // Bassline: 16 steps with { note: MIDI, accent: bool, slide: bool, gate: bool }
       bass: [
-        { note: 36, gate: true,  accent: true,  slide: false }, // C2
+        { note: 36, gate: true, accent: true, slide: false }, // C2
         { note: 36, gate: false, accent: false, slide: false },
-        { note: 36, gate: true,  accent: false, slide: true  }, // C2 ->
-        { note: 39, gate: true,  accent: false, slide: false }, // Eb2
-        { note: 36, gate: true,  accent: false, slide: false }, // C2
+        { note: 36, gate: true, accent: false, slide: true }, // C2 ->
+        { note: 39, gate: true, accent: false, slide: false }, // Eb2
+        { note: 36, gate: true, accent: false, slide: false }, // C2
         { note: 36, gate: false, accent: false, slide: false },
-        { note: 41, gate: true,  accent: true,  slide: true  }, // F2 ->
-        { note: 42, gate: true,  accent: false, slide: false }, // F#2
-        { note: 36, gate: true,  accent: true,  slide: false }, // C2
+        { note: 41, gate: true, accent: true, slide: true }, // F2 ->
+        { note: 42, gate: true, accent: false, slide: false }, // F#2
+        { note: 36, gate: true, accent: true, slide: false }, // C2
         { note: 36, gate: false, accent: false, slide: false },
-        { note: 48, gate: true,  accent: true,  slide: false }, // C3 (High Octave)
-        { note: 46, gate: true,  accent: false, slide: true  }, // Bb2
-        { note: 36, gate: true,  accent: false, slide: false }, // C2
-        { note: 39, gate: true,  accent: false, slide: false }, // Eb2
-        { note: 41, gate: true,  accent: true,  slide: true  }, // F2 ->
-        { note: 36, gate: true,  accent: false, slide: false }  // C2
+        { note: 48, gate: true, accent: true, slide: false }, // C3 (High Octave)
+        { note: 46, gate: true, accent: false, slide: true }, // Bb2
+        { note: 36, gate: true, accent: false, slide: false }, // C2
+        { note: 39, gate: true, accent: false, slide: false }, // Eb2
+        { note: 41, gate: true, accent: true, slide: true }, // F2 ->
+        { note: 36, gate: true, accent: false, slide: false } // C2
       ]
     };
 
@@ -169,7 +169,7 @@ class DrumEngine {
   }
 
   unregisterSyncSlave(slave) {
-    this.syncSlaves = this.syncSlaves.filter(s => s !== slave);
+    this.syncSlaves = this.syncSlaves.filter((s) => s !== slave);
   }
 
   /**
@@ -202,7 +202,7 @@ class DrumEngine {
 
   scheduleStep(stepIndex, time) {
     // Check Track Solos
-    const hasSolo = this.trackSolos.some(s => s === true);
+    const hasSolo = this.trackSolos.some((s) => s === true);
 
     const isTrackAudible = (trackIdx) => {
       if (this.isMuted) return false;
@@ -438,7 +438,7 @@ class DrumEngine {
       try {
         this.activeOpenHatGain.gain.cancelScheduledValues(time);
         this.activeOpenHatGain.gain.setTargetAtTime(0.0001, time, 0.004);
-      } catch(e) {}
+      } catch (e) {}
       this.activeOpenHatGain = null;
     }
 
@@ -513,7 +513,7 @@ class DrumEngine {
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.009);
 
     gain.gain.setValueAtTime(ampVal * 0.9, time + 0.011);
-    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.020);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.02);
 
     gain.gain.setValueAtTime(ampVal, time + 0.022);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.022 + decay);
@@ -543,7 +543,7 @@ class DrumEngine {
       const prevOsc = this.activeBassVoice.osc;
       const prevFilter = this.activeBassVoice.filter;
       prevOsc.frequency.setTargetAtTime(freq, time, 0.035);
-      
+
       const targetCutoff = accent ? Math.min(18000, cutoffBase * (1 + envMod * 5.0)) : cutoffBase * (1 + envMod * 2.5);
       prevFilter.frequency.setValueAtTime(targetCutoff, time);
       prevFilter.frequency.exponentialRampToValueAtTime(cutoffBase, time + decay);
@@ -559,7 +559,9 @@ class DrumEngine {
     filter.type = 'lowpass';
     filter.Q.setValueAtTime(this.params.bass.resonance * (accent ? 1.25 : 1.0), time);
 
-    const peakCutoff = accent ? Math.min(18000, cutoffBase * (1 + envMod * 5.5)) : Math.min(16000, cutoffBase * (1 + envMod * 3.0));
+    const peakCutoff = accent
+      ? Math.min(18000, cutoffBase * (1 + envMod * 5.5))
+      : Math.min(16000, cutoffBase * (1 + envMod * 3.0));
     filter.frequency.setValueAtTime(peakCutoff, time);
     filter.frequency.exponentialRampToValueAtTime(Math.max(60, cutoffBase * 0.4), time + decay);
 
@@ -601,8 +603,8 @@ class DrumEngine {
 
     return {
       connect: (dest) => merger.connect(dest),
-      start: (t) => oscs.forEach(o => o.start(t)),
-      stop: (t) => oscs.forEach(o => o.stop(t))
+      start: (t) => oscs.forEach((o) => o.start(t)),
+      stop: (t) => oscs.forEach((o) => o.stop(t))
     };
   }
 
@@ -622,7 +624,7 @@ class DrumEngine {
   // =========================================================================
 
   loadKit(kitId) {
-    const kit = this.factoryKits.find(k => k.id === kitId) || this.factoryKits[0];
+    const kit = this.factoryKits.find((k) => k.id === kitId) || this.factoryKits[0];
     if (!kit) return;
 
     this.setBpm(kit.bpm);

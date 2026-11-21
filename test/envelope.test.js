@@ -14,7 +14,12 @@ describe('Envelope.trigger', () => {
     const params = [new FakeAudioParam(), new FakeAudioParam()];
     env.trigger(params, 5, { start: 100, peak: 900 });
     for (const p of params) {
-      assert.deepEqual(types(p), ['cancelScheduledValues', 'setValueAtTime', 'exponentialRampToValueAtTime', 'exponentialRampToValueAtTime']);
+      assert.deepEqual(types(p), [
+        'cancelScheduledValues',
+        'setValueAtTime',
+        'exponentialRampToValueAtTime',
+        'exponentialRampToValueAtTime'
+      ]);
       assert.equal(p.events[1].value, 100);
       assert.deepEqual([p.events[2].value, p.events[2].time], [900, 5.1]);
       assert.equal(p.events[3].value, 100 + 800 * 0.25);

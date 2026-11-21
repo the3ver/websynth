@@ -2,10 +2,13 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadScriptsWith } = require('./helpers/load-browser-script');
 
-const { Visualizer } = loadScriptsWith({
-  requestAnimationFrame: () => 0,
-  performance: { now: () => 0 }
-}, 'visualizer.js');
+const { Visualizer } = loadScriptsWith(
+  {
+    requestAnimationFrame: () => 0,
+    performance: { now: () => 0 }
+  },
+  'visualizer.js'
+);
 
 function fakeElement() {
   const classes = new Set();
@@ -21,17 +24,29 @@ function fakeElement() {
 
 function setup() {
   const calls = [];
-  const ctx2d = new Proxy({}, {
-    get: (target, prop) => (prop in target ? target[prop] : (...args) => calls.push(prop)),
-    set: (target, prop, value) => { target[prop] = value; return true; }
-  });
+  const ctx2d = new Proxy(
+    {},
+    {
+      get: (target, prop) => (prop in target ? target[prop] : (...args) => calls.push(prop)),
+      set: (target, prop, value) => {
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
   const leds = Array.from({ length: 8 }, fakeElement);
   const vuMeter = (list) => ({ querySelectorAll: () => list });
   const engine = {
     isPowered: true,
     activeVoices: { size: 1 },
     signal: 60,
-    master: { analyser: { getByteTimeDomainData(a) { for (let i = 0; i < a.length; i++) a[i] = 128 + Math.round(engine.signal * Math.sin(i / 8)); } } }
+    master: {
+      analyser: {
+        getByteTimeDomainData(a) {
+          for (let i = 0; i < a.length; i++) a[i] = 128 + Math.round(engine.signal * Math.sin(i / 8));
+        }
+      }
+    }
   };
   const elements = {
     canvas: { width: 360, height: 120, getContext: () => ctx2d },

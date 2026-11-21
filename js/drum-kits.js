@@ -22,25 +22,25 @@ const DRUM_FACTORY_KITS = [
       [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0], // SD
       [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1], // CH
       [0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0], // OH
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1]  // CP
+      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1] // CP
     ],
     bass: [
-      { note: 36, gate: true,  accent: true,  slide: false },
+      { note: 36, gate: true, accent: true, slide: false },
       { note: 36, gate: false, accent: false, slide: false },
-      { note: 36, gate: true,  accent: false, slide: true  },
-      { note: 39, gate: true,  accent: false, slide: false },
-      { note: 36, gate: true,  accent: false, slide: false },
+      { note: 36, gate: true, accent: false, slide: true },
+      { note: 39, gate: true, accent: false, slide: false },
+      { note: 36, gate: true, accent: false, slide: false },
       { note: 36, gate: false, accent: false, slide: false },
-      { note: 41, gate: true,  accent: true,  slide: true  },
-      { note: 42, gate: true,  accent: false, slide: false },
-      { note: 36, gate: true,  accent: true,  slide: false },
+      { note: 41, gate: true, accent: true, slide: true },
+      { note: 42, gate: true, accent: false, slide: false },
+      { note: 36, gate: true, accent: true, slide: false },
       { note: 36, gate: false, accent: false, slide: false },
-      { note: 48, gate: true,  accent: true,  slide: false },
-      { note: 46, gate: true,  accent: false, slide: true  },
-      { note: 36, gate: true,  accent: false, slide: false },
-      { note: 39, gate: true,  accent: false, slide: false },
-      { note: 41, gate: true,  accent: true,  slide: true  },
-      { note: 36, gate: true,  accent: false, slide: false }
+      { note: 48, gate: true, accent: true, slide: false },
+      { note: 46, gate: true, accent: false, slide: true },
+      { note: 36, gate: true, accent: false, slide: false },
+      { note: 39, gate: true, accent: false, slide: false },
+      { note: 41, gate: true, accent: true, slide: true },
+      { note: 36, gate: true, accent: false, slide: false }
     ]
   },
   {
@@ -63,22 +63,22 @@ const DRUM_FACTORY_KITS = [
       [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
     ],
     bass: [
-      { note: 38, gate: true,  accent: true,  slide: false }, // D2
-      { note: 38, gate: true,  accent: false, slide: true  },
-      { note: 50, gate: true,  accent: true,  slide: false }, // D3
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 41, gate: true,  accent: true,  slide: true  }, // F2
-      { note: 43, gate: true,  accent: false, slide: false }, // G2
-      { note: 41, gate: true,  accent: false, slide: true  },
-      { note: 38, gate: true,  accent: true,  slide: false },
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 50, gate: true,  accent: true,  slide: true  },
-      { note: 48, gate: true,  accent: false, slide: false }, // C3
-      { note: 45, gate: true,  accent: true,  slide: true  }, // A2
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 41, gate: true,  accent: false, slide: false },
-      { note: 43, gate: true,  accent: true,  slide: true  },
-      { note: 38, gate: true,  accent: true,  slide: false }
+      { note: 38, gate: true, accent: true, slide: false }, // D2
+      { note: 38, gate: true, accent: false, slide: true },
+      { note: 50, gate: true, accent: true, slide: false }, // D3
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 41, gate: true, accent: true, slide: true }, // F2
+      { note: 43, gate: true, accent: false, slide: false }, // G2
+      { note: 41, gate: true, accent: false, slide: true },
+      { note: 38, gate: true, accent: true, slide: false },
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 50, gate: true, accent: true, slide: true },
+      { note: 48, gate: true, accent: false, slide: false }, // C3
+      { note: 45, gate: true, accent: true, slide: true }, // A2
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 41, gate: true, accent: false, slide: false },
+      { note: 43, gate: true, accent: true, slide: true },
+      { note: 38, gate: true, accent: true, slide: false }
     ]
   },
   {
@@ -101,22 +101,22 @@ const DRUM_FACTORY_KITS = [
       [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]
     ],
     bass: [
-      { note: 33, gate: true,  accent: true,  slide: false }, // A1
-      { note: 33, gate: true,  accent: false, slide: false },
-      { note: 33, gate: true,  accent: false, slide: false },
-      { note: 33, gate: true,  accent: false, slide: false },
-      { note: 40, gate: true,  accent: true,  slide: false }, // E2
-      { note: 40, gate: true,  accent: false, slide: false },
-      { note: 33, gate: true,  accent: false, slide: false },
-      { note: 33, gate: true,  accent: false, slide: false },
-      { note: 38, gate: true,  accent: true,  slide: false }, // D2
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 38, gate: true,  accent: false, slide: false },
-      { note: 45, gate: true,  accent: true,  slide: true  }, // A2
-      { note: 40, gate: true,  accent: false, slide: false }, // E2
-      { note: 38, gate: true,  accent: false, slide: false }, // D2
-      { note: 35, gate: true,  accent: true,  slide: false }  // B1
+      { note: 33, gate: true, accent: true, slide: false }, // A1
+      { note: 33, gate: true, accent: false, slide: false },
+      { note: 33, gate: true, accent: false, slide: false },
+      { note: 33, gate: true, accent: false, slide: false },
+      { note: 40, gate: true, accent: true, slide: false }, // E2
+      { note: 40, gate: true, accent: false, slide: false },
+      { note: 33, gate: true, accent: false, slide: false },
+      { note: 33, gate: true, accent: false, slide: false },
+      { note: 38, gate: true, accent: true, slide: false }, // D2
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 38, gate: true, accent: false, slide: false },
+      { note: 45, gate: true, accent: true, slide: true }, // A2
+      { note: 40, gate: true, accent: false, slide: false }, // E2
+      { note: 38, gate: true, accent: false, slide: false }, // D2
+      { note: 35, gate: true, accent: true, slide: false } // B1
     ]
   },
   {
@@ -139,22 +139,22 @@ const DRUM_FACTORY_KITS = [
       [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1]
     ],
     bass: [
-      { note: 36, gate: true,  accent: true,  slide: true  }, // C2 Sub
-      { note: 36, gate: true,  accent: false, slide: false },
+      { note: 36, gate: true, accent: true, slide: true }, // C2 Sub
+      { note: 36, gate: true, accent: false, slide: false },
       { note: 36, gate: false, accent: false, slide: false },
-      { note: 36, gate: true,  accent: false, slide: true  },
-      { note: 43, gate: true,  accent: true,  slide: false }, // G2
+      { note: 36, gate: true, accent: false, slide: true },
+      { note: 43, gate: true, accent: true, slide: false }, // G2
       { note: 43, gate: false, accent: false, slide: false },
-      { note: 41, gate: true,  accent: false, slide: true  }, // F2
-      { note: 36, gate: true,  accent: false, slide: false },
-      { note: 36, gate: true,  accent: true,  slide: false },
+      { note: 41, gate: true, accent: false, slide: true }, // F2
+      { note: 36, gate: true, accent: false, slide: false },
+      { note: 36, gate: true, accent: true, slide: false },
       { note: 36, gate: false, accent: false, slide: false },
-      { note: 48, gate: true,  accent: true,  slide: true  }, // C3
-      { note: 46, gate: true,  accent: false, slide: false }, // Bb2
-      { note: 36, gate: true,  accent: false, slide: false },
-      { note: 39, gate: true,  accent: false, slide: true  }, // Eb2
-      { note: 41, gate: true,  accent: true,  slide: false }, // F2
-      { note: 36, gate: true,  accent: false, slide: false }
+      { note: 48, gate: true, accent: true, slide: true }, // C3
+      { note: 46, gate: true, accent: false, slide: false }, // Bb2
+      { note: 36, gate: true, accent: false, slide: false },
+      { note: 39, gate: true, accent: false, slide: true }, // Eb2
+      { note: 41, gate: true, accent: true, slide: false }, // F2
+      { note: 36, gate: true, accent: false, slide: false }
     ]
   }
 ];

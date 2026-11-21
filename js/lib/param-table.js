@@ -91,11 +91,13 @@
      * Rows for the modulation matrix slots (engine.modMatrix, engine.setModSlot, mod-slotN-amount knobs)
      */
     static matrixParams(slots) {
-      return slots.flatMap((slot) => ['source', 'dest', 'amount'].map((field) => ({
-        path: `modMatrix.${slot}.${field}`,
-        ...(field === 'amount' ? { knob: `mod-${slot}-amount` } : {}),
-        set: (e, v) => e.setModSlot(slot, field, v)
-      })));
+      return slots.flatMap((slot) =>
+        ['source', 'dest', 'amount'].map((field) => ({
+          path: `modMatrix.${slot}.${field}`,
+          ...(field === 'amount' ? { knob: `mod-${slot}-amount` } : {}),
+          set: (e, v) => e.setModSlot(slot, field, v)
+        }))
+      );
     }
 
     /**
@@ -118,4 +120,4 @@
   }
 
   Object.assign(blocks, { ParamTable });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

@@ -10,7 +10,10 @@ const vm = require('vm');
 
 const ROOT = path.resolve(__dirname, '..');
 const inlineScripts = (file) =>
-  Array.from(fs.readFileSync(path.join(ROOT, file), 'utf8').matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g), (m) => m[1]);
+  Array.from(
+    fs.readFileSync(path.join(ROOT, file), 'utf8').matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g),
+    (m) => m[1]
+  );
 
 test('index.html runs only the service worker registration inline', () => {
   const scripts = inlineScripts('index.html');

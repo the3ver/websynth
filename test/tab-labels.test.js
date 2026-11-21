@@ -11,11 +11,18 @@ const html = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8'
 const css = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8');
 const MAX_MODULE_TAB_CHARS = 7;
 
-const label = (inner) => inner.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+const label = (inner) =>
+  inner
+    .replace(/<[^>]*>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 test('module tab labels are short enough for one line', () => {
-  const tabs = Array.from(html.matchAll(/<button class="env-tab-btn[^"]*"[^>]*>([\s\S]*?)<\/button>/g), (m) => label(m[1]));
-  assert.equal(tabs.length, 16, "OSC 3, LFO 2, ENV 3 + FM 4, FX 4");
+  const tabs = Array.from(html.matchAll(/<button class="env-tab-btn[^"]*"[^>]*>([\s\S]*?)<\/button>/g), (m) =>
+    label(m[1])
+  );
+  assert.equal(tabs.length, 16, 'OSC 3, LFO 2, ENV 3 + FM 4, FX 4');
   const long = tabs.filter((t) => t.length > MAX_MODULE_TAB_CHARS);
   assert.deepEqual(long, []);
 });

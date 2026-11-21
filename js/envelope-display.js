@@ -55,7 +55,11 @@ class EnvelopeDisplay {
     const scale = (ENV_DISPLAY_WIDTH - 2 * ENV_DISPLAY_PAD) / total;
     const x = (v) => round(ENV_DISPLAY_PAD + v * scale);
 
-    const parts = [`M${ENV_DISPLAY_PAD} ${bottom}`, `L${x(wA)} ${top}`, `Q${x(wA)} ${round(level)} ${x(wA + wD)} ${round(level)}`];
+    const parts = [
+      `M${ENV_DISPLAY_PAD} ${bottom}`,
+      `L${x(wA)} ${top}`,
+      `Q${x(wA)} ${round(level)} ${x(wA + wD)} ${round(level)}`
+    ];
     let end = wA + wD;
     if (loop) {
       parts.push(`L${x(end + wA)} ${top}`, `Q${x(end + wA)} ${round(level)} ${x(end + wA + wD)} ${round(level)}`);

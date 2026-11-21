@@ -87,4 +87,4 @@
   }
 
   Object.assign(blocks, { Lfo });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

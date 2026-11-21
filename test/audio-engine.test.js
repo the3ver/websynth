@@ -57,7 +57,12 @@ describe('master output stage', () => {
     assert.equal(master.volume.gain.value, engine.masterVolume);
     ctx.currentTime = 4;
     engine.setMasterVolume(1.5);
-    assert.deepEqual(master.volume.gain.events.at(-1), { type: 'setTargetAtTime', value: 1, time: 4, timeConstant: 0.02 });
+    assert.deepEqual(master.volume.gain.events.at(-1), {
+      type: 'setTargetAtTime',
+      value: 1,
+      time: 4,
+      timeConstant: 0.02
+    });
   });
 
   test('the drum machine joins the master bus input', () => {

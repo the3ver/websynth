@@ -20,7 +20,12 @@ test('configure schedules type, cutoff and Q at the given time', () => {
   filter.configure('bandpass', 10, 500, 3);
   assert.deepEqual([filter.stage1.type, filter.stage2.type], ['bandpass', 'bandpass']);
   for (const stage of [filter.stage1, filter.stage2]) {
-    assert.deepEqual(stage.frequency.events.at(-1), { type: 'setValueAtTime', value: 500, time: 3, timeConstant: undefined });
+    assert.deepEqual(stage.frequency.events.at(-1), {
+      type: 'setValueAtTime',
+      value: 500,
+      time: 3,
+      timeConstant: undefined
+    });
     assert.equal(stage.Q.events.at(-1).time, 3);
     assert.ok(Math.abs(stage.Q.value - 4.2) < 1e-9);
   }

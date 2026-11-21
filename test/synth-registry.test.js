@@ -57,7 +57,9 @@ describe('panel markup per synth', () => {
     });
 
     test(`${synth.id}: envelope tabs match its envelope targets`, () => {
-      const tabs = readPanelMarkup().envTabs.filter((t) => t.synth === synth.id).map((t) => t.target);
+      const tabs = readPanelMarkup()
+        .envTabs.filter((t) => t.synth === synth.id)
+        .map((t) => t.target);
       assert.deepEqual(tabs, Object.keys(synth.envTargets));
     });
   }

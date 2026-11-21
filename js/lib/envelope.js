@@ -26,7 +26,10 @@
      * @param options.minStageTime shortest attack/decay, keeps exponential ramps click-free
      * @param options.minReleaseTime shortest release
      */
-    constructor(stages, { range = [-Infinity, Infinity], holdOnTrigger = false, minStageTime = 0.004, minReleaseTime = 0.008 } = {}) {
+    constructor(
+      stages,
+      { range = [-Infinity, Infinity], holdOnTrigger = false, minStageTime = 0.004, minReleaseTime = 0.008 } = {}
+    ) {
       this.stages = stages;
       this.range = range;
       this.holdOnTrigger = holdOnTrigger;
@@ -47,7 +50,7 @@
       const attackTime = Math.max(this.minStageTime, attack);
       const decayTime = Math.max(this.minStageTime, decay);
       const [lo, hi] = this.range;
-      const sustainLevel = Math.max(lo, Math.min(hi, base + ((peak - base) * sustain)));
+      const sustainLevel = Math.max(lo, Math.min(hi, base + (peak - base) * sustain));
 
       for (const param of params) {
         if (this.holdOnTrigger) holdParam(param, now);
@@ -69,7 +72,7 @@
       const attackTime = Math.max(this.minStageTime, attack);
       const decayTime = Math.max(this.minStageTime, decay);
       const [lo, hi] = this.range;
-      const sustainLevel = Math.max(lo, Math.min(hi, base + ((peak - base) * sustain)));
+      const sustainLevel = Math.max(lo, Math.min(hi, base + (peak - base) * sustain));
 
       for (const param of params) {
         if (first) {
@@ -101,4 +104,4 @@
   }
 
   Object.assign(blocks, { holdParam, Envelope });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

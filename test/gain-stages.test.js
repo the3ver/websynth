@@ -16,7 +16,12 @@ describe('Mixer', () => {
   test('setLevel ramps, setLevelsAt jumps to scaled levels', () => {
     const mixer = new SynthBlocks.Mixer(new FakeAudioContext(), { a: 0.5, b: 0.25 });
     mixer.setLevel('a', 0.9, 2);
-    assert.deepEqual(mixer.channels.a.gain.events.at(-1), { type: 'setTargetAtTime', value: 0.9, time: 2, timeConstant: 0.015 });
+    assert.deepEqual(mixer.channels.a.gain.events.at(-1), {
+      type: 'setTargetAtTime',
+      value: 0.9,
+      time: 2,
+      timeConstant: 0.015
+    });
     mixer.setLevelsAt({ a: 0.8, b: 0.4 }, 0.5, 3);
     assert.equal(mixer.channels.a.gain.value, 0.4);
     assert.equal(mixer.channels.b.gain.value, 0.2);
@@ -53,9 +58,12 @@ describe('Vca', () => {
   test('choke holds and fades the amp gain in 2 ms', () => {
     const vca = new SynthBlocks.Vca(new FakeAudioContext());
     vca.choke(5);
-    assert.deepEqual(vca.gain.events.slice(-2).map((e) => [e.type, e.value, e.time, e.timeConstant]), [
-      ['cancelAndHoldAtTime', undefined, 5, undefined],
-      ['setTargetAtTime', 0, 5, 0.002]
-    ]);
+    assert.deepEqual(
+      vca.gain.events.slice(-2).map((e) => [e.type, e.value, e.time, e.timeConstant]),
+      [
+        ['cancelAndHoldAtTime', undefined, 5, undefined],
+        ['setTargetAtTime', 0, 5, 0.002]
+      ]
+    );
   });
 });

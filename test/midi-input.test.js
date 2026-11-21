@@ -24,7 +24,10 @@ describe('MIDI input', () => {
     };
     midi(engine, 0x90, 60, 127);
     midi(engine, 0x80, 60, 0);
-    assert.deepEqual(events, [['on', 60, 1], ['off', 60]]);
+    assert.deepEqual(events, [
+      ['on', 60, 1],
+      ['off', 60]
+    ]);
     assert.equal(engine.activeVoices.size, 0);
   });
 });
@@ -63,7 +66,10 @@ describe('MIDI input through the NoteRouter', () => {
     const { engine } = setupRouted();
     const played = [];
     const noteOn = engine.noteOn.bind(engine);
-    engine.noteOn = (note, velocity) => { played.push(velocity); noteOn(note, velocity); };
+    engine.noteOn = (note, velocity) => {
+      played.push(velocity);
+      noteOn(note, velocity);
+    };
     midi(engine, 0x90, 60, 64);
     assert.deepEqual(played, [64 / 127]);
   });
@@ -97,12 +103,18 @@ class FakeMidiInput {
 function setupMidiPage(requestMIDIAccess) {
   const timeouts = [];
   const navigator = requestMIDIAccess === undefined ? {} : { requestMIDIAccess };
-  const context = loadScriptsWith({
-    AudioContext: FakeAudioContext,
-    AudioWorkletNode: FakeAudioWorkletNode,
-    navigator,
-    setTimeout: (fn, ms) => { timeouts.push({ fn, ms }); return timeouts.length; }
-  }, ...ENGINE_SCRIPTS);
+  const context = loadScriptsWith(
+    {
+      AudioContext: FakeAudioContext,
+      AudioWorkletNode: FakeAudioWorkletNode,
+      navigator,
+      setTimeout: (fn, ms) => {
+        timeouts.push({ fn, ms });
+        return timeouts.length;
+      }
+    },
+    ...ENGINE_SCRIPTS
+  );
   const engine = new context.AudioEngine();
   const states = [];
   engine.onMidiStateChange = (s) => states.push({ state: s.state, count: s.count });
@@ -117,7 +129,10 @@ describe('MIDI access at page load', () => {
   test('initMidi asks for MIDI without an AudioContext, starting audio does not ask again', async () => {
     let calls = 0;
     const access = fakeAccess(new FakeMidiInput('keystep'));
-    const { engine, states } = setupMidiPage(async () => { calls++; return access; });
+    const { engine, states } = setupMidiPage(async () => {
+      calls++;
+      return access;
+    });
     await engine.initMidi();
     assert.equal(engine.ctx, null);
     assert.equal(calls, 1);
@@ -148,7 +163,9 @@ describe('MIDI access at page load', () => {
   });
 
   test('a rejected request shows state error', async () => {
-    const { engine, states } = setupMidiPage(async () => { throw new Error('SecurityError'); });
+    const { engine, states } = setupMidiPage(async () => {
+      throw new Error('SecurityError');
+    });
     await engine.initMidi();
     assert.deepEqual(states.at(-1), { state: 'error', count: 0 });
   });
@@ -163,7 +180,9 @@ describe('MIDI access at page load', () => {
 describe('MIDI input registration', () => {
   test('an input that only fires midimessage listeners reaches the voices', async () => {
     const input = new FakeMidiInput('keystep');
-    input.emit = function (...data) { for (const fn of this.listeners) fn({ data }); };
+    input.emit = function (...data) {
+      for (const fn of this.listeners) fn({ data });
+    };
     const { engine } = setupMidiPage(async () => fakeAccess(input));
     await engine.initMidi();
     input.emit(0x90, 60, 100);
@@ -188,7 +207,10 @@ describe('MIDI input registration', () => {
     const access = fakeAccess();
     const { engine, states, timeouts } = setupMidiPage(async () => access);
     await engine.initMidi();
-    assert.deepEqual(timeouts.map((t) => t.ms), [500, 2000]);
+    assert.deepEqual(
+      timeouts.map((t) => t.ms),
+      [500, 2000]
+    );
     assert.deepEqual(states.at(-1), { state: 'standby', count: 0 });
     const input = new FakeMidiInput('keystep');
     access.inputs.set(input.id, input);
@@ -215,7 +237,10 @@ describe('MIDI message parsing', () => {
     const { engine, events } = recordingEngine();
     engine.handleMidiMessage({ data: [0x91, 60, 100] });
     engine.handleMidiMessage({ data: new Uint8Array([0x81, 60, 0]) });
-    assert.deepEqual(events, [['on', 60], ['off', 60]]);
+    assert.deepEqual(events, [
+      ['on', 60],
+      ['off', 60]
+    ]);
   });
 
   test('running status inside one packet and across packets', () => {
@@ -223,7 +248,12 @@ describe('MIDI message parsing', () => {
     engine.handleMidiMessage({ data: [0x9e, 60, 100, 64, 100] });
     engine.handleMidiMessage({ data: [67, 100] });
     engine.handleMidiMessage({ data: [60, 0] });
-    assert.deepEqual(events, [['on', 60], ['on', 64], ['on', 67], ['off', 60]]);
+    assert.deepEqual(events, [
+      ['on', 60],
+      ['on', 64],
+      ['on', 67],
+      ['off', 60]
+    ]);
   });
 
   test('realtime bytes (clock) between data bytes are skipped', () => {

@@ -8,7 +8,16 @@ const { ParamTable } = SynthBlocks;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
 function demo() {
-  const engine = { op: { level: 0.5 }, glide: false, setLevel(v) { this.op.level = v; }, setGlide(v) { this.glide = v; } };
+  const engine = {
+    op: { level: 0.5 },
+    glide: false,
+    setLevel(v) {
+      this.op.level = v;
+    },
+    setGlide(v) {
+      this.glide = v;
+    }
+  };
   const table = new ParamTable([
     { path: 'op.level', knob: 'op-level', lfo: 1, set: (e, v) => e.setLevel(v) },
     { path: 'performance.glide', field: 'glide', set: (e, v) => e.setGlide(v) }
@@ -38,16 +47,32 @@ test('byKnob resolves shared knobs by the selected value', () => {
 test('envParams yields one setEnvStage row per ADSR stage', () => {
   const calls = [];
   const rows = ParamTable.envParams('modEnv');
-  assert.deepEqual(Array.from(rows, (r) => r.path), ['modEnv.attack', 'modEnv.decay', 'modEnv.sustain', 'modEnv.release']);
+  assert.deepEqual(
+    Array.from(rows, (r) => r.path),
+    ['modEnv.attack', 'modEnv.decay', 'modEnv.sustain', 'modEnv.release']
+  );
   rows[2].set({ setEnvStage: (...args) => calls.push(args) }, 0.4);
-  assert.deepEqual(calls.map((c) => Array.from(c)), [['modEnv', 'sustain', 0.4]]);
+  assert.deepEqual(
+    calls.map((c) => Array.from(c)),
+    [['modEnv', 'sustain', 0.4]]
+  );
 });
 
 test('preset: false rows drive a knob but are neither saved nor loaded', () => {
   const calls = [];
-  const engine = { a: 1, get both() { return this.a * 10; } };
+  const engine = {
+    a: 1,
+    get both() {
+      return this.a * 10;
+    }
+  };
   const table = new ParamTable([
-    { path: 'a', set: (e, v) => { e.a = v; } },
+    {
+      path: 'a',
+      set: (e, v) => {
+        e.a = v;
+      }
+    },
     { path: 'both', knob: 'both-knob', preset: false, set: (e, v) => calls.push(v) }
   ]);
   assert.deepEqual(plain(table.readState(engine)), { a: 1 });

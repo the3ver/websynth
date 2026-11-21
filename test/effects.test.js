@@ -54,8 +54,22 @@ test('crusher crossfades dry and wet and waits for its worklet node', () => {
   assert.ok(crusher.input.connections.includes(crusher.dryGain));
   crusher.applyBits(); // no node yet: nothing to do, no throw
 
-  const param = () => ({ value: null, setTargetAtTime(v) { this.value = v; } });
-  const node = { parameters: new Map([['bits', param()], ['rate', param()]]), connections: [], connect(t) { this.connections.push(t); } };
+  const param = () => ({
+    value: null,
+    setTargetAtTime(v) {
+      this.value = v;
+    }
+  });
+  const node = {
+    parameters: new Map([
+      ['bits', param()],
+      ['rate', param()]
+    ]),
+    connections: [],
+    connect(t) {
+      this.connections.push(t);
+    }
+  };
   crusher.attach(node);
   assert.ok(node.connections.includes(crusher.wetGain));
   assert.ok(crusher.input.connections.includes(node), 'mix > 0 feeds the node right away');

@@ -12,7 +12,14 @@ function createDrum() {
 // Replaces the DSP trigger methods with recorders: [{ name, args }]
 function recordTriggers(drum) {
   const calls = [];
-  for (const name of ['triggerKick', 'triggerSnare', 'triggerClosedHat', 'triggerOpenHat', 'triggerClap', 'triggerBass']) {
+  for (const name of [
+    'triggerKick',
+    'triggerSnare',
+    'triggerClosedHat',
+    'triggerOpenHat',
+    'triggerClap',
+    'triggerBass'
+  ]) {
     drum[name] = (...args) => calls.push({ name, args });
   }
   return calls;
@@ -57,7 +64,10 @@ describe('pattern editing', () => {
   test('drum steps cycle off -> on -> accent -> off', () => {
     const { drum } = createDrum();
     emptyPattern(drum);
-    assert.deepEqual([1, 2, 3].map(() => drum.toggleStep(2, 5)), [1, 2, 0]);
+    assert.deepEqual(
+      [1, 2, 3].map(() => drum.toggleStep(2, 5)),
+      [1, 2, 0]
+    );
     assert.equal(drum.getStepState(2, 5), 0);
   });
 
@@ -124,14 +134,20 @@ describe('scheduleStep', () => {
     const { drum, calls } = setup();
     assert.equal(drum.toggleTrackMute(0), true);
     drum.scheduleStep(0, 0);
-    assert.deepEqual(calls.map((c) => c.name), ['triggerClosedHat', 'triggerBass']);
+    assert.deepEqual(
+      calls.map((c) => c.name),
+      ['triggerClosedHat', 'triggerBass']
+    );
   });
 
   test('a solo silences every other track', () => {
     const { drum, calls } = setup();
     assert.equal(drum.toggleTrackSolo(5), true);
     drum.scheduleStep(0, 0);
-    assert.deepEqual(calls.map((c) => c.name), ['triggerBass']);
+    assert.deepEqual(
+      calls.map((c) => c.name),
+      ['triggerBass']
+    );
   });
 
   test('sync slaves receive the clock tick with the beat length', () => {

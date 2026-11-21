@@ -5,7 +5,7 @@
  */
 
 const knobSign = (val) => (val > 0 ? '+' : '');
-const OCTAVE_FOOTAGE = { '-2': "32'", '-1': "16'", '0': "8'", '1': "4'", '2': "2'" };
+const OCTAVE_FOOTAGE = { '-2': "32'", '-1': "16'", 0: "8'", 1: "4'", 2: "2'" };
 
 const READOUT_FORMATTERS = {
   octave: (val) => OCTAVE_FOOTAGE[String(Math.round(val))] || `${val}`,
@@ -57,7 +57,7 @@ const KnobScale = {
   ratioToValue(spec, ratio) {
     if (spec.values) return spec.values[Math.round(this.clampRatio(ratio) * (spec.values.length - 1))];
     if (isLogHzKnob(spec)) return spec.min * Math.pow(spec.max / spec.min, ratio);
-    return spec.min + (ratio * (spec.max - spec.min));
+    return spec.min + ratio * (spec.max - spec.min);
   },
 
   /**

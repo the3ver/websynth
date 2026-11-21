@@ -28,7 +28,7 @@ test('a longer stage takes a larger share of the width', () => {
 
 test('stage widths follow the fader scale (logarithmic) and clamp outside the range', () => {
   const w = (t) => EnvelopeDisplay.stageWidth(t, [0.001, 4]);
-  assert.ok(Math.abs((w(0.063) - w(0.001)) - (w(4) - w(0.063))) < 1, 'geometric middle in the middle');
+  assert.ok(Math.abs(w(0.063) - w(0.001) - (w(4) - w(0.063))) < 1, 'geometric middle in the middle');
   assert.equal(w(100), w(4));
   assert.equal(w(0), w(0.001));
 });

@@ -46,7 +46,9 @@
    * that approaches 0.98 so the output never reaches full scale.
    */
   function safetyClipCurve() {
-    const n = 4096, knee = 0.8, ceiling = 0.98;
+    const n = 4096,
+      knee = 0.8,
+      ceiling = 0.98;
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 4 - 2;
@@ -69,4 +71,4 @@
   }
 
   Object.assign(blocks, { linearCurve, tanhCurve, driveCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer });
-})(window.SynthBlocks = window.SynthBlocks || {});
+})((window.SynthBlocks = window.SynthBlocks || {}));

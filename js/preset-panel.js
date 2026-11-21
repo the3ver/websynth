@@ -52,10 +52,11 @@ class PresetPanel {
 
     const onClick = (id, handler) => {
       const btn = document.getElementById(id);
-      if (btn) btn.addEventListener('click', (e) => {
-        handler();
-        DomUtils.blurTarget(e);
-      });
+      if (btn)
+        btn.addEventListener('click', (e) => {
+          handler();
+          DomUtils.blurTarget(e);
+        });
     };
     onClick('prevPresetBtn', () => this.step(-1));
     onClick('nextPresetBtn', () => this.step(1));
@@ -142,22 +143,29 @@ class PresetPanel {
   openSaveDialog() {
     const current = this.presetsList[this.currentPresetIndex];
     const isUser = PresetStore.isUserPreset(current);
-    const show = (el, visible) => { if (el) el.style.display = visible ? 'inline-flex' : 'none'; };
+    const show = (el, visible) => {
+      if (el) el.style.display = visible ? 'inline-flex' : 'none';
+    };
 
     if (isUser) {
-      this.setDialogText('USER-PRESET BEARBEITEN / SPEICHERN',
-        'Möchtest du das bestehende User-Preset mit deinen Sound-Änderungen überschreiben oder als neues Preset ablegen?');
+      this.setDialogText(
+        'USER-PRESET BEARBEITEN / SPEICHERN',
+        'Möchtest du das bestehende User-Preset mit deinen Sound-Änderungen überschreiben oder als neues Preset ablegen?'
+      );
       this.nameInput.value = PresetStore.displayName(current);
       this.categorySelect.value = current.category || 'USER';
       if (this.confirmBtn) this.confirmBtn.textContent = '💾 Überschreiben';
       this.savePresetMode = 'update';
       this.editingPresetId = current.id;
     } else {
-      this.setDialogText('SOUND ALS PRESET SPEICHERN',
-        'Gib deinem Custom-Preset einen Namen. Der Sound wird dauerhaft in deinem Browser gespeichert.');
+      this.setDialogText(
+        'SOUND ALS PRESET SPEICHERN',
+        'Gib deinem Custom-Preset einen Namen. Der Sound wird dauerhaft in deinem Browser gespeichert.'
+      );
       const isNamedPreset = current && current.name && !current.id.includes('init');
       this.nameInput.value = isNamedPreset ? current.name.replace(/^\d+\s*\/\/\s*/, '') + ' (Custom)' : '';
-      this.categorySelect.value = (current && current.category && current.category !== 'INIT') ? current.category : 'USER';
+      this.categorySelect.value =
+        current && current.category && current.category !== 'INIT' ? current.category : 'USER';
       if (this.confirmBtn) this.confirmBtn.textContent = '💾 Speichern';
       this.savePresetMode = 'create';
       this.editingPresetId = null;

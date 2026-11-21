@@ -70,12 +70,13 @@ class DrumUI {
 
     if (this.drawerTab) this.drawerTab.addEventListener('click', toggleDrawer);
     if (this.openDrawerBtn) this.openDrawerBtn.addEventListener('click', toggleDrawer);
-    if (this.closeDrawerBtn) this.closeDrawerBtn.addEventListener('click', () => {
-      this.isOpen = false;
-      if (this.drawer) this.drawer.classList.remove('open');
-      if (this.drawerTab) this.drawerTab.classList.remove('active');
-      if (this.openDrawerBtn) this.openDrawerBtn.classList.remove('active');
-    });
+    if (this.closeDrawerBtn)
+      this.closeDrawerBtn.addEventListener('click', () => {
+        this.isOpen = false;
+        if (this.drawer) this.drawer.classList.remove('open');
+        if (this.drawerTab) this.drawerTab.classList.remove('active');
+        if (this.openDrawerBtn) this.openDrawerBtn.classList.remove('active');
+      });
 
     // Keyboard shortcut: Shift + D toggles Drum Machine
     window.addEventListener('keydown', (e) => {
@@ -163,10 +164,11 @@ class DrumUI {
     }
 
     const onClick = (btn, handler) => {
-      if (btn) btn.addEventListener('click', (e) => {
-        handler();
-        DomUtils.blurTarget(e);
-      });
+      if (btn)
+        btn.addEventListener('click', (e) => {
+          handler();
+          DomUtils.blurTarget(e);
+        });
     };
     onClick(this.bpmUpBtn, () => this.setTempo(this.drum.bpm + 1));
     onClick(this.bpmDownBtn, () => this.setTempo(this.drum.bpm - 1));
@@ -213,7 +215,24 @@ class DrumUI {
     // Track names & color groups
     const trackNames = ['BD', 'SD', 'CH', 'OH', 'CP', '303 BASS'];
     const trackColors = ['#ff3366', '#ff9900', '#ffea00', '#ffea00', '#00e5ff', '#39ff14'];
-    const stepColorGroups = ['red', 'red', 'red', 'red', 'orange', 'orange', 'orange', 'orange', 'yellow', 'yellow', 'yellow', 'yellow', 'white', 'white', 'white', 'white'];
+    const stepColorGroups = [
+      'red',
+      'red',
+      'red',
+      'red',
+      'orange',
+      'orange',
+      'orange',
+      'orange',
+      'yellow',
+      'yellow',
+      'yellow',
+      'yellow',
+      'white',
+      'white',
+      'white',
+      'white'
+    ];
 
     // 1. Build Top LED Step Indicators
     if (this.stepLedContainer) {

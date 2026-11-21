@@ -19,13 +19,17 @@ function seeded(seed) {
 }
 
 // Leaf paths of a nested state
-const leaves = (obj, prefix = '') => Object.entries(obj).flatMap(([k, v]) =>
-  (v && typeof v === 'object' ? leaves(v, `${prefix}${k}.`) : [`${prefix}${k}`]));
+const leaves = (obj, prefix = '') =>
+  Object.entries(obj).flatMap(([k, v]) =>
+    v && typeof v === 'object' ? leaves(v, `${prefix}${k}.`) : [`${prefix}${k}`]
+  );
 
 for (const synth of Object.values(SynthRegistry.definitions)) {
   test(`${synth.id}: a random patch sets every patch parameter except performance`, () => {
     const state = synth.presets.random(seeded(1));
-    const expected = leaves(plain(synth.presets.init.state)).filter((p) => !p.startsWith('performance.')).sort();
+    const expected = leaves(plain(synth.presets.init.state))
+      .filter((p) => !p.startsWith('performance.'))
+      .sort();
     assert.deepEqual(leaves(plain(state)).sort(), expected);
   });
 

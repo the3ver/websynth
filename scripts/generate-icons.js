@@ -70,7 +70,9 @@ const server = http.createServer((req, res) => {
     `);
   } else if (req.method === 'POST' && req.url === '/save') {
     let body = '';
-    req.on('data', chunk => { body += chunk; });
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
     req.on('end', () => {
       const data = JSON.parse(body);
       for (const [filename, dataUrl] of Object.entries(data)) {
@@ -91,12 +93,8 @@ const server = http.createServer((req, res) => {
 
 server.listen(48921, '127.0.0.1', () => {
   console.log('Temporary icon render server listening on port 48921...');
-  const proc = spawn(CHROME_PATH, [
-    '--headless=new',
-    '--disable-gpu',
-    'http://127.0.0.1:48921/'
-  ]);
-  proc.on('error', err => {
+  const proc = spawn(CHROME_PATH, ['--headless=new', '--disable-gpu', 'http://127.0.0.1:48921/']);
+  proc.on('error', (err) => {
     console.error('Browser spawn error:', err);
   });
 });

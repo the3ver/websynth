@@ -24,31 +24,49 @@ function precacheAssets() {
 const scriptTags = () =>
   Array.from(read('index.html').matchAll(/<script src="([^"?]+)/g), (m) => m[1].replace(/^\.\//, ''));
 
-const jsFiles = (dir) => fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.endsWith('.js')).map((f) => `${dir}/${f}`);
+const jsFiles = (dir) =>
+  fs
+    .readdirSync(path.join(ROOT, dir))
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => `${dir}/${f}`);
 
 test('every version location matches package.json', () => {
   const found = readVersions();
   const expected = JSON.parse(read('package.json')).version;
-  assert.deepEqual(found.filter((f) => f.version !== expected), []);
+  assert.deepEqual(
+    found.filter((f) => f.version !== expected),
+    []
+  );
 });
 
 test('every script tag in index.html is precached', () => {
   const precache = precacheAssets();
-  assert.deepEqual(scriptTags().filter((s) => !precache.includes(s)), []);
+  assert.deepEqual(
+    scriptTags().filter((s) => !precache.includes(s)),
+    []
+  );
 });
 
 test('every precached script is loaded by index.html or is a worklet', () => {
   const tags = scriptTags();
-  const orphans = precacheAssets().filter((a) => a.endsWith('.js') && a !== 'sw.js' && !tags.includes(a) && !a.startsWith('js/worklets/'));
+  const orphans = precacheAssets().filter(
+    (a) => a.endsWith('.js') && a !== 'sw.js' && !tags.includes(a) && !a.startsWith('js/worklets/')
+  );
   assert.deepEqual(orphans, []);
 });
 
 test('every file in js/, js/lib/ and js/worklets/ is precached, every precached file exists', () => {
   const precache = precacheAssets();
   const files = [...jsFiles('js'), ...jsFiles('js/lib'), ...jsFiles('js/worklets')];
-  assert.deepEqual(files.filter((f) => !precache.includes(f)), []);
+  assert.deepEqual(
+    files.filter((f) => !precache.includes(f)),
+    []
+  );
   const local = precache.filter((a) => !/^https?:/.test(a) && a !== '' && !a.endsWith('/'));
-  assert.deepEqual(local.filter((a) => !fs.existsSync(path.join(ROOT, a))), []);
+  assert.deepEqual(
+    local.filter((a) => !fs.existsSync(path.join(ROOT, a))),
+    []
+  );
 });
 
 test('nextVersion steps patch, minor, major and takes an explicit version', () => {
@@ -73,7 +91,10 @@ test('bump writes the next patch version to every location', () => {
   try {
     const { from, to } = bump('patch', dir);
     assert.equal(to, nextVersion(from, 'patch'));
-    assert.deepEqual(readVersions(dir).filter((f) => f.version !== to), []);
+    assert.deepEqual(
+      readVersions(dir).filter((f) => f.version !== to),
+      []
+    );
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -83,7 +104,10 @@ test('bump refuses and writes nothing when a location is out of step', () => {
   const dir = tempCopy();
   try {
     const app = path.join(dir, 'js/app.js');
-    fs.writeFileSync(app, fs.readFileSync(app, 'utf8').replace(/CURRENT_APP_VERSION = '[^']+'/, "CURRENT_APP_VERSION = '0.0.1'"));
+    fs.writeFileSync(
+      app,
+      fs.readFileSync(app, 'utf8').replace(/CURRENT_APP_VERSION = '[^']+'/, "CURRENT_APP_VERSION = '0.0.1'")
+    );
     const before = fs.readFileSync(path.join(dir, 'package.json'), 'utf8');
     assert.throws(() => bump('patch', dir), /js\/app\.js=0\.0\.1/);
     assert.equal(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'), before);

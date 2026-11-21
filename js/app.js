@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioStatusBadge = document.getElementById('audioStatusBadge');
   const midiStatusBadge = document.getElementById('midiStatusBadge');
   const midiLabel = document.getElementById('midiLabel');
-  
+
   // Speaker LEDs
   const speakerLedLeft = document.getElementById('speakerLedLeft');
   const speakerLedRight = document.getElementById('speakerLedRight');
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isPowered = !isPowered;
     audioEngine.setPower(isPowered);
     if (!isPowered) synthUI.notes.releaseLatch();
-    
+
     if (isPowered) {
       mainPowerBtn.classList.add('active');
       speakerLedLeft.classList.add('active');

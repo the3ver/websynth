@@ -22,11 +22,18 @@ function tempRepo() {
   // Stand-in check outside the repo: counts runs, fails while the file "red" exists next to it
   const tools = fs.mkdtempSync(path.join(os.tmpdir(), 'stop-hook-tools-'));
   const check = path.join(tools, 'check.sh');
-  fs.writeFileSync(check, `echo run >> "${tools}/runs"; [ -e "${tools}/red" ] && { echo "CHECK FAILED: tests"; exit 1; }; echo "CHECK OK"\n`);
+  fs.writeFileSync(
+    check,
+    `echo run >> "${tools}/runs"; [ -e "${tools}/red" ] && { echo "CHECK FAILED: tests"; exit 1; }; echo "CHECK OK"\n`
+  );
   return {
     dir,
-    setRed: (red) => (red ? fs.writeFileSync(path.join(tools, 'red'), '') : fs.rmSync(path.join(tools, 'red'), { force: true })),
-    runs: () => (fs.existsSync(path.join(tools, 'runs')) ? fs.readFileSync(path.join(tools, 'runs'), 'utf8').split('\n').filter(Boolean).length : 0),
+    setRed: (red) =>
+      red ? fs.writeFileSync(path.join(tools, 'red'), '') : fs.rmSync(path.join(tools, 'red'), { force: true }),
+    runs: () =>
+      fs.existsSync(path.join(tools, 'runs'))
+        ? fs.readFileSync(path.join(tools, 'runs'), 'utf8').split('\n').filter(Boolean).length
+        : 0,
     hook: (input = { stop_hook_active: false }) => {
       const env = { ...process.env, CHECK_CMD: `bash ${check}` };
       delete env.CLAUDE_PROJECT_DIR;

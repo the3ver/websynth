@@ -8,7 +8,9 @@ function poolOf(voices) {
   const pool = new SynthBlocks.VoicePool();
   for (const v of voices) {
     const voice = { isBusy: false, midiNote: null, startTime: 0, releaseStartTime: 0, choked: null, ...v };
-    voice.choke = (now) => { voice.choked = now; };
+    voice.choke = (now) => {
+      voice.choked = now;
+    };
     pool.add(voice);
     if (voice.midiNote !== null) pool.assign(voice.midiNote, voice);
   }
@@ -48,7 +50,10 @@ test('steals and chokes the oldest held voice when all are busy (LRU)', () => {
 });
 
 test('unmap keeps a newer voice that plays the same note', () => {
-  const pool = poolOf([{ isBusy: true, midiNote: 60, startTime: 1, releaseStartTime: 2 }, { isBusy: true, midiNote: 60, startTime: 3 }]);
+  const pool = poolOf([
+    { isBusy: true, midiNote: 60, startTime: 1, releaseStartTime: 2 },
+    { isBusy: true, midiNote: 60, startTime: 3 }
+  ]);
   assert.equal(pool.active.get(60), pool.voices[1]);
   pool.unmap(pool.voices[0]);
   assert.equal(pool.active.get(60), pool.voices[1]);

@@ -11,16 +11,48 @@ const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 
 // PC keyboard (physical key code) to MIDI note, base C3 = 48
 const PC_KEY_MAP = {
-  'KeyA': 48, 'KeyW': 49, 'KeyS': 50, 'KeyE': 51, 'KeyD': 52, 'KeyF': 53,
-  'KeyT': 54, 'KeyG': 55, 'KeyZ': 56, 'KeyY': 56, 'KeyH': 57, 'KeyU': 58, 'KeyJ': 59,
-  'KeyK': 60, 'KeyO': 61, 'KeyL': 62, 'KeyP': 63, 'Semicolon': 64, 'Quote': 65, 'BracketLeft': 66
+  KeyA: 48,
+  KeyW: 49,
+  KeyS: 50,
+  KeyE: 51,
+  KeyD: 52,
+  KeyF: 53,
+  KeyT: 54,
+  KeyG: 55,
+  KeyZ: 56,
+  KeyY: 56,
+  KeyH: 57,
+  KeyU: 58,
+  KeyJ: 59,
+  KeyK: 60,
+  KeyO: 61,
+  KeyL: 62,
+  KeyP: 63,
+  Semicolon: 64,
+  Quote: 65,
+  BracketLeft: 66
 };
 
 // Labels printed on the keys (German layout)
 const KEY_SHORTCUT_LABELS = {
-  48: 'A', 49: 'W', 50: 'S', 51: 'E', 52: 'D', 53: 'F',
-  54: 'T', 55: 'G', 56: 'Y', 57: 'H', 58: 'U', 59: 'J',
-  60: 'K', 61: 'O', 62: 'L', 63: 'P', 64: 'Ö', 65: 'Ä',
+  48: 'A',
+  49: 'W',
+  50: 'S',
+  51: 'E',
+  52: 'D',
+  53: 'F',
+  54: 'T',
+  55: 'G',
+  56: 'Y',
+  57: 'H',
+  58: 'U',
+  59: 'J',
+  60: 'K',
+  61: 'O',
+  62: 'L',
+  63: 'P',
+  64: 'Ö',
+  65: 'Ä',
   72: 'C5'
 };
 
@@ -126,7 +158,7 @@ class VirtualKeyboard {
         whiteKeyIndex++;
       } else {
         const keyEl = this.keyElements.get(midiNote);
-        if (keyEl) keyEl.style.left = `${(whiteKeyIndex * whiteKeyWidth) - (blackKeyWidth / 2)}px`;
+        if (keyEl) keyEl.style.left = `${whiteKeyIndex * whiteKeyWidth - blackKeyWidth / 2}px`;
       }
     }
   }

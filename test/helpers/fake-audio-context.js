@@ -114,7 +114,7 @@ class FakeAudioContext {
     node.detune = new FakeAudioParam(0);
     node.type = 'sine';
     node.periodicWave = null;
-    node.setPeriodicWave = function(w) {
+    node.setPeriodicWave = function (w) {
       this.periodicWave = w;
     };
     this.nodes.push(node);
@@ -194,10 +194,10 @@ class FakeAudioContext {
       configurable: true,
       enumerable: true
     });
-    node.getByteTimeDomainData = function(arr) {
+    node.getByteTimeDomainData = function (arr) {
       arr.fill(128);
     };
-    node.getFloatTimeDomainData = function(arr) {
+    node.getFloatTimeDomainData = function (arr) {
       arr.fill(0);
     };
     this.nodes.push(node);

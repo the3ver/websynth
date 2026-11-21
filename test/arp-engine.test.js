@@ -87,7 +87,14 @@ describe('getStepInterval', () => {
   test('divisions at 120 BPM', () => {
     const arp = createArp();
     arp.setBpm(120);
-    const cases = { '1/4': 0.5, '1/8': 0.25, '1/16': 0.125, '1/32': 0.0625, '1/8t': 0.25 * 2 / 3, '1/16t': 0.125 * 2 / 3 };
+    const cases = {
+      '1/4': 0.5,
+      '1/8': 0.25,
+      '1/16': 0.125,
+      '1/32': 0.0625,
+      '1/8t': (0.25 * 2) / 3,
+      '1/16t': (0.125 * 2) / 3
+    };
     for (const [division, expected] of Object.entries(cases)) {
       arp.setDivision(division);
       assert.ok(Math.abs(arp.getStepInterval(0) - expected) < 1e-12, division);

@@ -7,14 +7,12 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 
-const css = fs
-  .readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8')
-  .replace(/\/\*[\s\S]*?\*\//g, '');
+const css = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 
 // Innermost rules only: the braces of @media blocks are skipped by the pattern
 const rules = Array.from(css.matchAll(/([^{}]+)\{([^{}]*)\}/g), ([, selectors, body]) => ({
   selectors: selectors.split(',').map((s) => s.trim()),
-  body,
+  body
 }));
 
 // Header chain from index.html: header-left > brand-badge > brand-text > select#synthSelect
@@ -22,7 +20,7 @@ const CHAIN = [
   { tag: 'div', id: null, classes: ['header-left'] },
   { tag: 'div', id: null, classes: ['brand-badge'] },
   { tag: 'div', id: null, classes: ['brand-text'] },
-  { tag: 'select', id: 'synthSelect', classes: ['brand-model', 'synth-select'] },
+  { tag: 'select', id: 'synthSelect', classes: ['brand-model', 'synth-select'] }
 ];
 
 // Does the last compound of the selector match the element? Pseudo-classes count as no match.
@@ -57,8 +55,14 @@ const rawCss = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css')
 function widestMaxWidthHiding(selector) {
   let widest = 0;
   for (const [, width, block] of rawCss.matchAll(/@media \(max-width: (\d+)px\) \{([\s\S]*?)\n\}/g)) {
-    const hidden = Array.from(block.matchAll(/([^{}]+)\{([^{}]*)\}/g))
-      .some(([, sels, body]) => /display\s*:\s*none/.test(body) && sels.split(',').map((s) => s.trim()).includes(selector));
+    const hidden = Array.from(block.matchAll(/([^{}]+)\{([^{}]*)\}/g)).some(
+      ([, sels, body]) =>
+        /display\s*:\s*none/.test(body) &&
+        sels
+          .split(',')
+          .map((s) => s.trim())
+          .includes(selector)
+    );
     if (hidden) widest = Math.max(widest, Number(width));
   }
   return widest;

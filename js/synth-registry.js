@@ -25,17 +25,32 @@ const SYNTH_DEFINITIONS = {
     buttonGroups: [
       { path: 'vco1.wave', selector: '.wave-btn-row[data-vco="1"] .wave-btn', key: 'wave' },
       { path: 'vco2.wave', selector: '.wave-btn-row[data-vco="2"] .wave-btn', key: 'wave' },
-      { path: 'mixer.subOctave', selector: '#subOctSelector .sub-oct-btn', key: 'suboct', parse: (v) => parseInt(v, 10) },
+      {
+        path: 'mixer.subOctave',
+        selector: '#subOctSelector .sub-oct-btn',
+        key: 'suboct',
+        parse: (v) => parseInt(v, 10)
+      },
       { path: 'vcf.type', selector: '#filterModeRow .filter-mode-btn', key: 'filter' },
       { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' },
       { path: (ui) => `lfo${ui.currentLfoTarget}.wave`, selector: '#lfoWaveRow .lfo-wave-btn', key: 'wave' }
     ],
-    toggles: [{ id: 'vco2SyncBtn', path: 'vco2.hardSync' }, { id: 'modEnvLoopBtn', path: 'modEnv.loop' }],
+    toggles: [
+      { id: 'vco2SyncBtn', path: 'vco2.hardSync' },
+      { id: 'modEnvLoopBtn', path: 'modEnv.loop' }
+    ],
     envTargets: { amp: 'ampEnv', filter: 'filterEnv', mod: 'modEnv' },
-    presets: { factory: window.SYNTH_FACTORY_PRESETS, init: window.SYNTH_INIT_PRESET, random: (rng) => PatchRandomizer.sub1(rng) },
+    presets: {
+      factory: window.SYNTH_FACTORY_PRESETS,
+      init: window.SYNTH_INIT_PRESET,
+      random: (rng) => PatchRandomizer.sub1(rng)
+    },
     presetStorageKey: 'retrovox_user_presets',
     lfoRate: (engine, ui) => engine.getLfo(ui.currentLfoTarget).rate,
-    modMatrix: { sources: window.SUB1_MOD_SOURCES, targets: { ...window.SUB1_MOD_TARGETS, ...window.SUB1_FX_MOD_TARGETS } }
+    modMatrix: {
+      sources: window.SUB1_MOD_SOURCES,
+      targets: { ...window.SUB1_MOD_TARGETS, ...window.SUB1_FX_MOD_TARGETS }
+    }
   },
 
   fm: {
@@ -56,7 +71,11 @@ const SYNTH_DEFINITIONS = {
     ],
     toggles: [],
     envTargets: { op1: 'op1.env', op2: 'op2.env', op3: 'op3.env', op4: 'op4.env' },
-    presets: { factory: window.FM_FACTORY_PRESETS, init: window.FM_INIT_PRESET, random: (rng) => PatchRandomizer.fm(rng) },
+    presets: {
+      factory: window.FM_FACTORY_PRESETS,
+      init: window.FM_INIT_PRESET,
+      random: (rng) => PatchRandomizer.fm(rng)
+    },
     presetStorageKey: 'retrovox_fm_user_presets',
     lfoRate: (engine) => engine.vibrato.rate
   }

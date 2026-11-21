@@ -15,7 +15,8 @@ function projectGlobals() {
   for (const dir of dirs) {
     for (const file of fs.readdirSync(path.join(__dirname, dir)).filter((f) => f.endsWith('.js'))) {
       const src = fs.readFileSync(path.join(__dirname, dir, file), 'utf8');
-      for (const m of src.matchAll(/^(?:class|const|let|var|function)\s+([A-Za-z_$][\w$]*)/gm)) found[m[1]] = 'readonly';
+      for (const m of src.matchAll(/^(?:class|const|let|var|function)\s+([A-Za-z_$][\w$]*)/gm))
+        found[m[1]] = 'readonly';
       for (const m of src.matchAll(/\bwindow\.([A-Za-z_$][\w$]*)\s*=(?!=)/g)) found[m[1]] = 'readonly';
     }
   }

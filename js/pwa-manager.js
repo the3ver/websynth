@@ -148,7 +148,9 @@ class PWAManager {
         if (this.deferredPrompt) {
           this.triggerInstall();
         } else {
-          alert('Die App kann über dein Browser-Menü ("App installieren" oder "Zum Startbildschirm") installiert werden.');
+          alert(
+            'Die App kann über dein Browser-Menü ("App installieren" oder "Zum Startbildschirm") installiert werden.'
+          );
         }
       });
     }

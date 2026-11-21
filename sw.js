@@ -96,16 +96,19 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   const currentCaches = [SHELL_CACHE, FONT_CACHE];
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!currentCaches.includes(cacheName)) {
-            console.log('[SW] Deleting obsolete cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (!currentCaches.includes(cacheName)) {
+              console.log('[SW] Deleting obsolete cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => self.clients.claim())
   );
 });
 
@@ -124,11 +127,13 @@ self.addEventListener('fetch', (event) => {
         const cachedResponse = await cache.match(request);
         if (cachedResponse) {
           // Stale-While-Revalidate: fetch in background to keep fonts fresh
-          fetch(request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
-            }
-          }).catch(() => {});
+          fetch(request)
+            .then((networkResponse) => {
+              if (networkResponse && networkResponse.status === 200) {
+                cache.put(request, networkResponse.clone());
+              }
+            })
+            .catch(() => {});
           return cachedResponse;
         }
 
@@ -152,7 +157,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         const cache = await caches.open(SHELL_CACHE);
-        const cached = await cache.match(request, { ignoreSearch: true }) ||
+        const cached =
+          (await cache.match(request, { ignoreSearch: true })) ||
           (request.mode === 'navigate' ? await cache.match('./index.html') : undefined);
         if (cached) return cached;
         try {

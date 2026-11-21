@@ -42,7 +42,7 @@ const SUB1_FX_MOD_TARGETS = {
   delayMix: { label: 'DELAY MIX', depth: 0.5 },
   reverbMix: { label: 'REVERB MIX', depth: 0.5 }
 };
-const VOICE_PEAK_GAIN = 0.40;
+const VOICE_PEAK_GAIN = 0.4;
 
 class Voice {
   constructor(engine, id) {
@@ -160,7 +160,9 @@ class Voice {
 
     // VCA holds its running level on retrigger (no click), the filter jumps back to cutoff
     this.ampEnvelope = new SynthBlocks.Envelope(engine.ampEnv, { range: [0.0001, Infinity], holdOnTrigger: true });
-    this.filterEnvelope = new SynthBlocks.Envelope(engine.filterEnv, { range: [SynthBlocks.Filter.MIN_CUTOFF, SynthBlocks.Filter.MAX_CUTOFF] });
+    this.filterEnvelope = new SynthBlocks.Envelope(engine.filterEnv, {
+      range: [SynthBlocks.Filter.MIN_CUTOFF, SynthBlocks.Filter.MAX_CUTOFF]
+    });
     this.ampParams = [this.vca.gain];
     this.filterParams = this.filter.frequencyParams;
   }

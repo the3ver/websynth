@@ -11,7 +11,10 @@ const { C, A, B1, B2 } = FmAlgorithms;
 test('algorithm 4 is a vertical stack B2 over B1 over A over C', () => {
   const l = layout(4);
   assert.equal(l.rows, 4);
-  assert.deepEqual([C, A, B1, B2].map((op) => node(l, op).row), [0, 1, 2, 3]);
+  assert.deepEqual(
+    [C, A, B1, B2].map((op) => node(l, op).row),
+    [0, 1, 2, 3]
+  );
   assert.ok(l.nodes.every((n) => n.x === 0));
   assert.equal(node(l, C).out, 'x');
   assert.equal(node(l, A).out, 'y');

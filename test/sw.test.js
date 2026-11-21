@@ -48,7 +48,8 @@ function loadWorker({ network = {} } = {}) {
       entries,
       async match(req, opts) {
         const key = keyOf(req, opts);
-        for (const [url, res] of entries) if ((opts && opts.ignoreSearch ? stripSearch(url) : url) === key) return res.clone();
+        for (const [url, res] of entries)
+          if ((opts && opts.ignoreSearch ? stripSearch(url) : url) === key) return res.clone();
         return undefined;
       },
       async put(req, res) {
@@ -70,7 +71,9 @@ function loadWorker({ network = {} } = {}) {
     setTimeout: (fn) => 0,
     self: {
       location: { origin: ORIGIN, href: `${BASE}sw.js` },
-      addEventListener: (type, fn) => { handlers[type] = fn; },
+      addEventListener: (type, fn) => {
+        handlers[type] = fn;
+      },
       skipWaiting: () => Promise.resolve(),
       clients: { claim: () => Promise.resolve() }
     },
@@ -101,7 +104,15 @@ function loadWorker({ network = {} } = {}) {
   const dispatch = async (type, extra = {}) => {
     let waited = null;
     let response = null;
-    const event = { ...extra, waitUntil: (p) => { waited = p; }, respondWith: (p) => { response = p; } };
+    const event = {
+      ...extra,
+      waitUntil: (p) => {
+        waited = p;
+      },
+      respondWith: (p) => {
+        response = p;
+      }
+    };
     handlers[type](event);
     if (waited) await waited;
     return response ? await response : null;
@@ -114,7 +125,9 @@ const get = (w, url) => w.dispatch('fetch', { request: new FakeRequest(url) });
 
 // Running release A: its cache holds A's shell, the network already serves release B
 async function releaseAWithNetworkB() {
-  const w = loadWorker({ network: { [abs('./')]: 'html B', [abs('./index.html')]: 'html B', [abs('./js/app.js')]: 'app B' } });
+  const w = loadWorker({
+    network: { [abs('./')]: 'html B', [abs('./index.html')]: 'html B', [abs('./js/app.js')]: 'app B' }
+  });
   const cache = await w.openCache(w.shellName);
   await cache.put(abs('./'), new FakeResponse('html A'));
   await cache.put(abs('./index.html'), new FakeResponse('html A'));
@@ -127,7 +140,10 @@ test('install precaches every shell file past the browser HTTP cache', async () 
   await w.dispatch('install');
   const shellFetches = w.fetches.filter((r) => w.precache.map(abs).includes(r.url));
   assert.equal(shellFetches.length, w.precache.length);
-  assert.ok(shellFetches.every((r) => r.cache === 'reload'), shellFetches.map((r) => `${r.url} ${r.cache}`).join(', '));
+  assert.ok(
+    shellFetches.every((r) => r.cache === 'reload'),
+    shellFetches.map((r) => `${r.url} ${r.cache}`).join(', ')
+  );
 });
 
 test('a page load gets the HTML of the running release, not a newer one from the network', async () => {
@@ -154,7 +170,9 @@ test('without a cached copy (first visit, missing file) the network answers', as
 
 test('offline without any cache still answers the page request', async () => {
   const w = loadWorker({ network: {} });
-  w.sandbox.fetch = async () => { throw new Error('offline'); };
+  w.sandbox.fetch = async () => {
+    throw new Error('offline');
+  };
   const res = await navigate(w, BASE);
   assert.ok(res && res.status === 200);
 });
