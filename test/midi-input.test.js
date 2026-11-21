@@ -279,11 +279,11 @@ describe('audio start from MIDI while the browser keeps the context suspended', 
     return { engine, resumes: () => resumes, kickstarts, before: kickstarts() };
   }
 
-  test('a chord of note ons makes one resume attempt with one kickstart source', async () => {
+  test('a chord in one MIDI message makes one resume attempt with one kickstart source', async () => {
     const s = suspendedEngine();
-    midi(s.engine, 0x90, 60, 100);
-    midi(s.engine, 0x90, 64, 100);
-    midi(s.engine, 0x90, 67, 100);
+    // One message with running status: three note ons, as a keyboard sends a chord in one event
+    midi(s.engine, 0x90, 60, 100, 64, 100, 67, 100);
+    assert.equal(s.engine.activeVoices.size, 3);
     await new Promise((resolve) => setImmediate(resolve));
     assert.equal(s.resumes(), 1);
     assert.equal(s.kickstarts() - s.before, 1);
