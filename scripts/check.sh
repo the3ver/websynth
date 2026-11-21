@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Quiet check: syntax of every script, ESLint, HTML structure, unit tests.
+# Quiet check: syntax of every script, ESLint, Prettier, HTML structure, unit tests.
 # Green: one line "CHECK OK: ...". Red: only the failing step's findings, exit 1.
 # Used by `npm run check`, the Claude Code Stop hook (.claude/hooks/stop-check.sh) and later CI.
 set -uo pipefail
@@ -18,12 +18,15 @@ for f in "${files[@]}"; do
 done
 [ -s "$tmp/out" ] && fail "syntax"
 
-for tool in html-validate eslint; do
+for tool in html-validate eslint prettier; do
   [ -x node_modules/.bin/$tool ] || { echo "CHECK FAILED: node_modules/.bin/$tool missing, run npm install"; exit 1; }
 done
 
 # 2. Lint (eslint.config.js), errors only
 node_modules/.bin/eslint --max-warnings 0 . > "$tmp/out" 2>&1 || fail "eslint"
+
+# 2b. Formatting (.prettierrc.json; the PostToolUse hook formats on edit, npx prettier --write . fixes the rest)
+node_modules/.bin/prettier --list-different . > "$tmp/out" 2>&1 || { sed -i '1i not formatted (npx prettier --write <file>):' "$tmp/out"; fail "prettier"; }
 
 # 3. HTML structure (.htmlvalidate.json)
 validator=node_modules/.bin/html-validate
@@ -39,4 +42,4 @@ if [ $status -ne 0 ]; then
 fi
 
 tests=$(grep -m1 '^# pass' "$tmp/tap" | cut -d' ' -f3)
-echo "CHECK OK: ${#files[@]} files syntax+lint, 2 pages html, $tests tests, $((SECONDS - start))s"
+echo "CHECK OK: ${#files[@]} files syntax+lint+format, 2 pages html, $tests tests, $((SECONDS - start))s"
