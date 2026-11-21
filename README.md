@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.42-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.43-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,9 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.43: Krell patch for the SUB-1
+- **🎲 11 // KRELL PATCH:** A factory preset in the spirit of the Buchla/Todd Barton Krell patch. Hold a key (or use HOLD) and the SUB-1 plays by itself: about once a second a short pluck, its pitch stepping at random up to 8 semitones up or down, about once per pluck (not tied to a scale), the filter wandering on a second random LFO, with long delay and reverb. Built from existing parts only: MOD ENV LOOP, both LFOs on sample & hold and all eight mod matrix slots, so you can take it apart and change it.
 
 #### ⚡ NEW in v1.8.42: Turn knobs while holding a key
 - **🖐️ Multi-touch:** On touch screens a knob, fader or wheel follows the finger that touched it. Before, it followed the first finger on the screen: with a key held first, the knob did not move; with the knob first, releasing the key stopped the knob. Now you can hold notes and turn knobs in any order.
@@ -182,7 +185,7 @@ An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (*
   - **Stereo tape delay / echo** with BPM sync, stereo spread and high-cut damping
   - **Studio space reverb** with continuous room decay and mix
 - **Web MIDI API**: Detects hardware MIDI keyboards automatically, including pitch bend, mod wheel, velocity and sustain pedal.
-- **Preset management**: 10 hand-made factory presets, local storage for your own user presets and JSON export/import.
+- **Preset management**: 11 hand-made factory presets, local storage for your own user presets and JSON export/import.
 
 ---
 
@@ -339,6 +342,9 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.43: Krell-Patch für den SUB-1
+- **🎲 11 // KRELL PATCH:** Ein Factory-Preset im Geist des Krell-Patches von Buchla und Todd Barton. Taste halten (oder HOLD) und der SUB-1 spielt von selbst: etwa jede Sekunde ein kurzer Zupfer, die Tonhöhe springt zufällig bis zu 8 Halbtöne nach oben oder unten, etwa bei jedem Zupfer (an keine Tonleiter gebunden), das Filter wandert auf einem zweiten Zufalls-LFO, dazu langes Delay und Hall. Gebaut nur aus vorhandenen Teilen: MOD ENV LOOP, beide LFOs auf Sample & Hold und alle acht Slots der Mod-Matrix, zum Zerlegen und Verändern.
 
 #### ⚡ NEU in v1.8.42: Regler drehen, während eine Taste gehalten wird
 - **🖐️ Multitouch:** Auf Touch-Displays folgt ein Regler, Fader oder Rad dem Finger, der ihn berührt hat. Bisher folgte er dem ersten Finger auf dem Bildschirm: Lag zuerst ein Finger auf einer Taste, bewegte sich der Regler nicht; kam der Regler zuerst, stoppte er beim Loslassen der Taste. Jetzt lassen sich Noten halten und Regler drehen, in beliebiger Reihenfolge.
@@ -504,7 +510,7 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer 
   - **Stereo Tape Delay / Echo** mit BPM-Sync, Spatial Stereo-Spread und High-Cut Dämpfung
   - **Studio Space Reverb** mit stufenlosem Raum-Decay und Mix
 - **Web MIDI API**: Automatische Erkennung von Hardware-MIDI-Keyboards inkl. Pitch-Bend, Mod-Wheel, Velocity und Sustain-Pedal.
-- **Preset-Verwaltung**: 10 handgefertigte Werks-Presets, lokale Speicherfunktion für eigene User-Presets und JSON Export/Import.
+- **Preset-Verwaltung**: 11 handgefertigte Werks-Presets, lokale Speicherfunktion für eigene User-Presets und JSON Export/Import.
 
 ---
 

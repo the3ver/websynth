@@ -1,6 +1,6 @@
 /**
  * RETROVOX SUB-1 • FACTORY PRESET LIBRARY
- * 10 Curated Analog Synthesizer Classics (Vangelis Blade Runner, Moog Minimoog Bass,
+ * 11 Curated Analog Synthesizer Classics (Vangelis Blade Runner, Moog Minimoog Bass,
  * Juno-106 Synthwave Pluck, TB-303 Acid Reso, Oberheim Jump Brass, Sci-Fi S&H, etc.)
  */
 
@@ -257,6 +257,44 @@ const FACTORY_PRESETS = [
         reverb: { decay: 4.2, mix: 0.5 }
       },
       performance: { glide: true, octaveShift: 1 }
+    }
+  },
+  {
+    id: 'krell-patch',
+    name: '11 // KRELL PATCH',
+    category: 'FX',
+    description:
+      'Self-playing in the spirit of the Buchla/Todd Barton Krell patch: hold a key or HOLD, the mod envelope loops pulses at random pitches and filter steps.',
+    state: {
+      vco1: { wave: 'triangle', octave: 0, semitone: 0, detuneCents: 0, pulseWidth: 0.5 },
+      vco2: { wave: 'sine', octave: 1, semitone: 0, detuneCents: 6, pulseWidth: 0.5, hardSync: false },
+      mixer: { vco1Level: 0.75, vco2Level: 0.4, subLevel: 0.0, subOctave: -1, noiseLevel: 0.04 },
+      vcf: { cutoff: 1800, resonance: 5.0, type: 'lowpass24', drive: 0.1, keyTrack: 0.5, envMod: 0.0 },
+      filterEnv: { attack: 0.01, decay: 0.5, sustain: 1.0, release: 2.5 },
+      ampEnv: { attack: 0.01, decay: 0.1, sustain: 1.0, release: 0.6 },
+      // Plucks while the key is held: FILTER ENV (free, envMod 0) pulls the level to 0 (slots 3-4), the looping
+      // MOD ENV lifts it per cycle (slots 5-6) with a 10 ms attack and a 0.9 s exponential decay. FILTER ENV releases
+      // in 2.5 s, far slower than the VCA (0.6 s), so letting go between plucks plays no ghost note.
+      modEnv: { attack: 0.01, decay: 0.9, sustain: 0.0, release: 0.6, loop: true },
+      lfo1: { wave: 'samplehold', rate: 1.1, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      lfo2: { wave: 'samplehold', rate: 0.31, fadeIn: 0.0, destinations: { pitch: 0.0, vcf: 0.0, pwm: 0.0, amp: 0.0 } },
+      modMatrix: {
+        slot1: { source: 'lfo1', dest: 'pitch', amount: 0.667 },
+        slot2: { source: 'lfo2', dest: 'vcf', amount: 0.5 },
+        slot3: { source: 'filterEnv', dest: 'amp', amount: -1 },
+        slot4: { source: 'filterEnv', dest: 'amp', amount: -1 },
+        slot5: { source: 'modEnv', dest: 'amp', amount: 1 },
+        slot6: { source: 'modEnv', dest: 'amp', amount: 1 },
+        slot7: { source: 'modEnv', dest: 'vcf', amount: 0.4 },
+        slot8: { source: 'random', dest: 'vco2Pitch', amount: 0.08 }
+      },
+      fx: {
+        crusher: { bits: 8, rate: 11000, mix: 0.0 },
+        chorus: { mode: 'off', mix: 0.0 },
+        delay: { time: 0.47, sync: false, division: '1/8', feedback: 0.6, mix: 0.4 },
+        reverb: { decay: 7.0, mix: 0.55 }
+      },
+      performance: { glide: false, octaveShift: 0 }
     }
   }
 ];
