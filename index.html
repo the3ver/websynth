@@ -40,30 +40,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const docWidth = window.innerWidth;
-    const elements = Array.from(document.querySelectorAll('*'));
-    const overflowing = [];
-    elements.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.right > docWidth + 1 || rect.width > docWidth + 1) {
-        overflowing.push({
-          tag: el.tagName,
-          id: el.id,
-          class: el.className,
-          rectWidth: Math.round(rect.width),
-          rectRight: Math.round(rect.right),
-          offsetWidth: el.offsetWidth,
-          scrollWidth: el.scrollWidth
-        });
-      }
-    });
-    console.log('OVERFLOW_JSON_START' + JSON.stringify({ docWidth, count: overflowing.length, overflowing }) + 'OVERFLOW_JSON_END');
-  }, 1000);
-});
-</script>
 </head>
 <body>
   <div class="studio-ambient-glow"></div>
@@ -133,7 +109,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.35</span>
+          <span class="version-tag">v1.8.36</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1714,7 +1690,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.35</span>
+            <span class="release-version-number">v1.8.36</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
