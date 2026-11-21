@@ -54,7 +54,8 @@ class SynthUI {
 
     this.visualizer = new Visualizer(this.engine, {
       canvas: document.getElementById('scopeCanvas'),
-      lfoRateLed: document.getElementById('lfoRateLed'),
+      // One LED per synth region; app.js has already removed the other synth's markup
+      lfoRateLed: document.querySelector('.lfo-rate-led'),
       wooferLeft: document.getElementById('wooferLeft'),
       wooferRight: document.getElementById('wooferRight'),
       vuMeterL: document.getElementById('vuMeterL'),
