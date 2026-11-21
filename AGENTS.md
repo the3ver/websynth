@@ -235,7 +235,7 @@ Before committing any modifications:
    ```bash
    npm run check
    ```
-   `scripts/check.sh` runs `node --check` on every script, html-validate on `index.html` and `privacy.html` (structure rules in `.htmlvalidate.json`) and the unit tests. Green prints one line `CHECK OK: ...`; red prints only the failing step. In Claude Code the Stop hook runs it at the end of every turn that changed files (`.claude/hooks/stop-check.sh`).
+   `scripts/check.sh` runs `node --check` on every script, html-validate on `index.html` and `privacy.html` (structure rules in `.htmlvalidate.json`) and the unit tests. Green prints one line `CHECK OK: ...`; red prints only the failing step. In Claude Code the Stop hook runs it at the end of every turn that changed files (`.claude/hooks/stop-check.sh`). CI (`.github/workflows/deploy.yml`) runs the same command plus a gitleaks scan on every push and pull request; GitHub Pages deploys only after it passes.
 2. Unit tests (Node built-in test runner, `npm test` for the full TAP output). Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. `createLiveEngine()` (`test/helpers/synth-engine.js`) builds the full audio graph on `FakeAudioContext`, so voice envelopes, LFO routing and FX can be asserted on recorded AudioParam events. DOM-heavy UI (keybed, knobs, panel wiring) is not unit tested: check it in the browser. New features and bug fixes need a test here.
 3. Run automated headless visual screenshot suite:
    ```bash

@@ -1,25 +1,53 @@
-name: Deploy to GitHub Pages
+name: Check and deploy to GitHub Pages
 
 on:
   push:
     branches:
       - main
       - master
+  pull_request:
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs during in-progress runs
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
+  # Same command as the local Stop hook: syntax, HTML structure, unit tests
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dev dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Check
+        run: npm run check
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
+    needs: check
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    # Allow only one concurrent deployment, skipping runs during in-progress runs
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
