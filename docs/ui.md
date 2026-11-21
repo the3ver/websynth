@@ -35,7 +35,7 @@ Reached from AGENTS.md. Audio and synth architecture: [architecture.md](architec
 - `NoteRouter` (`js/note-router.js`, used by `SynthUI.playNote()` / `stopNote()` and, via `engine.midiNotes`, by MIDI input) routes notes to the arpeggiator when it is on, otherwise to the voices. `ArpEngine` tracks held and latched keys in both cases, so HOLD also works with the arp off: the router sounds held + latched notes and releases what leaves that set; `VirtualKeyboard.setLatched()` lights the latched keys (`.latched`).
 
 ## 4b. Drag Controls (`js/controls.js`)
-- Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (4 in total, not 4 per control).
+- Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (5 in total, not 5 per control). A touch drag follows the finger that started it (`touchId`, from `changedTouches`): fingers holding keys neither steer it nor end it on release, mouse events steer only mouse drags, and touching a second control ends the first drag (its `dragEnd` runs). The keybed in turn ignores touches that did not start on it.
 
 ## 5. Envelope Fader Full-Height Utilization
 - `.env-fader-track` and `.fader-track-housing` use dynamic flex-grow (`flex: 1 1 auto; min-height: 120px; max-height: 240px;`) so ADSR sliders match the full height of neighboring LFO / FX racks while respecting max-height constraints on mobile screens.

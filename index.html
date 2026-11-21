@@ -109,7 +109,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.41</span>
+          <span class="version-tag">v1.8.42</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1701,16 +1701,30 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.41</span>
+            <span class="release-version-number">v1.8.42</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Regler drehen bei gehaltener Taste • Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🖐️</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">FIX</div>
+              <h3>Regler drehen, während eine Taste gehalten wird</h3>
+              <p>Auf Touch-Displays folgt jeder Regler, Fader und das Pitch- und Mod-Rad dem Finger, der ihn berührt hat.</p>
+              <ul>
+                <li><strong>Vorher:</strong> Lag zuerst ein Finger auf einer Taste, bewegte sich der Regler nicht.</li>
+                <li><strong>Vorher:</strong> Kam der Regler zuerst, stoppte er, sobald die Taste losgelassen wurde.</li>
+                <li><strong>Jetzt:</strong> Noten halten und Regler drehen geht in beliebiger Reihenfolge.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">⌨️</div>

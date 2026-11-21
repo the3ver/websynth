@@ -12,7 +12,11 @@ function setup() {
     {
       addEventListener: (type, fn) => (listeners[type] = fn),
       requestAnimationFrame: () => 0,
-      document: { createElement: () => ({ dataset: {}, classList: { add() {} } }) }
+      document: {
+        createElement: () => ({ dataset: {}, classList: { add() {} } }),
+        // The key under a point plays the MIDI note of its x coordinate
+        elementFromPoint: (x) => ({ closest: () => ({ dataset: { note: String(x) } }) })
+      }
     },
     'virtual-keyboard.js'
   );
@@ -20,7 +24,8 @@ function setup() {
   const keyboard = new VirtualKeyboard(null, {
     onNoteOn: (note) => events.push(`on ${note}`),
     onNoteOff: (note) => events.push(`off ${note}`),
-    onOctaveShift: (delta) => events.push(`octave ${delta}`)
+    onOctaveShift: (delta) => events.push(`octave ${delta}`),
+    ensureAudio() {}
   });
   const key = (code) => {
     listeners.keydown({ code, repeat: false, target: null });
@@ -43,4 +48,18 @@ test('Z (between T and U) plays G#3 and its on-screen key shows Z', () => {
   keyboard.container = { clientWidth: 0, innerHTML: '', appendChild() {} };
   keyboard.render();
   assert.match(keyboard.keyElements.get(56).innerHTML, /<span class="key-shortcut">Z<\/span>/);
+});
+
+test('a finger that started on a knob plays no note when it slides over the keybed', () => {
+  const { events, keyboard } = setup();
+  const listeners = {};
+  const keyEl = {};
+  keyboard.container = { addEventListener: (type, fn) => (listeners[type] = fn), contains: (t) => t === keyEl };
+  keyboard.initTouch();
+  const keyFinger = { identifier: 1, clientX: 60, clientY: 10, target: keyEl };
+  const knobFinger = { identifier: 2, clientX: 64, clientY: 10, target: {} };
+  listeners.touchstart({ touches: [keyFinger], changedTouches: [keyFinger] });
+  listeners.touchmove({ touches: [keyFinger, knobFinger], changedTouches: [keyFinger] });
+  listeners.touchend({ touches: [knobFinger], changedTouches: [keyFinger] });
+  assert.deepEqual(events, ['on 60', 'off 60']);
 });

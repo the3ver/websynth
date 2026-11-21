@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.41-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.42-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,9 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.42: Turn knobs while holding a key
+- **🖐️ Multi-touch:** On touch screens a knob, fader or wheel follows the finger that touched it. Before, it followed the first finger on the screen: with a key held first, the knob did not move; with the knob first, releasing the key stopped the knob. Now you can hold notes and turn knobs in any order.
 
 #### ⚡ NEW in v1.8.41: Octave down with the Y key
 - **⌨️ Octave down:** On the computer keyboard Y (left of X, German layout) shifts the octave down again, X shifts it up. Before, Y played G#3 like Z and no key shifted the octave down. G#3 sits on Z between T and U, and the on-screen key now shows Z.
@@ -336,6 +339,9 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.42: Regler drehen, während eine Taste gehalten wird
+- **🖐️ Multitouch:** Auf Touch-Displays folgt ein Regler, Fader oder Rad dem Finger, der ihn berührt hat. Bisher folgte er dem ersten Finger auf dem Bildschirm: Lag zuerst ein Finger auf einer Taste, bewegte sich der Regler nicht; kam der Regler zuerst, stoppte er beim Loslassen der Taste. Jetzt lassen sich Noten halten und Regler drehen, in beliebiger Reihenfolge.
 
 #### ⚡ NEU in v1.8.41: Oktave tiefer mit der Taste Y
 - **⌨️ Oktave tiefer:** Auf der Computertastatur schaltet Y (links neben X) die Oktave wieder tiefer, X höher. Vorher spielte Y wie Z ein G#3, und keine Taste schaltete die Oktave tiefer. G#3 liegt auf Z zwischen T und U, die Bildschirmtaste zeigt jetzt Z.

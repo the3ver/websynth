@@ -1,12 +1,14 @@
 /**
  * RETROVOX SUB-1 • HARDWARE CONTROLS
  * Rotary knobs, ADSR faders and pitch/mod wheels. All of them share one DragController,
- * which owns the only window-level mouse/touch move and release listeners.
+ * which owns the only window-level mouse/touch move and release listeners. A touch drag follows only the
+ * finger that started it (touch identifier), so fingers holding keys on the keybed neither steer nor end it.
  */
 
 const DragController = {
   active: null,
   installed: false,
+  touchId: null, // identifier of the finger dragging, null for the mouse
 
   /**
    * Starts dragging `control` on mousedown/touchstart of `el`. A control implements
@@ -15,21 +17,26 @@ const DragController = {
   bind(el, control) {
     el.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      this.begin(control, e.clientY);
+      this.begin(control, e.clientY, null);
     });
     el.addEventListener(
       'touchstart',
       (e) => {
         e.preventDefault();
-        this.begin(control, e.touches[0].clientY);
+        // Several fingers may land in one event: take the one on this control
+        const touch = Array.from(e.changedTouches).find((t) => el.contains(t.target)) || e.changedTouches[0];
+        this.begin(control, touch.clientY, touch.identifier);
       },
       { passive: false }
     );
   },
 
-  begin(control, clientY) {
+  /** One drag at a time: a new one ends the running one first, so it gets its dragEnd (wheel spring-back) */
+  begin(control, clientY, touchId) {
     this.install();
+    this.end();
     this.active = control;
+    this.touchId = touchId;
     control.dragStart(clientY);
     if (control.cursor) document.body.style.cursor = control.cursor;
   },
@@ -37,12 +44,28 @@ const DragController = {
   install() {
     if (this.installed) return;
     this.installed = true;
-    window.addEventListener('mousemove', (e) => this.move(e.clientY, e.shiftKey));
-    window.addEventListener('mouseup', () => this.end());
-    window.addEventListener('touchmove', (e) => {
-      if (this.active) this.move(e.touches[0].clientY, false);
+    // Mouse events steer only mouse drags: a tap on a key also sends compatibility mouse events
+    window.addEventListener('mousemove', (e) => {
+      if (this.touchId === null) this.move(e.clientY, e.shiftKey);
     });
-    window.addEventListener('touchend', () => this.end());
+    window.addEventListener('mouseup', () => {
+      if (this.touchId === null) this.end();
+    });
+    window.addEventListener('touchmove', (e) => {
+      const touch = this.ownTouch(e.changedTouches);
+      if (touch) this.move(touch.clientY, false);
+    });
+    const release = (e) => {
+      if (this.ownTouch(e.changedTouches)) this.end();
+    };
+    window.addEventListener('touchend', release);
+    window.addEventListener('touchcancel', release);
+  },
+
+  /** The touch of the dragging finger in a TouchList, or null (no touch drag, or another finger) */
+  ownTouch(touches) {
+    if (!this.active || this.touchId === null) return null;
+    return Array.from(touches).find((t) => t.identifier === this.touchId) || null;
   },
 
   move(clientY, shiftKey) {
@@ -53,6 +76,7 @@ const DragController = {
     const control = this.active;
     if (!control) return;
     this.active = null;
+    this.touchId = null;
     if (control.dragEnd) control.dragEnd();
     if (control.cursor) document.body.style.cursor = '';
   }

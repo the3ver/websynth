@@ -307,6 +307,8 @@ class VirtualKeyboard {
       this.callbacks.ensureAudio();
       const currentTouches = new Set();
       for (const touch of Array.from(e.touches)) {
+        // e.touches holds every finger on the screen; one that started on a knob or fader is not a key finger
+        if (!this.container.contains(touch.target)) continue;
         currentTouches.add(touch.identifier);
         const note = this.noteAtPoint(touch.clientX, touch.clientY);
         const previousNote = activeTouchNotes.get(touch.identifier);
