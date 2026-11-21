@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.38-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.39-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -10,8 +10,8 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
-### ⚡ NEU in v1.8.38: FM-4 Algorithmus-Display nur mit Grafik
-- **🔀 Display:** Das Algorithmus-Display des FM-4 zeigt nur noch das Routing-Bild, ohne Textzeile. Die Grafik füllt das Display bis auf einen schmalen Rand, jeder Algorithmus sitzt mittig. Das Display hat auf allen Geräten dieselbe feste Größe (105 × 156 px). Das Routing als Text steht im Tooltip der Algorithmus-Tasten.
+### ⚡ NEU in v1.8.39: FM-4 Algorithmus-Display nur mit Grafik, schmaleres Modul
+- **🔀 Display:** Das Algorithmus-Display des FM-4 zeigt nur noch das Routing-Bild, ohne Textzeile. Die Grafik füllt das Display bis auf einen schmalen Rand, jeder Algorithmus sitzt mittig. Das Display hat auf allen Geräten dieselbe feste Größe (105 × 156 px). Auf Desktop und iPad ist das ganze Modul 02 nur so breit wie das Display, die acht Algorithmus-Tasten sitzen kompakt darüber; die gewonnene Breite bekommen die anderen Module. Das Routing als Text steht im Tooltip der Algorithmus-Tasten.
 
 ### ⚡ NEU in v1.8.35: MIDI-Keyboard auf iPad und iPhone
 - **🔌 Sofort verbunden:** RETROVOX verbindet sich beim Laden der Seite mit dem MIDI-Keyboard, auch in iOS-Browsern mit Web MIDI (z. B. Web MIDI Browser). Die erste Note vom Keyboard startet das Audio, soweit der Browser das zulässt.

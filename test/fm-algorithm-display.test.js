@@ -112,7 +112,11 @@ test('the display shows only the graphic: no routing caption in the page or writ
 });
 
 test('the display has one fixed size on every screen, in the aspect ratio of the canvas', () => {
-  const css = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8');
+  const raw = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8');
+  // The width lives in one custom property (--fm-alg-width) shared with the button rows and the grid column
+  const algWidth = (raw.match(/--fm-alg-width:\s*(\d+px)/) || [])[1];
+  assert.ok(algWidth, '--fm-alg-width defined in px');
+  const css = raw.replace(/var\(--fm-alg-width\)/g, algWidth);
   const rules = Array.from(css.matchAll(/([^{}]*\.fm-alg-(?:display|screen|svg)\b[^{}]*)\{([^}]*)\}/g));
   const display = rules.filter(([, sel]) => /\.fm-alg-display\s*$/.test(sel.trim()));
   assert.equal(display.length, 1, 'exactly one .fm-alg-display rule, none inside media queries');

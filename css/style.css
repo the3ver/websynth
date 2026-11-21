@@ -187,12 +187,22 @@ body {
   color: var(--led-amber);
 }
 
-/* FM-4 algorithm routing display (LCD): one fixed size on every screen, in the aspect ratio of the
-   SVG canvas (FmAlgorithmDisplay, 104 x 160), so the graphic fills it up to a small margin */
+/* FM-4 algorithm module: the display has one fixed size on every screen, in the aspect ratio of the
+   SVG canvas (FmAlgorithmDisplay, 104 x 160), so the graphic fills it up to a small margin. Its width
+   also sets the button rows and the module's column in the desktop grid. */
+:root {
+  --fm-alg-width: 105px;
+}
+
+#fmAlgorithmRow {
+  width: var(--fm-alg-width);
+  margin: 0 auto;
+}
+
 .fm-alg-display {
   box-sizing: border-box;
   flex: none;
-  width: 105px;
+  width: var(--fm-alg-width);
   height: 156px;
   margin: 0 auto;
   padding: 4px;
@@ -6413,8 +6423,8 @@ html[data-active-synth="fm"] .fader-led-notch {
   box-shadow: 0 0 4px var(--fm-ring);
 }
 
-/* FM-4 desktop grid: narrower operator (01) and feedback/mix (04) bays, wider algorithm display (02) */
+/* FM-4 desktop grid: the algorithm bay (02) is its display plus padding and border (6 + 1 px a side, 1 px air) */
 html[data-active-synth="fm"] .modular-control-surface {
-  grid-template-columns: 1.3fr 1.2fr 1.15fr 0.95fr 0.95fr 1.1fr !important;
+  grid-template-columns: 1.3fr calc(var(--fm-alg-width) + 16px) 1.15fr 0.95fr 0.95fr 1.1fr !important;
 }
 

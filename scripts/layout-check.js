@@ -81,6 +81,22 @@ function probe({ mustShow, oneLine, tabGroups }) {
         );
     }
   };
+  // FM-4 algorithm module in the 6-column desktop grid: hardly wider than its fixed-size display
+  const algDisplay = document.querySelector('.fm-alg-display');
+  const surface = document.querySelector('.modular-control-surface');
+  const grid = surface && getComputedStyle(surface).display === 'grid';
+  const columns = grid ? getComputedStyle(surface).gridTemplateColumns.split(' ').length : 0;
+  if (shown(algDisplay) && columns === 6) {
+    const bay = algDisplay.closest('.module-bay');
+    const dw = algDisplay.getBoundingClientRect().width;
+    const bw = bay.getBoundingClientRect().width;
+    if (bw > dw + 20) add(`FM algorithm module ${Math.round(bw)}px wide for a ${Math.round(dw)}px display (max +20)`);
+    for (const row of bay.querySelectorAll('.filter-mode-row')) {
+      const rw = row.getBoundingClientRect().width;
+      if (rw > dw + 1) add(`FM algorithm buttons ${Math.round(rw)}px wide, wider than the ${Math.round(dw)}px display`);
+    }
+  }
+
   checkLabels('');
   for (const group of tabGroups) {
     for (const tab of document.querySelectorAll(`#${group} .env-tab-btn`)) {
