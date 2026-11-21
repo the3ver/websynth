@@ -263,3 +263,52 @@ describe('MIDI message parsing', () => {
     assert.deepEqual(events, [['on', 62]]);
   });
 });
+
+describe('audio start from MIDI while the browser keeps the context suspended', () => {
+  // iOS without a user gesture: resume() resolves, the context stays suspended
+  function suspendedEngine() {
+    const { engine } = createLiveEngine();
+    const ctx = engine.ctx;
+    ctx.state = 'suspended';
+    let resumes = 0;
+    ctx.resume = () => {
+      resumes++;
+      return Promise.resolve();
+    };
+    const kickstarts = () => ctx.nodes.filter((n) => n.kind === 'bufferSource').length;
+    return { engine, resumes: () => resumes, kickstarts, before: kickstarts() };
+  }
+
+  test('a chord of note ons makes one resume attempt with one kickstart source', async () => {
+    const s = suspendedEngine();
+    midi(s.engine, 0x90, 60, 100);
+    midi(s.engine, 0x90, 64, 100);
+    midi(s.engine, 0x90, 67, 100);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(s.resumes(), 1);
+    assert.equal(s.kickstarts() - s.before, 1);
+  });
+
+  test('the next note after a failed attempt tries again', async () => {
+    const s = suspendedEngine();
+    midi(s.engine, 0x90, 60, 100);
+    await new Promise((resolve) => setImmediate(resolve));
+    midi(s.engine, 0x90, 62, 100);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(s.resumes(), 2);
+    assert.equal(s.kickstarts() - s.before, 2);
+  });
+
+  test('a resume() that never settles does not block a later attempt, e.g. from a tap', async () => {
+    const s = suspendedEngine();
+    let calls = 0;
+    s.engine.ctx.resume = () => {
+      calls++;
+      return new Promise(() => {});
+    };
+    midi(s.engine, 0x90, 60, 100);
+    await new Promise((resolve) => setImmediate(resolve));
+    s.engine.resumeAudio();
+    assert.equal(calls, 2);
+  });
+});

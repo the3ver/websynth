@@ -109,7 +109,23 @@ class PolySynthEngine {
   /**
    * Resumes and unlocks the Web Audio API context with iOS / iPadOS Safari CoreAudio kickstart.
    */
-  async resumeAudio() {
+  /**
+   * Starts the AudioContext as far as the browser allows. Calls within one synchronous run share one attempt:
+   * a MIDI note (dispatchMidi and noteOn both ask) or a chord in one message makes one attempt with one kickstart
+   * source. The next event, e.g. a tap that counts as a user gesture, starts a fresh attempt even if an earlier
+   * resume() promise never settles.
+   */
+  resumeAudio() {
+    if (!this.resumeAttempt) {
+      this.resumeAttempt = this.attemptResume();
+      Promise.resolve().then(() => {
+        this.resumeAttempt = null;
+      });
+    }
+    return this.resumeAttempt;
+  }
+
+  async attemptResume() {
     if (!this.ctx) {
       this.initAudio();
     }
