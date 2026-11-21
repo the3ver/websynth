@@ -61,5 +61,10 @@ module.exports = [
     files: ['scripts/**/*.js', 'test/**/*.js', 'eslint.config.js'],
     languageOptions: { ecmaVersion: 2022, sourceType: 'commonjs', globals: globals.node },
     rules
+  },
+  {
+    // probe() runs inside the page via page.evaluate
+    files: ['scripts/layout-check.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } }
   }
 ];

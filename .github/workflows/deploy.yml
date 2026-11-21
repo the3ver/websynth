@@ -29,8 +29,14 @@ jobs:
       - name: Install dev dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Install browsers for the layout check
+        run: npx playwright install --with-deps chromium firefox
+
       - name: Check
         run: npm run check
+
+      - name: Layout in Firefox
+        run: npm run layout -- --browser firefox
 
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v2

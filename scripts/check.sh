@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Quiet check: syntax of every script, ESLint, Prettier, HTML structure, unit tests.
+# Quiet check: syntax of every script, ESLint, Prettier, HTML structure, unit tests, layout in a browser.
 # Green: one line "CHECK OK: ...". Red: only the failing step's findings, exit 1.
 # Used by `npm run check`, the Claude Code Stop hook (.claude/hooks/stop-check.sh) and later CI.
 set -uo pipefail
@@ -42,4 +42,8 @@ if [ $status -ne 0 ]; then
 fi
 
 tests=$(grep -m1 '^# pass' "$tmp/tap" | cut -d' ' -f3)
-echo "CHECK OK: ${#files[@]} files syntax+lint+format, 2 pages html, $tests tests, $((SECONDS - start))s"
+
+# 5. Layout in headless Chromium (scripts/layout-check.js): 2 synths x 5 screen sizes
+node scripts/layout-check.js > "$tmp/out" 2>&1 || fail "layout"
+layout=$(grep -o '[0-9]* pages' "$tmp/out")
+echo "CHECK OK: ${#files[@]} files syntax+lint+format, 2 pages html, $tests tests, layout $layout, $((SECONDS - start))s"

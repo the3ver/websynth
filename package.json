@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
     "check": "bash scripts/check.sh",
+    "layout": "node scripts/layout-check.js",
     "dev": "npx serve .",
     "start": "npx serve .",
     "serve": "npx serve .",
@@ -44,6 +45,7 @@
     "eslint": "9.15.0",
     "globals": "15.12.0",
     "html-validate": "9.7.1",
+    "playwright": "1.63.0",
     "prettier": "3.3.3"
   }
 }
