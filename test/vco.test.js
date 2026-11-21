@@ -39,6 +39,18 @@ test('connect feeds both paths into the destination, start starts the oscillator
   assert.equal(vco.osc.started, 0);
 });
 
+test('setWave crossfades between the direct and the pulse path', () => {
+  const { vco } = setup('sawtooth');
+  vco.setWave('square', 1);
+  assert.equal(vco.osc.type, 'sawtooth');
+  assert.equal(vco.directGain.gain.value, 0);
+  assert.equal(vco.pulseGain.gain.value, 1);
+  vco.setWave('triangle', 2);
+  assert.equal(vco.osc.type, 'triangle');
+  assert.equal(vco.directGain.gain.value, 1);
+  assert.equal(vco.pulseGain.gain.value, 0);
+});
+
 test('setWave away from square unplugs the comparator after the fade', () => {
   const { vco, context } = setup('square');
   vco.setWave('sine', 1);

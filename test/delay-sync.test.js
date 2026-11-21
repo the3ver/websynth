@@ -30,9 +30,19 @@ test('note values convert to seconds at the clock tempo', () => {
   assertClose(Delay.noteSeconds('bogus', 120), 0.25, 'unknown value falls back to an eighth');
 });
 
-test('every note value of the NOTE knob gives its own delay time', () => {
-  const seconds = Array.from(Delay.DIVISIONS, (division) => Delay.noteSeconds(division, 120));
-  assert.equal(new Set(seconds).size, seconds.length, seconds.join(' '));
+test('the NOTE knob groups each note value as triplet, straight, dotted, note values ascending', () => {
+  const at = (division) => Delay.noteSeconds(division, 120);
+  const divisions = Array.from(Delay.DIVISIONS);
+  const straight = divisions.filter((d) => /^1\/\d+$/.test(d));
+  for (let i = 1; i < straight.length; i++) assert.ok(at(straight[i]) > at(straight[i - 1]), straight[i]);
+  for (const note of straight) {
+    for (const variant of [`${note}t`, `${note}d`]) {
+      if (!divisions.includes(variant)) continue;
+      const [before, after] = variant.endsWith('t') ? [variant, note] : [note, variant];
+      assert.equal(divisions.indexOf(after) - divisions.indexOf(before), 1, `${before} right before ${after}`);
+      assert.ok(at(after) > at(before), `${before} shorter than ${after}`);
+    }
+  }
 });
 
 test('synced delay lines follow the note value and stop at the longest delay time', () => {

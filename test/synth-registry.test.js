@@ -50,7 +50,8 @@ describe('panel markup per synth', () => {
   for (const synth of definitions) {
     test(`${synth.id}: every knob it shows is one of its parameters or an arpeggiator knob`, () => {
       const knobs = knobsOf(synth.id);
-      assert.ok(knobs.length > 10, 'found the knobs');
+      // SUB-1 has 44 knobs, FM-4 28: a floor per synth catches a markup parser that finds only some
+      assert.ok(knobs.length >= { sub1: 40, fm: 25 }[synth.id], `found ${knobs.length} knobs`);
       for (const id of knobs) {
         assert.ok(synth.params.byKnob(id, 1) || arpKnobs.includes(id), `no ${synth.id} parameter for knob ${id}`);
       }
