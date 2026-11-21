@@ -10,8 +10,13 @@ Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & 
 
 ---
 
+### ⚡ NEU in v1.8.35: MIDI-Keyboard auf iPad und iPhone
+- **🔌 Sofort verbunden:** RETROVOX verbindet sich beim Laden der Seite mit dem MIDI-Keyboard, auch in iOS-Browsern mit Web MIDI (z. B. Web MIDI Browser). Die erste Note vom Keyboard startet das Audio, soweit der Browser das zulässt.
+- **🏷️ Anzeige:** Das MIDI-Feld zeigt auch MIDI: ERROR (Zugriff verweigert) und MIDI: NOT SUPPORTED (Browser ohne Web MIDI).
+- **⏱️ Geräte:** Spät erkannte Keyboards wie der Arturia KeyStep erscheinen nach bis zu 2 Sekunden.
+
 ### ⚡ NEU in v1.8.34: MIDI-Keyboard mit Arpeggiator und HOLD
-- **🎹 MIDI:** Noten vom MIDI-Keyboard gehen jetzt über den Arpeggiator und HOLD wie die Bildschirmtastatur; die Anschlagstärke bleibt erhalten. RETROVOX hört auf allen 16 Kanälen (Omni). Web MIDI gibt es in Chrome und Edge, nicht in Safari und nicht auf iPhone/iPad.
+- **🎹 MIDI:** Noten vom MIDI-Keyboard gehen jetzt über den Arpeggiator und HOLD wie die Bildschirmtastatur; die Anschlagstärke bleibt erhalten. RETROVOX hört auf allen 16 Kanälen (Omni). Web MIDI gibt es in Chrome, Edge und iOS-Browsern mit Web MIDI, nicht in Safari.
 
 ### ⚡ NEU in v1.8.33: Einzeilige Beschriftungen
 - **🏷️ Titel und Knöpfe:** Modultitel, Filtertyp-Knöpfe und Abschnittsköpfe bleiben einzeilig: 01 // DUAL VCO, 02 // MIXER, 03 // VCF 24dB, 06 // FX RACK, LP24/LP12, BBD CHORUS; beim FM-4 01 // OPS C & A, 03 // OPS B1 & B2, 04 // FB · MIX, 05 // OP ENV, OP C/A/B1/B2, VIBRATO +WHEEL. Ein zu langer Modultitel endet mit … statt umzubrechen.
