@@ -10,7 +10,8 @@
   class VoicePool {
     constructor(voices = []) {
       this.voices = voices;
-      this.active = new Map(); // midiNote -> voice
+      /** @type {Map<number, any>} midiNote -> voice */
+      this.active = new Map();
     }
 
     add(voice) {

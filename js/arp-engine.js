@@ -24,9 +24,12 @@ class ArpEngine {
     this.steps = new Array(16).fill(true);
 
     // Note Tracking
-    this.heldKeys = []; // Array of { midiNote, time } in order of pressing
+    /** @type {number[]} MIDI notes held down, in order of pressing */
+    this.heldKeys = [];
+    /** @type {number[]} MIDI notes HOLD keeps after release */
     this.latchedKeys = [];
-    this.currentSequence = []; // Array of calculated MIDI notes
+    /** @type {number[]} MIDI notes of the running arpeggio */
+    this.currentSequence = [];
     this.sequenceIndex = 0;
     this.currentStep = 0; // 0 to 15 (sequencer tracker)
 
