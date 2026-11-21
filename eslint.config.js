@@ -64,7 +64,12 @@ module.exports = [
   },
   {
     // page.evaluate callbacks run inside the page
-    files: ['scripts/layout-check.js', 'scripts/capture-screenshots.js'],
+    files: ['scripts/layout-check.js', 'scripts/capture-screenshots.js', 'scripts/render-check.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } }
+  },
+  {
+    // the render page loads the engine scripts
+    files: ['scripts/render-check.js'],
+    languageOptions: { globals: { SynthRegistry: 'readonly', SynthBlocks: 'readonly' } }
   }
 ];
