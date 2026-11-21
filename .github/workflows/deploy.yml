@@ -38,6 +38,9 @@ jobs:
       - name: Layout in Firefox
         run: npm run layout -- --browser firefox
 
+      - name: Audio render (factory presets, Chromium)
+        run: npm run render
+
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v3
         env:
