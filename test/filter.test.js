@@ -38,7 +38,3 @@ test('configure defaults to the current context time', () => {
   filter.configure('lowpass24', 0, 1000);
   assert.equal(filter.stage1.frequency.events.at(-1).time, 7);
 });
-
-test('lists the supported modes', () => {
-  assert.deepEqual(Array.from(Filter.MODES), ['lowpass24', 'lowpass12', 'bandpass', 'highpass']);
-});

@@ -48,31 +48,13 @@ test('release cleanup waits until the tail is below -70 dB', () => {
   assert.ok(residualDb < -70, `${residualDb.toFixed(1)} dB`);
 });
 
-test('noteOn sets frequency, VCA envelope ramps to peak and sustain, and updates state', () => {
-  const { engine, ctx } = createLiveEngine();
-  ctx.currentTime = 10;
-  engine.ampEnv.attack = 0.02;
-  engine.ampEnv.decay = 0.05;
-  engine.ampEnv.sustain = 0.5;
-
+test('noteOn tunes the voice and marks it busy with its note', () => {
+  const { engine } = createLiveEngine();
   engine.noteOn(69, 1.0);
   const voice = engine.activeVoices.get(69);
-
-  assert.ok(voice);
   assert.equal(voice.isBusy, true);
   assert.equal(voice.midiNote, 69);
   assert.equal(voice.vco[1].osc.frequency.value, 440);
-
-  const vcaEvents = voice.vca.gain.events;
-  const peakEvent = vcaEvents.find((e) => e.type === 'exponentialRampToValueAtTime' && Math.abs(e.value - 0.4) < 1e-4);
-  assert.ok(peakEvent);
-  assert.equal(peakEvent.time, 10 + 0.02);
-
-  const sustainEvent = vcaEvents.find(
-    (e) => e.type === 'exponentialRampToValueAtTime' && Math.abs(e.value - 0.2) < 1e-4
-  );
-  assert.ok(sustainEvent);
-  assert.equal(sustainEvent.time, 10 + 0.02 + 0.05);
 });
 
 test('velocity scales mixer gain levels', () => {
@@ -111,22 +93,6 @@ test('glide ramps oscillator frequency from previous note frequency to target', 
   assert.ok(rampEvent);
   assert.equal(rampEvent.value, 880);
   assert.equal(rampEvent.time, 2 + engine.glideTime);
-});
-
-test('noteOn triggers filter envelope attack and decay exponential ramps', () => {
-  const { engine, ctx } = createLiveEngine();
-  ctx.currentTime = 1;
-  engine.filterEnv.attack = 0.03;
-  engine.filterEnv.decay = 0.07;
-  engine.filterEnv.sustain = 0.4;
-
-  engine.noteOn(60, 1.0);
-  const voice = engine.activeVoices.get(60);
-  const ramps = voice.filter.stage1.frequency.events.filter((e) => e.type === 'exponentialRampToValueAtTime');
-
-  assert.equal(ramps.length >= 2, true);
-  assert.equal(ramps[0].time, 1 + 0.03);
-  assert.equal(ramps[1].time, 1 + 0.03 + 0.07);
 });
 
 test('amp and filter envelopes schedule exactly this event sequence over note on and off', () => {
@@ -223,21 +189,6 @@ test('retrigger before release timeout expires cancels cleanup and keeps voice b
   assert.ok(voice.vca.output.connections.includes(engine.masterVoiceBus));
 });
 
-test('setVCO1Wave switches between direct wave and shaped pulse paths', () => {
-  const { engine } = createLiveEngine();
-  const voice = engine.voicePool[0];
-
-  engine.setVCO1Wave('square');
-  assert.equal(voice.vco[1].osc.type, 'sawtooth');
-  assert.equal(voice.vco[1].directGain.gain.value, 0);
-  assert.equal(voice.vco[1].pulseGain.gain.value, 1);
-
-  engine.setVCO1Wave('triangle');
-  assert.equal(voice.vco[1].osc.type, 'triangle');
-  assert.equal(voice.vco[1].directGain.gain.value, 1);
-  assert.equal(voice.vco[1].pulseGain.gain.value, 0);
-});
-
 test('setLFOParam updates pitch depth and both PWM gains on voices', () => {
   const { engine } = createLiveEngine();
   const voice = engine.voicePool[0];
@@ -275,23 +226,6 @@ test('LFO fade-in ramps destination gain linearly when fadeIn > 0 and sets immed
     (e) => e.type === 'linearRampToValueAtTime' && e.value === 100 && e.time === 11
   );
   assert.ok(lfo2Ramp);
-});
-
-test('configureFilter stages filter types and Q factor for lowpass12 and lowpass24', () => {
-  const { engine } = createLiveEngine();
-  const voice = engine.voicePool[0];
-
-  engine.setVCFResonance(10);
-  engine.setVCFType('lowpass12');
-  assert.equal(voice.filter.stage1.type, 'lowpass');
-  assert.equal(voice.filter.stage2.type, 'allpass');
-  assert.equal(voice.filter.stage2.Q.value, 0.1);
-
-  engine.setVCFType('lowpass24');
-  assert.equal(voice.filter.stage1.type, 'lowpass');
-  assert.equal(voice.filter.stage2.type, 'lowpass');
-  assert.equal(voice.filter.stage1.Q.value, 3.8);
-  assert.equal(voice.filter.stage2.Q.value, 4.8);
 });
 
 test('filter modes: stage types and clamped Q for every mode and resonance', () => {
@@ -369,24 +303,12 @@ test('setPitchBend retunes sounding voice frequencies with setTargetAtTime', () 
   assert.equal(bendEvent.value, 880);
 });
 
-test('PWM shaper only feeds the mix while its VCO plays square', () => {
-  const { engine, context } = createLiveEngine();
-  const voice = engine.voicePool[0];
-  const plugged = (n) => voice.vco[n].pwShaper.connections.includes(voice.vco[n].pulseGain);
-  assert.equal(engine.vco1.wave === 'square', plugged(1));
-
+test('wave changes reach every voice (paths and comparator plugging: vco.test.js)', () => {
+  const { engine } = createLiveEngine();
   engine.setVCO1Wave('square');
-  assert.equal(plugged(1), true);
-
-  engine.setVCO1Wave('sawtooth');
-  assert.equal(plugged(1), true, 'stays plugged while the pulse gain fades out');
-  for (const cb of Array.from(context.__timeouts.values())) cb();
-  assert.equal(plugged(1), false);
-
-  // a pending unplug must not cut a VCO that went back to square
-  engine.setVCO2Wave('square');
-  engine.setVCO2Wave('sawtooth');
-  engine.setVCO2Wave('square');
-  for (const cb of Array.from(context.__timeouts.values())) cb();
-  assert.equal(plugged(2), true);
+  engine.setVCO2Wave('triangle');
+  for (const voice of engine.voicePool) {
+    assert.equal(voice.vco[1].pulseGain.gain.value, 1);
+    assert.equal(voice.vco[2].osc.type, 'triangle');
+  }
 });

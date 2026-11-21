@@ -29,13 +29,6 @@ test('square runs a sawtooth into the plugged comparator', () => {
   assert.ok(vco.pwInput.connections.includes(vco.pwShaper));
 });
 
-test('frequency and detune are the oscillator params', () => {
-  const { vco } = setup('sawtooth');
-  assert.equal(vco.frequency, vco.osc.frequency);
-  assert.equal(vco.detune, vco.osc.detune);
-  assert.equal(vco.frequency.value, 440);
-});
-
 test('connect feeds both paths into the destination, start starts the oscillator', () => {
   const { vco } = setup('sawtooth');
   const dest = new FakeAudioContext().createGain();

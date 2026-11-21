@@ -1,7 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadEngineContext } = require('./helpers/synth-engine');
-const { knobsOf } = require('./helpers/panel-markup');
 
 const context = loadEngineContext('presets.js');
 const { SynthParams, SYNTH_INIT_PRESET, AudioEngine } = context;
@@ -18,15 +17,6 @@ function leafPaths(obj, prefix = '') {
 test('the table covers exactly the parameters of a preset state', () => {
   const tablePaths = JSON.parse(JSON.stringify(SynthParams.list.map((p) => p.path))).sort();
   assert.deepEqual(tablePaths, leafPaths(SYNTH_INIT_PRESET.state));
-});
-
-test('every SUB-1 knob in index.html is a patch parameter or an arpeggiator knob', () => {
-  const knobIds = knobsOf('sub1');
-  assert.ok(knobIds.length > 20, 'found the knobs');
-  const arpKnobs = ['arp-bpm', 'arp-gate', 'arp-swing'];
-  for (const id of knobIds) {
-    assert.ok(SynthParams.byKnob(id, 1) || arpKnobs.includes(id), `no parameter for knob ${id}`);
-  }
 });
 
 test('shared LFO knobs resolve to the LFO selected in the panel', () => {

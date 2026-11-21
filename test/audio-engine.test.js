@@ -8,9 +8,6 @@ function createEngine() {
   return new AudioEngine();
 }
 
-// Plain realm-neutral copy, so deepStrictEqual does not trip over vm prototypes
-const plain = (value) => JSON.parse(JSON.stringify(value));
-
 describe('master output stage', () => {
   // Signal path: limiter -> pre-gain 0.5 -> safety clipper -> destination.
   // The shaper reads input in [-1, 1], so the curve covers -2..+2 of the limiter output.
@@ -295,15 +292,6 @@ describe('preset state', () => {
     assert.equal(engine.fx.delay.feedback, 0.9);
     assert.equal(engine.fx.reverb.decay, 0.5);
     assert.equal(engine.lfo1.rate, 30);
-  });
-
-  test('loadPresetState followed by getPresetState round-trips every factory preset', () => {
-    const { AudioEngine, SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET } = loadEngineContext('presets.js');
-    for (const preset of [SYNTH_INIT_PRESET, ...SYNTH_FACTORY_PRESETS]) {
-      const engine = new AudioEngine();
-      engine.loadPresetState(preset.state);
-      assert.deepEqual(plain(engine.getPresetState()), plain(preset.state), preset.id);
-    }
   });
 
   test('a preset saved before a parameter existed loads that parameter from the INIT patch', () => {

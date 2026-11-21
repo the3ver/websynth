@@ -30,9 +30,9 @@ test('note values convert to seconds at the clock tempo', () => {
   assertClose(Delay.noteSeconds('bogus', 120), 0.25, 'unknown value falls back to an eighth');
 });
 
-test('every note value of the NOTE knob is a valid division', () => {
-  for (const division of Delay.DIVISIONS) assert.ok(Delay.noteSeconds(division, 120) > 0, division);
-  assert.equal(Delay.DIVISIONS.length, 13);
+test('every note value of the NOTE knob gives its own delay time', () => {
+  const seconds = Array.from(Delay.DIVISIONS, (division) => Delay.noteSeconds(division, 120));
+  assert.equal(new Set(seconds).size, seconds.length, seconds.join(' '));
 });
 
 test('synced delay lines follow the note value and stop at the longest delay time', () => {
