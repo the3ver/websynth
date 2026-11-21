@@ -296,7 +296,7 @@
   Delay.STEREO_RATIO = 1.333;
   // Longest time a delay line holds (seconds); the left line stops at MAX_TIME / STEREO_RATIO (3 s)
   Delay.MAX_TIME = 4.0;
-  // Note values of the synced delay, shortest first (the order of the NOTE knob)
+  // Note values of the synced delay in NOTE knob order: per note value triplet, straight, dotted, note values ascending
   Delay.DIVISIONS = [
     '1/16t',
     '1/16',
