@@ -37,3 +37,14 @@ test('knob publishes its position 0..1 as --knob-ratio for the stylesheet', () =
   knob.setValue(0);
   assert.equal(h.props['--knob-ratio'], '0.0000');
 });
+
+test('list knob with named entries keeps names as values, numbers stay numbers', () => {
+  const named = new Knob(housing({ param: 'x', values: '1/8,1/4,1/2', default: '1/4', type: 'note' }), noop);
+  assert.deepEqual(Array.from(named.spec.values), ['1/8', '1/4', '1/2']);
+  assert.equal(named.defaultValue, '1/4');
+  const h = housing({ param: 'y', values: '0.5,1,2', default: '1', type: 'ratio' });
+  const numeric = new Knob(h, noop);
+  assert.deepEqual(Array.from(numeric.spec.values), [0.5, 1, 2]);
+  assert.equal(numeric.defaultValue, 1);
+  assert.equal(h.props['--knob-ratio'], '0.5000');
+});

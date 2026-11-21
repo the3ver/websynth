@@ -58,6 +58,9 @@ const DragController = {
   }
 };
 
+// A data-values entry: a number, or a text name (list knobs over named steps such as note values)
+const parseListEntry = (text) => (text !== '' && !isNaN(Number(text)) ? Number(text) : text);
+
 /**
  * Rotary knob bound to a .synth-knob-housing (data-param, data-min, data-max, data-step, data-default, data-type)
  */
@@ -70,13 +73,13 @@ class Knob {
       min: parseFloat(data.min),
       max: parseFloat(data.max),
       step: parseFloat(data.step) || 0.01,
-      values: data.values ? data.values.split(',').map(Number) : null
+      values: data.values ? data.values.split(',').map(parseListEntry) : null
     };
     if (this.spec.values) {
       this.spec.min = this.spec.values[0];
       this.spec.max = this.spec.values[this.spec.values.length - 1];
     }
-    this.defaultValue = parseFloat(data.default);
+    this.defaultValue = this.spec.values ? parseListEntry(data.default) : parseFloat(data.default);
     this.value = this.defaultValue;
     this.onChange = onChange;
     this.cursor = 'ns-resize';

@@ -1,7 +1,8 @@
 /**
  * RETROVOX SUB-1 • KNOB SCALING & READOUT FORMATTING
  * Pure functions shared by all rotary knobs. spec = { type, min, max, step, values? } from the knob's
- * data-* attributes. A knob with data-values="0.25,0.5,1,..." steps through that list only.
+ * data-* attributes. A knob with data-values="0.25,0.5,1,..." steps through that list only; entries
+ * may be names ("1/8,1/4"), then the knob's value is the name.
  */
 
 const knobSign = (val) => (val > 0 ? '+' : '');
@@ -27,6 +28,7 @@ const READOUT_FORMATTERS = {
 };
 
 const nearestListIndex = (list, val) => {
+  if (typeof val !== 'number') return Math.max(0, list.indexOf(val));
   let best = 0;
   for (let i = 1; i < list.length; i++) {
     if (Math.abs(list[i] - val) < Math.abs(list[best] - val)) best = i;

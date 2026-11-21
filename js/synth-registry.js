@@ -15,6 +15,9 @@
  *   modMatrix          optional { sources: { id: label }, targets: { id: { label, depth } } } for the MOD MATRIX panel
  */
 
+// Button rows of the shared FX rack (markup without data-synth), part of every synth definition
+const FX_BUTTON_GROUPS = [{ path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' }];
+
 const SYNTH_DEFINITIONS = {
   sub1: {
     id: 'sub1',
@@ -32,7 +35,7 @@ const SYNTH_DEFINITIONS = {
         parse: (v) => parseInt(v, 10)
       },
       { path: 'vcf.type', selector: '#filterModeRow .filter-mode-btn', key: 'filter' },
-      { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' },
+      ...FX_BUTTON_GROUPS,
       { path: (ui) => `lfo${ui.currentLfoTarget}.wave`, selector: '#lfoWaveRow .lfo-wave-btn', key: 'wave' }
     ],
     toggles: [
@@ -67,7 +70,7 @@ const SYNTH_DEFINITIONS = {
         parse: (v) => parseInt(v, 10),
         onRender: (alg) => window.FmAlgorithmDisplay.render(alg)
       },
-      { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' }
+      ...FX_BUTTON_GROUPS
     ],
     toggles: [],
     envTargets: { op1: 'op1.env', op2: 'op2.env', op3: 'op3.env', op4: 'op4.env' },

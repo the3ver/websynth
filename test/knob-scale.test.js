@@ -160,6 +160,16 @@ test('list knobs (data-values) step through their entries only', () => {
   assert.equal(KnobScale.dragSpan(spec, false), 130);
 });
 
+test('list knobs step through named entries and snap unknown names to the first', () => {
+  const spec = { type: 'note', min: NaN, max: NaN, step: 0.01, values: ['1/16', '1/8', '1/4'] };
+  assert.equal(KnobScale.valueToRatio(spec, '1/8'), 0.5);
+  assert.equal(KnobScale.valueToRatio(spec, 'x'), 0);
+  assert.equal(KnobScale.ratioToValue(spec, 0.9), '1/4');
+  assert.equal(KnobScale.quantizeDrag(spec, '1/4'), '1/4');
+  assert.equal(KnobScale.wheelStep(spec, '1/8', 1), '1/4');
+  assert.equal(KnobScale.wheelStep(spec, '1/16', -1), '1/16');
+});
+
 test('the FM-4 B ratio knob moves one step per wheel notch and gets a long drag span', () => {
   const spec = { type: 'bratio', min: 0, max: 483, step: 1 };
   assert.equal(KnobScale.wheelStep(spec, 10, 1), 11);

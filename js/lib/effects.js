@@ -157,10 +157,11 @@
       this.dryGain.gain.setValueAtTime(1.0, now);
       this.wetGain.gain.setValueAtTime(settings.mix, now);
 
-      this.delayL = ctx.createDelay(2.0);
-      this.delayR = ctx.createDelay(2.0);
-      this.delayL.delayTime.setValueAtTime(settings.time, now);
-      this.delayR.delayTime.setValueAtTime(settings.time * Delay.STEREO_RATIO, now);
+      this.delayL = ctx.createDelay(Delay.MAX_TIME);
+      this.delayR = ctx.createDelay(Delay.MAX_TIME);
+      const [timeL, timeR] = this.lineTimes();
+      this.delayL.delayTime.setValueAtTime(timeL, now);
+      this.delayR.delayTime.setValueAtTime(timeR, now);
 
       this.filterL = ctx.createBiquadFilter();
       this.filterR = ctx.createBiquadFilter();
@@ -197,10 +198,19 @@
       this.wetGain.connect(this.output);
     }
 
+    /**
+     * [left, right] delay line times in seconds for the current settings
+     */
+    lineTimes() {
+      const time = this.settings.time;
+      return [time, time * Delay.STEREO_RATIO];
+    }
+
     applyTime() {
       const now = this.ctx.currentTime;
-      this.delayL.delayTime.setTargetAtTime(this.settings.time, now, 0.03);
-      this.delayR.delayTime.setTargetAtTime(this.settings.time * Delay.STEREO_RATIO, now, 0.03);
+      const [timeL, timeR] = this.lineTimes();
+      this.delayL.delayTime.setTargetAtTime(timeL, now, 0.03);
+      this.delayR.delayTime.setTargetAtTime(timeR, now, 0.03);
     }
 
     applyFeedback() {
@@ -270,6 +280,8 @@
   // [LFO rate Hz, delay modulation depth s] per chorus mode; 'off' and unknown modes use the default
   Chorus.MODES = { I: [0.45, 0.003], II: [0.85, 0.0045], 'I+II': [1.35, 0.0065] };
   Delay.STEREO_RATIO = 1.333;
+  // Longest time a delay line holds (seconds)
+  Delay.MAX_TIME = 2.0;
 
   Object.assign(blocks, { Crusher, Chorus, Delay, Reverb });
 })(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));
