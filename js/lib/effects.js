@@ -272,4 +272,4 @@
   Delay.STEREO_RATIO = 1.333;
 
   Object.assign(blocks, { Crusher, Chorus, Delay, Reverb });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

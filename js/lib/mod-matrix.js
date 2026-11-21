@@ -69,4 +69,4 @@
   ModMatrix.SLOTS = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5', 'slot6', 'slot7', 'slot8'];
 
   Object.assign(blocks, { ModMatrix });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

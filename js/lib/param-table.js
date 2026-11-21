@@ -120,4 +120,4 @@
   }
 
   Object.assign(blocks, { ParamTable });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

@@ -88,4 +88,4 @@
   }
 
   Object.assign(blocks, { Mixer, Drive, Vca });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

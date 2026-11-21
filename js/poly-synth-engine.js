@@ -199,6 +199,11 @@ class PolySynthEngine {
 
   initInstrument() {}
 
+  /** Hook: one pre-built voice (see the class comment); every subclass implements it. */
+  createVoice(id) {
+    throw new Error(`${this.constructor.name} does not implement createVoice(${id})`);
+  }
+
   /**
    * Optional: build fxModMatrix (SynthBlocks.ModMatrix over fxChain.modTargets) and
    * fxNoteModSources (SynthBlocks.NoteModSources, follow the last played note)

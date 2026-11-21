@@ -30,10 +30,15 @@
         return source;
       };
       this.nodes = {};
-      // { node, envelope, stages } per envelope name
+      // { node, envelope, stages, loopEnd } per envelope name; loopEnd: end of the scheduled loop cycles
       this.envelopes = Object.entries(envelopes).map(([name, stages]) => {
         this.nodes[name] = constant(0);
-        return { node: this.nodes[name], envelope: new blocks.Envelope(stages, { range: [0.0001, 1] }), stages };
+        return {
+          node: this.nodes[name],
+          envelope: new blocks.Envelope(stages, { range: [0.0001, 1] }),
+          stages,
+          loopEnd: 0
+        };
       });
       Object.assign(this.nodes, { velocity: constant(1), key: constant(0), random: constant(0) });
     }
@@ -79,4 +84,4 @@
   }
 
   Object.assign(blocks, { NoteModSources });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

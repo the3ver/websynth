@@ -7,6 +7,17 @@
 /** Building blocks in js/lib/ attach to this object; untyped until each block gets a declaration. */
 declare var SynthBlocks: any;
 
+/** Chromium install prompt (pwa-manager.js) */
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+interface Navigator {
+  /** iOS Safari: true when started from the home screen */
+  standalone?: boolean;
+}
+
 interface Window {
   SynthBlocks: any;
   /** Safari before 14.1 */

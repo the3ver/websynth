@@ -124,7 +124,7 @@ class PWAManager {
     window.addEventListener('beforeinstallprompt', (e) => {
       // Prevent default mini-infobar on mobile
       e.preventDefault();
-      this.deferredPrompt = e;
+      this.deferredPrompt = /** @type {BeforeInstallPromptEvent} */ (e);
 
       // Reveal PWA Install button in header if not already standalone
       if (!this.isStandalone && this.installBtn) {

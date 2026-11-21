@@ -400,7 +400,7 @@ class SynthUI {
     for (let i = 0; i < 16; i++) {
       const stepBtn = document.createElement('div');
       stepBtn.className = 'arp-step-btn active';
-      stepBtn.dataset.step = i;
+      stepBtn.dataset.step = String(i);
       stepBtn.title = `Step ${i + 1} (Klick zum Umschalten)`;
       stepBtn.innerHTML = `
           <div class="arp-step-led"></div>

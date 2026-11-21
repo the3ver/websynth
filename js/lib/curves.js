@@ -70,5 +70,12 @@
     return buffer;
   }
 
-  Object.assign(blocks, { linearCurve, tanhCurve, driveCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer });
-})((window.SynthBlocks = window.SynthBlocks || {}));
+  Object.assign(blocks, {
+    linearCurve,
+    tanhCurve,
+    driveCurve,
+    pwmComparatorCurve,
+    safetyClipCurve,
+    whiteNoiseBuffer
+  });
+})(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

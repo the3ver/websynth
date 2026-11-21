@@ -4,6 +4,9 @@
  */
 
 class PresetStore {
+  /**
+   * @param {{ storage?: Storage, key?: string, now?: () => number }} [options] storage defaults to localStorage
+   */
   constructor({ storage, key = 'retrovox_user_presets', now = () => Date.now() } = {}) {
     this.key = key;
     this.now = now;

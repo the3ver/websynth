@@ -240,7 +240,7 @@ class DrumUI {
       for (let s = 0; s < 16; s++) {
         const led = document.createElement('div');
         led.className = `drum-step-led group-${stepColorGroups[s]}`;
-        led.dataset.step = s;
+        led.dataset.step = String(s);
         led.innerHTML = `<span>${s + 1}</span>`;
         this.stepLedContainer.appendChild(led);
         this.stepLeds.push(led);
@@ -254,7 +254,7 @@ class DrumUI {
     for (let t = 0; t < 6; t++) {
       const trackRow = document.createElement('div');
       trackRow.className = 'drum-track-row';
-      trackRow.dataset.track = t;
+      trackRow.dataset.track = String(t);
 
       // Track Header (Mute, Solo, Name, Vol)
       const header = document.createElement('div');
@@ -276,8 +276,8 @@ class DrumUI {
       for (let s = 0; s < 16; s++) {
         const btn = document.createElement('button');
         btn.className = `step-btn group-${stepColorGroups[s]}`;
-        btn.dataset.track = t;
-        btn.dataset.step = s;
+        btn.dataset.track = String(t);
+        btn.dataset.step = String(s);
 
         this.renderStepButton(btn, this.drum.getStepState(t, s));
 

@@ -124,7 +124,7 @@ class VirtualKeyboard {
       const shortcut = KEY_SHORTCUT_LABELS[midiNote] || '';
 
       const keyEl = document.createElement('div');
-      keyEl.dataset.note = midiNote;
+      keyEl.dataset.note = String(midiNote);
       keyEl.className = BLACK_KEY_STEPS.includes(noteInOctave) ? 'key-black' : 'key-white';
       keyEl.innerHTML = `
           <span class="key-note-label">${noteName}</span>
