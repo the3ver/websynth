@@ -87,27 +87,25 @@ const FmAlgorithmDisplay = (() => {
     return `${mods} · FB ${name(alg.feedback)} · X ${alg.x.map(name).join('+')} · Y ${alg.y.map(name).join('+')}`;
   }
 
-  function svg(algorithm) {
-    const l = layout(algorithm);
-    if (!l) return '';
-    // Fixed canvas for 4 columns and 4 rows, so the display keeps its size for every algorithm;
-    // the routing sits centred horizontally and on the bottom (next to the buses)
-    const xs = l.nodes.map((n) => n.x);
-    const minX = Math.min(...xs);
-    const contentWidth = (Math.max(...xs) - minX) * COL + BOX;
-    const width = 3 * COL + BOX + PAD * 2 + 16;
-    const busX = PAD + 3 * ROW + BOX + BUS_GAP;
-    const busY = busX + BUS_STEP;
-    const height = busY + 10;
-    const left0 = (width - contentWidth) / 2;
+  const LABEL = 4; // half extent of a bus label (X, Y)
+
+  /**
+   * SVG parts of one layout plus their bounding box. place(node) returns the operator's { cx, top };
+   * the buses X and Y run BUS_GAP and BUS_GAP + BUS_STEP below the bottom row.
+   */
+  function drawing(l, place) {
+    const box = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+    const mark = (x, y, r = 0) => {
+      box.minX = Math.min(box.minX, x - r);
+      box.maxX = Math.max(box.maxX, x + r);
+      box.minY = Math.min(box.minY, y - r);
+      box.maxY = Math.max(box.maxY, y + r);
+    };
     const pos = {};
-    for (const n of l.nodes) {
-      pos[n.op] = {
-        cx: left0 + BOX / 2 + (n.x - minX) * COL,
-        top: PAD + (3 - n.row) * ROW,
-        row: n.row
-      };
-    }
+    for (const n of l.nodes) pos[n.op] = { ...place(n), row: n.row };
+    const bottomTop = Math.max(...l.nodes.map((n) => pos[n.op].top));
+    const busX = bottomTop + BOX + BUS_GAP;
+    const busY = busX + BUS_STEP;
     const parts = [];
 
     for (const [from, to] of l.edges) {
@@ -131,6 +129,7 @@ const FmAlgorithmDisplay = (() => {
         parts.push(
           `<polyline class="${cls}" points="${cx + BOX / 2},${top + BOX / 2} ${sx},${top + BOX / 2} ${sx},${busYPos}"/>`
         );
+        mark(sx, busYPos);
         busLines[n.out].push(sx);
       }
     }
@@ -144,9 +143,13 @@ const FmAlgorithmDisplay = (() => {
       if (bus === 'x') {
         parts.push(`<line class="fm-alg-out out-x" x1="${left - 6}" y1="${yPos}" x2="${right}" y2="${yPos}"/>`);
         parts.push(`<text class="fm-alg-bus" x="${left - 9}" y="${yPos}">X</text>`);
+        mark(left - 9, yPos, LABEL);
+        mark(right, yPos);
       } else {
         parts.push(`<line class="fm-alg-out out-y" x1="${left}" y1="${yPos}" x2="${right + 6}" y2="${yPos}"/>`);
         parts.push(`<text class="fm-alg-bus" x="${right + 9}" y="${yPos}">Y</text>`);
+        mark(right + 9, yPos, LABEL);
+        mark(left, yPos);
       }
     }
 
@@ -157,13 +160,31 @@ const FmAlgorithmDisplay = (() => {
         parts.push(
           `<polyline class="fm-alg-fb" points="${left},${top + 7} ${left - 5},${top + 7} ${left - 5},${top - 5} ${cx},${top - 5} ${cx},${top}"/>`
         );
+        mark(left - 5, top - 5);
       }
       const cls = n.out ? 'fm-alg-op carrier' : 'fm-alg-op';
       parts.push(
         `<g class="${cls}"><rect x="${left}" y="${top}" width="${BOX}" height="${BOX}" rx="3"/>` +
           `<text x="${cx}" y="${top + BOX / 2}">${n.name}</text></g>`
       );
+      mark(left, top);
+      mark(left + BOX, top + BOX);
     }
+    return { parts, box };
+  }
+
+  function svg(algorithm) {
+    const l = layout(algorithm);
+    if (!l) return '';
+    // Fixed canvas for 4 columns and 4 rows, so the display keeps its size for every algorithm;
+    // the routing sits centred horizontally and on the bottom (next to the buses)
+    const xs = l.nodes.map((n) => n.x);
+    const minX = Math.min(...xs);
+    const contentWidth = (Math.max(...xs) - minX) * COL + BOX;
+    const width = 3 * COL + BOX + PAD * 2 + 16;
+    const height = PAD + 3 * ROW + BOX + BUS_GAP + BUS_STEP + 10;
+    const left0 = (width - contentWidth) / 2;
+    const { parts } = drawing(l, (n) => ({ cx: left0 + BOX / 2 + (n.x - minX) * COL, top: PAD + (3 - n.row) * ROW }));
 
     return (
       `<svg class="fm-alg-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" ` +
