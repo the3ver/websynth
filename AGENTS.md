@@ -253,4 +253,5 @@ Before committing any modifications:
 4. Check for zero console warnings / uncaught exceptions for every synth (`?synth=sub1`, `?synth=fm`). Serve over HTTP (`PORT=3917 node scripts/serve.js`): headless Chromium on `file://` silently skips one of the 40+ scripts.
 5. Ensure no memory leaks or unmanaged event listeners on `window`.
 6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
-7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`.
+7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`; `test/release-consistency.test.js` fails otherwise.
+8. Version bump: `npm run bump` (patch; or `node scripts/bump.js minor|major|X.Y.Z`) updates all places listed in `VERSION_LOCATIONS` (`scripts/bump.js`). Changelog texts in README and the release modal stay manual.
