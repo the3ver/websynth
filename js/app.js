@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const DrumUI = window.DrumUI;
   const PWAManager = window.PWAManager;
 
+  // Buttons and tabs react to a tap while another finger holds a key (see DomUtils.installMultiTouchTaps)
+  DomUtils.installMultiTouchTaps();
+
   // Active synth: chosen at page load, switching reloads with ?synth=<id>
   const STORAGE_KEY_SYNTH = 'retrovox_synth';
   let storedSynthId = null;
@@ -63,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const speakerLedRight = document.getElementById('speakerLedRight');
 
   // Version & Changelog State
-  const CURRENT_APP_VERSION = '1.8.43';
+  const CURRENT_APP_VERSION = '1.8.44';
   const STORAGE_KEY_VERSION = 'retrovox_synth_version';
 
   // Changelog Modal Elements

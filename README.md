@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.43-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.44-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,9 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.44: Tabs and buttons while holding a key
+- **🖐️ Multi-touch:** On touch screens tabs and buttons now react to a tap while another finger holds a key. Before, the browser treated it as a multi-finger gesture and sent no click, so OSC, LFO, ENV and FX tabs and buttons like HOLD did nothing.
 
 #### ⚡ NEW in v1.8.43: Krell patch for the SUB-1
 - **🎲 11 // KRELL PATCH:** A factory preset in the spirit of the Buchla/Todd Barton Krell patch. Hold a key (or use HOLD) and the SUB-1 plays by itself: about once a second a short pluck, its pitch stepping at random up to 8 semitones up or down, about once per pluck (not tied to a scale), the filter wandering on a second random LFO, with long delay and reverb. Built from existing parts only: MOD ENV LOOP, both LFOs on sample & hold and all eight mod matrix slots, so you can take it apart and change it.
@@ -342,6 +345,9 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.44: Tabs und Tasten bei gehaltener Taste
+- **🖐️ Multitouch:** Auf Touch-Displays reagieren Tabs und Tasten jetzt auf einen Tipp, während ein anderer Finger eine Taste hält. Bisher wertete der Browser das als Mehrfinger-Geste und schickte keinen Klick; die Tabs OSC, LFO, ENV und FX und Tasten wie HOLD taten dann nichts.
 
 #### ⚡ NEU in v1.8.43: Krell-Patch für den SUB-1
 - **🎲 11 // KRELL PATCH:** Ein Factory-Preset im Geist des Krell-Patches von Buchla und Todd Barton. Taste halten (oder HOLD) und der SUB-1 spielt von selbst: etwa jede Sekunde ein kurzer Zupfer, die Tonhöhe springt zufällig bis zu 8 Halbtöne nach oben oder unten, etwa bei jedem Zupfer (an keine Tonleiter gebunden), das Filter wandert auf einem zweiten Zufalls-LFO, dazu langes Delay und Hall. Gebaut nur aus vorhandenen Teilen: MOD ENV LOOP, beide LFOs auf Sample & Hold und alle acht Slots der Mod-Matrix, zum Zerlegen und Verändern.
