@@ -60,7 +60,7 @@ describe('MIDI input through the NoteRouter', () => {
   });
 
   test('velocity reaches the voice when the arp is off', () => {
-    const { engine, router } = setupRouted();
+    const { engine } = setupRouted();
     const played = [];
     const noteOn = engine.noteOn.bind(engine);
     engine.noteOn = (note, velocity) => { played.push(velocity); noteOn(note, velocity); };

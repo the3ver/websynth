@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const synthUI = new SynthUI(audioEngine, arpEngine, synth);
   const drumEngine = new DrumEngine(audioEngine);
   const drumUI = new DrumUI(drumEngine, arpEngine, audioEngine);
-  const pwaManager = new PWAManager(audioEngine, drumEngine, drumUI);
+  new PWAManager(audioEngine, drumEngine, drumUI);
 
   // Top Bar UI Elements
   const mainPowerBtn = document.getElementById('mainPowerBtn');

@@ -22,7 +22,7 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  const safePath = path.normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^(\.\.[\/\\])+/, '');
+  const safePath = path.normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^(\.\.[/\\])+/, '');
   let filePath = path.join(ROOT, safePath === '/' ? 'index.html' : safePath);
 
   fs.stat(filePath, (err, stats) => {

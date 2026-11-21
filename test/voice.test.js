@@ -33,7 +33,7 @@ test('noteOn connects the voice, release cleanup disconnects it again', () => {
 });
 
 test('release cleanup waits until the tail is below -70 dB', () => {
-  const { engine, context, ctx } = createLiveEngine();
+  const { engine, context } = createLiveEngine();
   const delays = [];
   context.setTimeout = (fn, ms) => { delays.push(ms); return 1; };
   engine.ampEnv.release = 0.3;
