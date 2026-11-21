@@ -50,7 +50,7 @@ The check (`npm run check`: syntax, ESLint, Prettier, html-validate, unit tests,
 - **T4 Intact:** no test is deleted, skipped, commented out or loosened to make the change pass.
 
 ### Release and project (R)
-- **R1 Version:** a commit with logic, a feature or a bugfix bumps the patch version (`npm run bump`); `refactor:`, `style:`, `test:`, `docs:`, `ci:` and `chore:` commits do not.
+- **R1 Version:** the version counts app releases. A commit that changes the app's behaviour (a feature or a bugfix in `js/`, `css/`, `index.html`, `sw.js`, `manifest.webmanifest`) bumps the patch version (`npm run bump`) and is typed `feat:` or `fix:`. Tooling, tests, docs and behaviour-neutral changes bump nothing and use `build:`, `ci:`, `test:`, `docs:`, `refactor:`, `style:` or `chore:` (a bump would only make every user's service worker reload the cache).
 - **R2 Release notes:** a user-visible change has a German "NEU in vX" section in `README.md` and a card in the "Was gibt's Neues" modal in `index.html`.
 - **R3 Commits:** Conventional Commits; refactoring and behaviour change in separate commits.
 - **R4 Globals:** top-level names in `js/` are unique across all files (classic scripts share one scope; a duplicate `const` stops the later script from loading).
