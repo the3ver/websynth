@@ -21,35 +21,42 @@ const MIME_TYPES = {
   '.mp3': 'audio/mpeg'
 };
 
-const server = http.createServer((req, res) => {
-  const safePath = path.normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^(\.\.[/\\])+/, '');
-  let filePath = path.join(ROOT, safePath === '/' ? 'index.html' : safePath);
+/** Static file server for the repo root, no caching; require() it to start one on another port. */
+function createServer() {
+  return http.createServer((req, res) => {
+    const safePath = path.normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^(\.\.[/\\])+/, '');
+    let filePath = path.join(ROOT, safePath === '/' ? 'index.html' : safePath);
 
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      if (stats && stats.isDirectory()) {
-        filePath = path.join(filePath, 'index.html');
-      } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        return res.end('404 Not Found');
+    fs.stat(filePath, (err, stats) => {
+      if (err || !stats.isFile()) {
+        if (stats && stats.isDirectory()) {
+          filePath = path.join(filePath, 'index.html');
+        } else {
+          res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+          return res.end('404 Not Found');
+        }
       }
-    }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Access-Control-Allow-Origin': '*'
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Access-Control-Allow-Origin': '*'
+      });
+
+      fs.createReadStream(filePath).pipe(res);
     });
-
-    fs.createReadStream(filePath).pipe(res);
   });
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`\n🚀 RETROVOX SUB-1 Server is running!`);
-  console.log(`📡 Local:   http://localhost:${PORT}`);
-  console.log(`📱 Network: http://127.0.0.1:${PORT}\n`);
-});
+if (require.main === module) {
+  createServer().listen(PORT, () => {
+    console.log(`\n🚀 RETROVOX SUB-1 Server is running!`);
+    console.log(`📡 Local:   http://localhost:${PORT}`);
+    console.log(`📱 Network: http://127.0.0.1:${PORT}\n`);
+  });
+}
+
+module.exports = { createServer };
