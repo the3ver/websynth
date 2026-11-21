@@ -48,6 +48,14 @@ The check (`npm run check`: syntax, ESLint, Prettier, html-validate, unit tests,
 - **T2 Cheap asserts:** tests compare ids, numbers and strings, not Voice or engine objects (a failing strict assert on a Voice diffed the whole graph and hung the NAS); arrays from the vm sandbox go through `Array.from` before `deepEqual`.
 - **T3 Hermetic:** no real timers, wall-clock time, network or unseeded randomness; use the sandbox's stubbed timers (`__intervals`, `__timeouts`), `FakeAudioContext` time and seeded rngs; tests write only to `os.tmpdir()`.
 - **T4 Intact:** no test is deleted, skipped, commented out or loosened to make the change pass.
+- **T5 Earns its run:** every assert of a new or changed test goes red on a bug you can name in one line, in the code under test (not in the test line itself). Name the bug; to try it, mutate a copy in the scratchpad, never the repo. Typical asserts that fail this:
+  - a tautology: holds for any input (`> 0` on a result with a positive fallback), or compares a value with its copy or alias when no bug in the code changes the result (an alias that is the only guard for a wiring, e.g. `vco.detune` as the pitch target, passes);
+  - a read-back of what the test injected (a stub's canned return), not of what the code did with the stub (`__timeouts.size === 0` after a cancel passes);
+  - a count, length or list that restates a constant of the code with no consumer the test exercises (`voicePool.length === 12` as polyphony passes);
+  - a duplicate of an existing test; across levels the block test (`js/lib/`) keeps the detail and the engine test only that the engine reaches every voice;
+  - a regex on source text where a test can reach the behaviour;
+  - setup heavier than the assert needs (`createLiveEngine()` for a pure function, a process spawn per case).
+  Deleting a tautology, or a duplicate whose commit names the covering file and test, is not a T4 finding.
 
 ### Release and project (R)
 - **R1 Version:** the version counts app releases. A commit that changes the app's behaviour (a feature or a bugfix in `js/`, `css/`, `index.html`, `sw.js`, `manifest.webmanifest`) bumps the patch version (`npm run bump`) and is typed `feat:` or `fix:`. Tooling, tests, docs and behaviour-neutral changes bump nothing and use `build:`, `ci:`, `test:`, `docs:`, `refactor:`, `style:` or `chore:` (a bump would only make every user's service worker reload the cache).
