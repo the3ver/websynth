@@ -69,6 +69,15 @@ test('every file in js/, js/lib/ and js/worklets/ is precached, every precached 
   );
 });
 
+test('README release notes come in both languages: every "NEW in vX" has its "NEU in vX" and back', () => {
+  const versions = (word) =>
+    Array.from(read('README.md').matchAll(new RegExp(`${word} in (v[\\d./v]+):`, 'g')), (m) => m[1]);
+  const en = versions('NEW');
+  const de = versions('NEU');
+  assert.ok(en.length > 0, 'found the release notes');
+  assert.deepEqual(en, de);
+});
+
 test('nextVersion steps patch, minor, major and takes an explicit version', () => {
   assert.equal(nextVersion('1.8.35', 'patch'), '1.8.36');
   assert.equal(nextVersion('1.8.35', 'minor'), '1.9.0');
