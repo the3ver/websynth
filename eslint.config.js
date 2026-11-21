@@ -58,7 +58,7 @@ module.exports = [
     rules
   },
   {
-    files: ['scripts/**/*.js', 'test/**/*.js', 'eslint.config.js'],
+    files: ['scripts/**/*.js', 'test/**/*.js', 'eslint.config.js', 'commitlint.config.js'],
     languageOptions: { ecmaVersion: 2022, sourceType: 'commonjs', globals: globals.node },
     rules
   },

@@ -29,6 +29,10 @@ jobs:
       - name: Install dev dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Commit messages of the pull request (commitlint)
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
+
       - name: Install browsers for the layout check
         run: npx playwright install --with-deps chromium firefox
 

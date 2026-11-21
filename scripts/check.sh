@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Quiet check: syntax of every script, ESLint, types (tsc), Prettier, HTML structure, unit tests, layout in a browser.
+# Quiet check: syntax of every script, ESLint, types (tsc), Prettier, commit messages, HTML structure, unit tests,
+# layout in a browser.
 # Green: one line "CHECK OK: ...". Red: only the failing step's findings, exit 1.
 # Used by `npm run check`, the Claude Code Stop hook (.claude/hooks/stop-check.sh) and later CI.
 set -uo pipefail
@@ -18,7 +19,7 @@ for f in "${files[@]}"; do
 done
 [ -s "$tmp/out" ] && fail "syntax"
 
-for tool in html-validate eslint prettier tsc; do
+for tool in html-validate eslint prettier tsc commitlint; do
   [ -x node_modules/.bin/$tool ] || { echo "CHECK FAILED: node_modules/.bin/$tool missing, run npm install"; exit 1; }
 done
 
@@ -30,6 +31,12 @@ node_modules/.bin/eslint --max-warnings 0 . > "$tmp/out" 2>&1 || fail "eslint"
 
 # 2b. Formatting (.prettierrc.json; the PostToolUse hook formats on edit, npx prettier --write . fixes the rest)
 node_modules/.bin/prettier --list-different . > "$tmp/out" 2>&1 || { sed -i '1i not formatted (npx prettier --write <file>):' "$tmp/out"; fail "prettier"; }
+
+# 2c. Commit messages of this branch (commitlint.config.js): main..HEAD, skipped on main and without a local main
+# (CI lints the commits of a pull request in its own step)
+if git rev-parse -q --verify main > /dev/null && [ -n "$(git rev-list main..HEAD 2> /dev/null)" ]; then
+  node_modules/.bin/commitlint --from main --to HEAD > "$tmp/out" 2>&1 || fail "commitlint (main..HEAD, fix with git commit --amend or git rebase)"
+fi
 
 # 3. HTML structure (.htmlvalidate.json)
 validator=node_modules/.bin/html-validate
