@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.40-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.41-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,9 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.41: Octave down with the Y key
+- **⌨️ Octave down:** On the computer keyboard Y (left of X, German layout) shifts the octave down again, X shifts it up. Before, Y played G#3 like Z and no key shifted the octave down. G#3 sits on Z between T and U, and the on-screen key now shows Z.
 
 #### ⚡ NEW in v1.8.40: Delay in time with the arpeggiator
 - **⏱️ SYNC:** The delay page in the FX rack has the buttons FREE and SYNC. With SYNC the NOTE knob replaces the TIME knob: 1/16 to 1/1, plus dotted (e.g. 1/8.) and triplet (e.g. 1/8T). Works on SUB-1 and FM-4.
@@ -247,8 +250,8 @@ Then open [http://localhost:3000](http://localhost:3000) (or the port shown in t
 
 - **Play the synthesizer keybed** (key positions of a German QWERTZ layout):
   - White keys: <kbd>A</kbd> (C3), <kbd>S</kbd> (D3), <kbd>D</kbd> (E3), <kbd>F</kbd> (F3), <kbd>G</kbd> (G3), <kbd>H</kbd> (A3), <kbd>J</kbd> (B3), <kbd>K</kbd> (C4), <kbd>L</kbd> (D4), <kbd>Ö</kbd> (E4), <kbd>Ä</kbd> (F4)
-  - Black keys: <kbd>W</kbd> (C#3), <kbd>E</kbd> (D#3), <kbd>T</kbd> (F#3), <kbd>Z</kbd> / <kbd>Y</kbd> (G#3), <kbd>U</kbd> (A#3), <kbd>O</kbd> (C#4), <kbd>P</kbd> (D#4), <kbd>Ü</kbd> (F#4)
-- **Octave up**: <kbd>X</kbd>
+  - Black keys: <kbd>W</kbd> (C#3), <kbd>E</kbd> (D#3), <kbd>T</kbd> (F#3), <kbd>Z</kbd> (G#3), <kbd>U</kbd> (A#3), <kbd>O</kbd> (C#4), <kbd>P</kbd> (D#4), <kbd>Ü</kbd> (F#4)
+- **Switch octaves**: <kbd>X</kbd> (octave up), <kbd>Y</kbd> (octave down)
 - **Drum & bass machine**: <kbd>Shift</kbd> + <kbd>D</kbd> (slide the rack in/out)
 
 ---
@@ -333,6 +336,9 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.41: Oktave tiefer mit der Taste Y
+- **⌨️ Oktave tiefer:** Auf der Computertastatur schaltet Y (links neben X) die Oktave wieder tiefer, X höher. Vorher spielte Y wie Z ein G#3, und keine Taste schaltete die Oktave tiefer. G#3 liegt auf Z zwischen T und U, die Bildschirmtaste zeigt jetzt Z.
 
 #### ⚡ NEU in v1.8.40: Delay im Takt des Arpeggiators
 - **⏱️ SYNC:** Die Delay-Seite im FX-Rack hat die Tasten FREE und SYNC. Bei SYNC ersetzt der Regler NOTE den TIME-Regler: 1/16 bis 1/1, dazu punktiert (z. B. 1/8.) und triolisch (z. B. 1/8T). Gilt für SUB-1 und FM-4.
@@ -563,8 +569,8 @@ npx serve .
 
 - **Synthesizer Klaviatur spielen** (Tastenpositionen eines deutschen QWERTZ-Layouts):
   - Weiße Tasten: <kbd>A</kbd> (C3), <kbd>S</kbd> (D3), <kbd>D</kbd> (E3), <kbd>F</kbd> (F3), <kbd>G</kbd> (G3), <kbd>H</kbd> (A3), <kbd>J</kbd> (B3), <kbd>K</kbd> (C4), <kbd>L</kbd> (D4), <kbd>Ö</kbd> (E4), <kbd>Ä</kbd> (F4)
-  - Schwarze Tasten: <kbd>W</kbd> (C#3), <kbd>E</kbd> (D#3), <kbd>T</kbd> (F#3), <kbd>Z</kbd> / <kbd>Y</kbd> (G#3), <kbd>U</kbd> (A#3), <kbd>O</kbd> (C#4), <kbd>P</kbd> (D#4), <kbd>Ü</kbd> (F#4)
-- **Oktave höher**: <kbd>X</kbd>
+  - Schwarze Tasten: <kbd>W</kbd> (C#3), <kbd>E</kbd> (D#3), <kbd>T</kbd> (F#3), <kbd>Z</kbd> (G#3), <kbd>U</kbd> (A#3), <kbd>O</kbd> (C#4), <kbd>P</kbd> (D#4), <kbd>Ü</kbd> (F#4)
+- **Oktaven umschalten**: <kbd>X</kbd> (Oktave höher), <kbd>Y</kbd> (Oktave tiefer)
 - **Drum & Bass Machine**: <kbd>Shift</kbd> + <kbd>D</kbd> (Rack ein-/ausfahren)
 
 ---

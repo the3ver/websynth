@@ -19,8 +19,7 @@ const PC_KEY_MAP = {
   KeyF: 53,
   KeyT: 54,
   KeyG: 55,
-  KeyZ: 56,
-  KeyY: 56,
+  KeyY: 56, // labelled Z on QWERTZ; KeyZ (labelled Y, left of X) shifts the octave down
   KeyH: 57,
   KeyU: 58,
   KeyJ: 59,
@@ -43,7 +42,7 @@ const KEY_SHORTCUT_LABELS = {
   53: 'F',
   54: 'T',
   55: 'G',
-  56: 'Y',
+  56: 'Z',
   57: 'H',
   58: 'U',
   59: 'J',
@@ -346,7 +345,7 @@ class VirtualKeyboard {
     window.addEventListener('keydown', (e) => {
       if (e.repeat || isTextInput(e.target)) return;
 
-      if (e.code === 'KeyZ' && !PC_KEY_MAP[e.code]) {
+      if (e.code === 'KeyZ') {
         this.callbacks.onOctaveShift(-1);
         return;
       }

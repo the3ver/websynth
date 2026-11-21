@@ -109,7 +109,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.40</span>
+          <span class="version-tag">v1.8.41</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1268,7 +1268,7 @@
                 <div class="octave-controls">
                   <span class="control-sublabel">OCTAVE</span>
                   <div class="octave-button-group">
-                    <button class="octave-btn" id="octaveDownBtn" title="Oktave tiefer (Z)">-1</button>
+                    <button class="octave-btn" id="octaveDownBtn" title="Oktave tiefer (Y)">-1</button>
                     <div class="octave-display" id="octaveValueDisplay">0</div>
                     <button class="octave-btn" id="octaveUpBtn" title="Oktave höher (X)">+1</button>
                   </div>
@@ -1298,7 +1298,7 @@
             <div class="bezel-left">RETROVOX SUBTRACTIVE CORE • V1.0</div>
             <div class="keyboard-guide">
               <span class="guide-badge">💡 PC-Tastatur:</span>
-              <span class="guide-keys"><strong>A S D F G H J K</strong> (Weiße Tasten) &bull; <strong>W E T Y U</strong> (Schwarze Tasten) &bull; <strong>Z / X</strong> (Oktave)</span>
+              <span class="guide-keys"><strong>A S D F G H J K</strong> (Weiße Tasten) &bull; <strong>W E T Z U</strong> (Schwarze Tasten) &bull; <strong>Y / X</strong> (Oktave)</span>
             </div>
             <div class="bezel-right">24-BIT WEB AUDIO SYNTHESIZER</div>
           </div>
@@ -1701,16 +1701,29 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.40</span>
+            <span class="release-version-number">v1.8.41</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">⌨️</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">FIX</div>
+              <h3>Oktave tiefer mit der Taste Y</h3>
+              <p>Auf der Computertastatur schaltet Y (links neben X) die Oktave wieder tiefer, X weiter höher.</p>
+              <ul>
+                <li><strong>Vorher:</strong> Y spielte wie Z ein G#3, eine Taste für die tiefere Oktave gab es nicht.</li>
+                <li><strong>G#3:</strong> liegt auf Z zwischen T und U, die Bildschirmtaste zeigt jetzt Z.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">⏱️</div>
