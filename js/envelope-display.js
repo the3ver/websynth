@@ -20,7 +20,7 @@ const ENV_MIN_STAGE_RATIO = 0.04;
 
 class EnvelopeDisplay {
   /**
-   * @param ranges { attack: [min, max], decay: [min, max], release: [min, max] } in seconds
+   * @param {object} ranges attack, decay and release as [min, max] in seconds
    */
   constructor(svg, ranges) {
     this.svg = svg;

@@ -12,6 +12,7 @@
 
   class Lfo {
     /**
+     * @param {object} [options]
      * @param options.wave 'sine' | 'triangle' | 'sawtooth' | 'square' | 'samplehold'
      * @param options.rate Hz
      */

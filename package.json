@@ -46,6 +46,7 @@
     "globals": "17.14.0",
     "html-validate": "11.21.1",
     "playwright": "1.65.1",
-    "prettier": "3.10.1"
+    "prettier": "3.10.1",
+    "typescript": "6.0.3"
   }
 }

@@ -15,7 +15,7 @@
 
   class Mixer {
     /**
-     * @param levels { channelName: level } in channel order, e.g. { vco1Level: 0.8, noiseLevel: 0 }
+     * @param {Object<string, number>} levels channel name -> level in channel order, e.g. vco1Level: 0.8, noiseLevel: 0
      */
     constructor(ctx, levels, now = ctx.currentTime) {
       this.channels = {};

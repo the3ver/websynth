@@ -14,6 +14,7 @@
 
   class Vco {
     /**
+     * @param {object} [options]
      * @param options.wave 'sine' | 'triangle' | 'sawtooth' | 'square'
      * @param options.pwmCurve shared comparator curve (pass one instance for all voices)
      */

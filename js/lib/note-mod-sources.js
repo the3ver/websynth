@@ -18,7 +18,7 @@
 
   class NoteModSources {
     /**
-     * @param envelopes { name: live ADSR settings object }, e.g. { filterEnv, ampEnv }
+     * @param {object} envelopes name -> live ADSR settings object, e.g. filterEnv, ampEnv
      */
     constructor(ctx, envelopes) {
       const now = ctx.currentTime;

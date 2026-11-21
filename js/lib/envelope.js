@@ -20,6 +20,7 @@
     /**
      * @param stages live { attack, decay, release } in seconds and sustain 0..1, read on every
      *   trigger and release, so knob changes apply to the next note
+     * @param {object} [options]
      * @param options.range [lo, hi] clamp for the sustain level
      * @param options.holdOnTrigger true: freeze the running value before jumping to the start
      *   level (VCA), false: drop pending events (filter)

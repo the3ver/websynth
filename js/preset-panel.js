@@ -8,7 +8,7 @@
 
 class PresetPanel {
   /**
-   * @param presets { factory: [...], init, random? } of the active synth
+   * @param {object} presets factory (array), init and optional random of the active synth
    */
   constructor(engine, store, presets, onApplied) {
     this.engine = engine;
