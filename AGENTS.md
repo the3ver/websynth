@@ -237,17 +237,12 @@ Before committing any modifications:
    ```
    `scripts/check.sh` runs `node --check` on every script, ESLint (`eslint.config.js`; globals of the classic scripts are collected from their top-level declarations), Prettier on JS (`.prettierrc.json`; in Claude Code the PostToolUse hook `.claude/hooks/format-on-edit.sh` formats every edited JS file), html-validate on `index.html` and `privacy.html` (structure rules in `.htmlvalidate.json`) the unit tests and the layout check (`scripts/layout-check.js`, `npm run layout`: Playwright headless Chromium, both synths at the five screenshot sizes; fails on page errors, header controls outside the viewport, a hidden `#synthSelect`/power/reload button, labels that wrap or overflow with every tab page clicked through, FX pages wider than the rack; CI also runs it in Firefox). Green prints one line `CHECK OK: ...`; red prints only the failing step. In Claude Code the Stop hook runs it at the end of every turn that changed files (`.claude/hooks/stop-check.sh`). CI (`.github/workflows/deploy.yml`) runs the same command plus a gitleaks scan on every push and pull request; GitHub Pages deploys only after it passes.
 2. Unit tests (Node built-in test runner, `npm test` for the full TAP output). Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. `createLiveEngine()` (`test/helpers/synth-engine.js`) builds the full audio graph on `FakeAudioContext`, so voice envelopes, LFO routing and FX can be asserted on recorded AudioParam events. DOM-heavy UI (keybed, knobs, panel wiring) is not unit tested: check it in the browser. New features and bug fixes need a test here.
-3. Run automated headless visual screenshot suite:
+3. For visual changes, look at screenshots (Playwright headless Chromium over HTTP, ~11 s):
    ```bash
-   node scripts/capture-screenshots.js
+   npm run capture-screenshots              # SUB-1, add -- --synth fm for the FM-4
    ```
-   Inspect generated screenshots in `screenshots/`:
-   - `screenshot-desktop.png` (1440x920)
-   - `screenshot-ipad.png` (1024x768)
-   - `screenshot-mobile.png` (750x1334)
-   - `screenshot-phone-portrait.png` (360x780)
-   - `screenshot-phone-landscape.png` (844x390)
-4. Check for zero console warnings / uncaught exceptions for every synth (`?synth=sub1`, `?synth=fm`). Serve over HTTP (`PORT=3917 node scripts/serve.js`): headless Chromium on `file://` silently skips one of the 40+ scripts.
+   They land in `scratch/screenshots/` (ignored): `screenshot-desktop` (1440x920), `-ipad` (1024x768), `-mobile` (750x1334, drum drawer), `-phone-portrait` (360x780), `-phone-full` (360x1200), `-phone-landscape` (844x390). `-- --release` overwrites the tracked store screenshots in `screenshots/` (manifest); only for a release that changes the look.
+4. Page errors per synth are covered by the layout check. For anything it does not see, serve over HTTP (`PORT=3917 node scripts/serve.js`): headless Chromium on `file://` silently skips one of the 40+ scripts.
 5. Ensure no memory leaks or unmanaged event listeners on `window`.
 6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
 7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`; `test/release-consistency.test.js` fails otherwise.

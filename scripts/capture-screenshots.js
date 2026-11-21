@@ -1,68 +1,59 @@
+#!/usr/bin/env node
+/**
+ * Screenshots of the app at the screen sizes of the layout check, via Playwright headless Chromium over HTTP.
+ * Default output: scratch/screenshots/ (ignored), so looking at the UI changes no tracked file.
+ * --release writes screenshots/ (store screenshots in manifest.webmanifest); --synth fm shoots the FM-4.
+ * Usage: npm run capture-screenshots [-- --synth fm] [-- --release]
+ */
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { createServer } = require('./serve');
 
-const CHROME_PATH = fs.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
-  ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-  : 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+// name, viewport, hash (#drums opens the drum drawer, #synth skips the release notes)
+const SHOTS = [
+  ['desktop', 1440, 920, '#synth'],
+  ['ipad', 1024, 768, '#synth'],
+  ['mobile', 750, 1334, '#drums'],
+  ['phone-portrait', 360, 780, '#synth'],
+  ['phone-full', 360, 1200, '#synth'],
+  ['phone-landscape', 844, 390, '#synth']
+];
 
-const screenshotsDir = path.join(__dirname, '..', 'screenshots');
-if (!fs.existsSync(screenshotsDir)) {
-  fs.mkdirSync(screenshotsDir, { recursive: true });
+async function main() {
+  const args = process.argv.slice(2);
+  const release = args.includes('--release');
+  const synth = args.includes('--synth') ? args[args.indexOf('--synth') + 1] : 'sub1';
+  const outDir = path.join(__dirname, '..', release ? 'screenshots' : path.join('scratch', 'screenshots'));
+  fs.mkdirSync(outDir, { recursive: true });
+
+  const { chromium } = require('playwright');
+  const server = createServer().listen(0, '127.0.0.1');
+  await new Promise((resolve) => server.once('listening', resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const browser = await chromium.launch();
+  const files = [];
+  try {
+    for (const [name, width, height, hash] of SHOTS) {
+      const context = await browser.newContext({ viewport: { width, height }, serviceWorkers: 'block' });
+      const page = await context.newPage();
+      await page.goto(`${base}/?synth=${synth}${hash}`, { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(500);
+      const file = path.join(outDir, `screenshot-${name}${synth === 'sub1' ? '' : `-${synth}`}.png`);
+      await page.screenshot({ path: file });
+      files.push(path.relative(process.cwd(), file));
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+    server.close();
+  }
+  console.log(
+    `${files.length} screenshots (${synth}) in ${path.relative(process.cwd(), outDir)}/: ${SHOTS.map((s) => s[0]).join(', ')}`
+  );
 }
 
-const indexHtmlPath = path.resolve(__dirname, '..', 'index.html').replace(/\\/g, '/');
-const fileUrl = 'file:///' + indexHtmlPath;
-
-console.log('Using browser:', CHROME_PATH);
-
-const desktopShot = path.join(screenshotsDir, 'screenshot-desktop.png');
-const mobileShot = path.join(screenshotsDir, 'screenshot-mobile.png');
-const phonePortraitShot = path.join(screenshotsDir, 'screenshot-phone-portrait.png');
-
-const tempProfile = path.join(__dirname, '..', 'scratch', 'temp-profile');
-if (!fs.existsSync(tempProfile)) fs.mkdirSync(tempProfile, { recursive: true });
-
-console.log('1. Capturing desktop screenshot (1440x920)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=1440,920 --screenshot="${desktopShot}" "${fileUrl}#synth"`,
-  { stdio: 'inherit' }
-);
-
-const ipadShot = path.join(screenshotsDir, 'screenshot-ipad.png');
-console.log('1b. Capturing iPad landscape screenshot (1024x768)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=1024,768 --screenshot="${ipadShot}" "${fileUrl}#synth"`,
-  { stdio: 'inherit' }
-);
-
-console.log('2. Capturing mobile screenshot (750x1334)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=750,1334 --screenshot="${mobileShot}" "${fileUrl}#drums"`,
-  { stdio: 'inherit' }
-);
-
-console.log('3. Capturing phone portrait screenshot (360x780)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=360,780 --screenshot="${phonePortraitShot}" "${fileUrl}#synth"`,
-  { stdio: 'inherit' }
-);
-
-const phoneFullShot = path.join(screenshotsDir, 'screenshot-phone-full.png');
-console.log('4. Capturing phone full-page screenshot (360x1200)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=360,1200 --screenshot="${phoneFullShot}" "${fileUrl}#synth"`,
-  { stdio: 'inherit' }
-);
-
-const phoneLandscapeShot = path.join(screenshotsDir, 'screenshot-phone-landscape.png');
-console.log('5. Capturing phone landscape screenshot (844x390)...');
-execSync(
-  `"${CHROME_PATH}" --headless=new --user-data-dir="${tempProfile}" --disable-gpu --window-size=844,390 --screenshot="${phoneLandscapeShot}" "${fileUrl}#synth"`,
-  { stdio: 'inherit' }
-);
-
-console.log('✓ Desktop screenshot:', fs.statSync(desktopShot).size, 'bytes');
-console.log('✓ Mobile screenshot:', fs.statSync(mobileShot).size, 'bytes');
-console.log('✓ Phone portrait screenshot:', fs.statSync(phonePortraitShot).size, 'bytes');
-console.log('✓ Phone landscape screenshot:', fs.statSync(phoneLandscapeShot).size, 'bytes');
+main().catch((err) => {
+  console.error(`capture-screenshots: ${err.message}`);
+  process.exit(1);
+});

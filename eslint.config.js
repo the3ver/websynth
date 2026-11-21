@@ -63,8 +63,8 @@ module.exports = [
     rules
   },
   {
-    // probe() runs inside the page via page.evaluate
-    files: ['scripts/layout-check.js'],
+    // page.evaluate callbacks run inside the page
+    files: ['scripts/layout-check.js', 'scripts/capture-screenshots.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } }
   }
 ];
