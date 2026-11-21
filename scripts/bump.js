@@ -3,7 +3,7 @@
  * Release version in one step: node scripts/bump.js [patch|minor|major|X.Y.Z] (default patch).
  * package.json is the source; VERSION_LOCATIONS lists every other place that repeats it.
  * test/release-consistency.test.js reads the same table, so a new place needs one row here.
- * Changelog texts (README "NEU in vX", "Was gibt's Neues" modal) stay hand-written.
+ * Changelog texts (README "NEW in vX" / "NEU in vX", "Was gibt's Neues" modal) stay hand-written.
  */
 const fs = require('fs');
 const path = require('path');
