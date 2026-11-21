@@ -20,13 +20,13 @@ class DrumUI {
     this.closeDrawerBtn = document.getElementById('closeDrumDrawerBtn');
 
     this.playBtn = document.getElementById('drumPlayBtn');
-    this.bpmInput = document.getElementById('drumBpmInput');
+    this.bpmInput = /** @type {HTMLInputElement} */ (document.getElementById('drumBpmInput'));
     this.bpmUpBtn = document.getElementById('drumBpmUpBtn');
     this.bpmDownBtn = document.getElementById('drumBpmDownBtn');
     this.tapBtn = document.getElementById('drumTapBtn');
-    this.swingKnob = document.getElementById('drumSwingKnob');
-    this.volumeSlider = document.getElementById('drumVolumeSlider');
-    this.kitSelect = document.getElementById('drumKitSelect');
+    this.swingKnob = /** @type {HTMLInputElement} */ (document.getElementById('drumSwingKnob'));
+    this.volumeSlider = /** @type {HTMLInputElement} */ (document.getElementById('drumVolumeSlider'));
+    this.kitSelect = /** @type {HTMLSelectElement} */ (document.getElementById('drumKitSelect'));
     this.clearBtn = document.getElementById('drumClearBtn');
     this.syncToggleBtn = document.getElementById('drumSyncToggleBtn');
 
@@ -81,7 +81,10 @@ class DrumUI {
     // Keyboard shortcut: Shift + D toggles Drum Machine
     window.addEventListener('keydown', (e) => {
       if (e.shiftKey && (e.code === 'KeyD' || e.key === 'D')) {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        if (
+          /** @type {HTMLElement} */ (e.target).tagName !== 'INPUT' &&
+          /** @type {HTMLElement} */ (e.target).tagName !== 'TEXTAREA'
+        ) {
           e.preventDefault();
           toggleDrawer();
         }
@@ -158,8 +161,8 @@ class DrumUI {
     if (this.bpmInput) {
       this.bpmInput.value = this.drum.bpm;
       this.bpmInput.addEventListener('change', (e) => {
-        this.setTempo(e.target.value);
-        e.target.blur();
+        this.setTempo(/** @type {HTMLInputElement} */ (e.target).value);
+        /** @type {HTMLElement} */ (e.target).blur();
       });
     }
 
@@ -183,20 +186,20 @@ class DrumUI {
   initMixControls() {
     if (this.swingKnob) {
       this.swingKnob.addEventListener('input', (e) => {
-        this.drum.setSwing(parseFloat(e.target.value));
+        this.drum.setSwing(parseFloat(/** @type {HTMLInputElement} */ (e.target).value));
         this.renderSwingReadout();
       });
-      this.swingKnob.addEventListener('change', (e) => e.target.blur());
+      this.swingKnob.addEventListener('change', (e) => /** @type {HTMLElement} */ (e.target).blur());
     }
 
     if (this.volumeSlider) {
       this.volumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
+        const val = parseFloat(/** @type {HTMLInputElement} */ (e.target).value);
         this.drum.setVolume(val);
         const readout = document.getElementById('drumVolReadout');
         if (readout) readout.textContent = `${Math.round(val * 100)}%`;
       });
-      this.volumeSlider.addEventListener('change', (e) => e.target.blur());
+      this.volumeSlider.addEventListener('change', (e) => /** @type {HTMLElement} */ (e.target).blur());
     }
   }
 
@@ -370,7 +373,7 @@ class DrumUI {
       });
 
       this.kitSelect.addEventListener('change', (e) => {
-        this.drum.loadKit(e.target.value);
+        this.drum.loadKit(/** @type {HTMLInputElement} */ (e.target).value);
         this.setTempo(this.drum.bpm);
         if (this.swingKnob) this.swingKnob.value = this.drum.swing;
         this.renderSwingReadout();

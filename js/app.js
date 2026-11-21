@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     synthSelect.addEventListener('change', (e) => {
       try {
-        localStorage.setItem(STORAGE_KEY_SYNTH, e.target.value);
+        localStorage.setItem(STORAGE_KEY_SYNTH, /** @type {HTMLInputElement} */ (e.target).value);
       } catch (err) {}
       const params = new URLSearchParams(window.location.search);
-      params.set('synth', e.target.value);
+      params.set('synth', /** @type {HTMLInputElement} */ (e.target).value);
       window.location.search = params.toString();
     });
   }
@@ -70,20 +70,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const openChangelogBtn = document.getElementById('openChangelogBtn');
   const closeChangelogBtn = document.getElementById('closeChangelogBtn');
   const startWithNewVersionBtn = document.getElementById('startWithNewVersionBtn');
-  const dontShowChangelogCheck = document.getElementById('dontShowChangelogCheck');
+  const dontShowChangelogCheck = /** @type {HTMLInputElement} */ (document.getElementById('dontShowChangelogCheck'));
   const changelogModal = document.getElementById('changelogModal');
 
   // Master Volume Slider
   masterVolumeInput.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
+    const val = parseFloat(/** @type {HTMLInputElement} */ (e.target).value);
     masterVolumeDisplay.textContent = `${Math.round(val * 100)}%`;
     audioEngine.setMasterVolume(val);
   });
   masterVolumeInput.addEventListener('change', (e) => {
-    e.target.blur();
+    /** @type {HTMLElement} */ (e.target).blur();
   });
   masterVolumeInput.addEventListener('pointerup', (e) => {
-    e.target.blur();
+    /** @type {HTMLElement} */ (e.target).blur();
   });
 
   // Power Switch Toggle
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Hard Refresh / Reload Button
-  const hardRefreshBtn = document.getElementById('hardRefreshBtn');
+  const hardRefreshBtn = /** @type {HTMLButtonElement} */ (document.getElementById('hardRefreshBtn'));
   if (hardRefreshBtn) {
     hardRefreshBtn.addEventListener('click', async () => {
       hardRefreshBtn.classList.add('loading');

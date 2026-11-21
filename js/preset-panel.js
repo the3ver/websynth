@@ -23,13 +23,13 @@ class PresetPanel {
     this.editingPresetId = null;
 
     const $ = (id) => document.getElementById(id);
-    this.dropdown = $('presetSelectDropdown');
+    this.dropdown = /** @type {HTMLSelectElement} */ ($('presetSelectDropdown'));
     this.catTag = $('presetCatTag');
     this.modal = $('savePresetModal');
     this.modalTitle = $('savePresetModalTitle');
     this.modalDesc = $('savePresetModalDesc');
-    this.nameInput = $('userPresetNameInput');
-    this.categorySelect = $('userPresetCategorySelect');
+    this.nameInput = /** @type {HTMLInputElement} */ ($('userPresetNameInput'));
+    this.categorySelect = /** @type {HTMLSelectElement} */ ($('userPresetCategorySelect'));
     this.confirmBtn = $('confirmSavePresetBtn');
     this.saveAsNewBtn = $('saveAsNewPresetBtn');
     this.deleteBtn = $('deleteCurrentPresetBtn');
@@ -44,7 +44,7 @@ class PresetPanel {
   initBrowser() {
     if (this.dropdown) {
       this.dropdown.addEventListener('change', (e) => {
-        const preset = this.presetsList.find((p) => p.id === e.target.value);
+        const preset = this.presetsList.find((p) => p.id === /** @type {HTMLInputElement} */ (e.target).value);
         if (preset) this.apply(preset);
         DomUtils.blurTarget(e);
       });
@@ -244,6 +244,7 @@ class PresetPanel {
    */
   showTransient(preset) {
     if (!this.dropdown) return;
+    /** @type {HTMLOptionElement} */
     let opt = this.dropdown.querySelector(`option[value="${preset.id}"]`);
     if (!opt) {
       opt = document.createElement('option');

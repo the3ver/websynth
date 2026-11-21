@@ -61,3 +61,16 @@ interface Window {
   Visualizer: typeof Visualizer;
   Voice: typeof Voice;
 }
+
+/**
+ * Selector queries on this page return HTML elements; the one SVG lookup (envelope-display.js)
+ * uses only Element methods. So the default element type is HTMLElement instead of Element.
+ */
+interface ParentNode {
+  querySelector<E extends Element = HTMLElement>(selectors: string): E | null;
+  querySelectorAll<E extends Element = HTMLElement>(selectors: string): NodeListOf<E>;
+}
+
+interface Element {
+  closest<E extends Element = HTMLElement>(selectors: string): E | null;
+}

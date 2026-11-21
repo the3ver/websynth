@@ -261,7 +261,7 @@ class SynthUI {
     // Click on tab smoothly scrolls the carousel
     tabButtons.forEach((btn, index) => {
       btn.addEventListener('click', () => {
-        const slideIndex = parseInt(btn.dataset.slideIndex ?? index, 10);
+        const slideIndex = btn.dataset.slideIndex === undefined ? index : parseInt(btn.dataset.slideIndex, 10);
         const targetSlide = moduleSlides[slideIndex];
         if (targetSlide) {
           modularSurface.scrollTo({
@@ -299,11 +299,13 @@ class SynthUI {
 
   initPerformanceControls() {
     this.octaveValueDisplay = document.getElementById('octaveValueDisplay');
-    this.glideToggle = document.getElementById('glideToggle');
+    this.glideToggle = /** @type {HTMLInputElement} */ (document.getElementById('glideToggle'));
 
     document.getElementById('octaveDownBtn').addEventListener('click', () => this.shiftOctave(-1));
     document.getElementById('octaveUpBtn').addEventListener('click', () => this.shiftOctave(1));
-    this.glideToggle.addEventListener('change', (e) => this.engine.setGlide(e.target.checked));
+    this.glideToggle.addEventListener('change', (e) =>
+      this.engine.setGlide(/** @type {HTMLInputElement} */ (e.target).checked)
+    );
 
     this.pitchWheel = new PerformanceWheel(document.getElementById('pitchWheel'), true, (val) => {
       this.engine.setPitchBend(Math.pow(2, (val * 2) / 12)); // +-2 semitones
@@ -378,7 +380,7 @@ class SynthUI {
       const select = document.getElementById(id);
       if (select)
         select.addEventListener('change', (e) => {
-          apply(e.target.value);
+          apply(/** @type {HTMLInputElement} */ (e.target).value);
           DomUtils.blurTarget(e);
         });
     };

@@ -15,7 +15,7 @@ const DomUtils = {
    */
   onRangeInput(id, handler) {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('input', (e) => handler(parseFloat(e.target.value)));
+    if (el) el.addEventListener('input', (e) => handler(parseFloat(/** @type {HTMLInputElement} */ (e.target).value)));
     return el;
   }
 };
