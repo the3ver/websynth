@@ -54,3 +54,7 @@ pnpm-debug.log*
 scratch/
 tmp/
 temp/
+
+# Claude Code: shared config is tracked, local overrides and worktrees are not
+.claude/settings.local.json
+.claude/worktrees/
