@@ -1,0 +1,4 @@
+# LF everywhere (Windows checkouts with core.autocrlf=true wrote CRLF before), binaries untouched
+* text=auto eol=lf
+*.png binary
+*.ico binary
