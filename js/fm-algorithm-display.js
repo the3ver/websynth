@@ -2,15 +2,15 @@
  * FM-4 • ALGORITHM ROUTING DISPLAY
  * Draws the routing of FmAlgorithms.ALGORITHMS as a small LCD-style SVG: operators C, A, B1, B2,
  * modulation lines, a feedback loop on the feedback operator and the two outputs X and Y.
+ * All algorithms share one canvas, as tight as the largest drawing, each drawing centred on it.
  * Operators that modulate nothing sit on the bottom row; a modulator sits one row above the
  * deepest operator it modulates, centred over its targets.
- * layout() and svg() are DOM-free (unit tested); render() writes into the panel.
+ * layout(), bounds() and svg() are DOM-free (unit tested); render() writes into the panel.
  */
 const FmAlgorithmDisplay = (() => {
   const BOX = 22; // operator box size
   const COL = 36; // horizontal distance between columns
   const ROW = 34; // vertical distance between rows
-  const PAD = 10;
   const BUS_GAP = 12; // bottom box edge to bus X; bus Y sits BUS_STEP below
   const BUS_STEP = 9;
 
@@ -173,34 +173,66 @@ const FmAlgorithmDisplay = (() => {
     return { parts, box };
   }
 
-  function svg(algorithm) {
-    const l = layout(algorithm);
-    if (!l) return '';
-    // Fixed canvas for 4 columns and 4 rows, so the display keeps its size for every algorithm;
-    // the routing sits centred horizontally and on the bottom (next to the buses)
-    const xs = l.nodes.map((n) => n.x);
-    const minX = Math.min(...xs);
-    const contentWidth = (Math.max(...xs) - minX) * COL + BOX;
-    const width = 3 * COL + BOX + PAD * 2 + 16;
-    const height = PAD + 3 * ROW + BOX + BUS_GAP + BUS_STEP + 10;
-    const left0 = (width - contentWidth) / 2;
-    const { parts } = drawing(l, (n) => ({ cx: left0 + BOX / 2 + (n.x - minX) * COL, top: PAD + (3 - n.row) * ROW }));
+  const MARGIN = 3; // canvas edge to the outermost stroke of the widest / tallest drawing
 
+  // Operator positions with the top row at 0 and the columns around x = 0
+  const local = (l) => (n) => ({ cx: BOX / 2 + n.x * COL, top: (l.rows - 1 - n.row) * ROW });
+
+  // One canvas for all algorithms: the widest and tallest drawing plus MARGIN, so the display keeps its size
+  let canvasSize = null;
+  function canvas() {
+    if (!canvasSize) {
+      let width = 0;
+      let height = 0;
+      for (const n of Object.keys(FmAlgorithms.ALGORITHMS)) {
+        const l = layout(Number(n));
+        const { box } = drawing(l, local(l));
+        width = Math.max(width, box.maxX - box.minX);
+        height = Math.max(height, box.maxY - box.minY);
+      }
+      canvasSize = { width: width + 2 * MARGIN, height: height + 2 * MARGIN };
+    }
+    return canvasSize;
+  }
+
+  // The drawing of one algorithm centred on the canvas
+  function placed(algorithm) {
+    const l = layout(algorithm);
+    if (!l) return null;
+    const place = local(l);
+    const { box } = drawing(l, place);
+    const { width, height } = canvas();
+    const dx = (width - (box.maxX - box.minX)) / 2 - box.minX;
+    const dy = (height - (box.maxY - box.minY)) / 2 - box.minY;
+    return drawing(l, (n) => {
+      const p = place(n);
+      return { cx: p.cx + dx, top: p.top + dy };
+    });
+  }
+
+  /** Bounding box of one algorithm's drawing on the canvas. */
+  function bounds(algorithm) {
+    const d = placed(algorithm);
+    return d ? d.box : null;
+  }
+
+  function svg(algorithm) {
+    const d = placed(algorithm);
+    if (!d) return '';
+    const { width, height } = canvas();
     return (
-      `<svg class="fm-alg-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" ` +
-      `aria-label="Algorithmus ${algorithm}: ${caption(algorithm)}">${parts.join('')}</svg>`
+      `<svg class="fm-alg-svg" viewBox="0 0 ${width} ${height}" role="img" ` +
+      `aria-label="Algorithmus ${algorithm}: ${caption(algorithm)}">${d.parts.join('')}</svg>`
     );
   }
 
-  // Writes diagram and caption into the display element (ids from index.html)
+  // Writes the diagram into the display element (id from index.html); the routing text stays in aria-label
   function render(algorithm, doc = document) {
     const screen = doc.getElementById('fmAlgorithmDiagram');
-    const label = doc.getElementById('fmAlgorithmCaption');
     if (screen) screen.innerHTML = svg(algorithm);
-    if (label) label.textContent = caption(algorithm);
   }
 
-  return { layout, caption, svg, render };
+  return { MARGIN, layout, caption, bounds, svg, render };
 })();
 
 window.FmAlgorithmDisplay = FmAlgorithmDisplay;

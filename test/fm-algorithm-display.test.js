@@ -72,3 +72,66 @@ test('unknown algorithms draw nothing', () => {
   assert.equal(svg(42), '');
   assert.equal(caption(42), '');
 });
+
+// --- Graphic only, tight fixed canvas ---
+const fs = require('fs');
+const path = require('path');
+const viewBox = (n) =>
+  svg(n)
+    .match(/viewBox="([^"]+)"/)[1]
+    .split(' ')
+    .map(Number);
+const algorithms = () => Object.keys(FmAlgorithms.ALGORITHMS).map(Number);
+
+test('every drawing lies inside the canvas, centred, and the widest and tallest ones fill it up to the margin', () => {
+  const { MARGIN } = FmAlgorithmDisplay;
+  const [, , width, height] = viewBox(1);
+  let widest = 0;
+  let tallest = 0;
+  for (const n of algorithms()) {
+    const b = FmAlgorithmDisplay.bounds(n);
+    assert.ok(b.minX >= MARGIN - 0.01 && b.minY >= MARGIN - 0.01, `algorithm ${n} left/top`);
+    assert.ok(b.maxX <= width - MARGIN + 0.01 && b.maxY <= height - MARGIN + 0.01, `algorithm ${n} right/bottom`);
+    assert.ok(Math.abs(b.minX - (width - b.maxX)) < 0.01, `algorithm ${n} centred horizontally`);
+    assert.ok(Math.abs(b.minY - (height - b.maxY)) < 0.01, `algorithm ${n} centred vertically`);
+    widest = Math.max(widest, b.maxX - b.minX);
+    tallest = Math.max(tallest, b.maxY - b.minY);
+  }
+  assert.ok(Math.abs(width - 2 * MARGIN - widest) < 0.01, `canvas width ${width} vs widest drawing ${widest}`);
+  assert.ok(Math.abs(height - 2 * MARGIN - tallest) < 0.01, `canvas height ${height} vs tallest drawing ${tallest}`);
+});
+
+test('the display shows only the graphic: no routing caption in the page or written by render()', () => {
+  const html = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
+  assert.ok(!html.includes('fmAlgorithmCaption'));
+  const written = {};
+  const doc = { getElementById: (id) => (written[id] = { innerHTML: '', textContent: '' }) };
+  FmAlgorithmDisplay.render(2, doc);
+  assert.deepEqual(Object.keys(written), ['fmAlgorithmDiagram']);
+  assert.match(written.fmAlgorithmDiagram.innerHTML, /^<svg /);
+});
+
+test('the display has one fixed size on every screen, in the aspect ratio of the canvas', () => {
+  const css = fs.readFileSync(path.resolve(__dirname, '..', 'css', 'style.css'), 'utf8');
+  const rules = Array.from(css.matchAll(/([^{}]*\.fm-alg-(?:display|screen|svg)\b[^{}]*)\{([^}]*)\}/g));
+  const display = rules.filter(([, sel]) => /\.fm-alg-display\s*$/.test(sel.trim()));
+  assert.equal(display.length, 1, 'exactly one .fm-alg-display rule, none inside media queries');
+  const px = (prop) => Number((display[0][2].match(new RegExp(`(?:^|[;\\s])${prop}:\\s*(\\d+)px`)) || [])[1]);
+  const [w, h] = [px('width'), px('height')];
+  assert.ok(w > 0 && h > 0, 'width and height in px');
+  const [, , cw, ch] = viewBox(1);
+  // Inner box (minus padding and border) matches the canvas aspect within 3 %
+  const pad = Number((display[0][2].match(/padding:\s*(\d+)px/) || [])[1] || 0) + 1;
+  assert.ok(Math.abs((w - 2 * pad) / (h - 2 * pad) - cw / ch) < 0.03 * (cw / ch), `${w}x${h} vs canvas ${cw}x${ch}`);
+  const overrides = rules.filter(
+    ([sel, body]) =>
+      !display.includes(rules.find((r) => r[1] === sel && r[2] === body)) &&
+      /(^|[;\s])(max-|min-)?(width|height):/.test(body) &&
+      !/:\s*100%/.test(body)
+  );
+  assert.deepEqual(
+    overrides.map(([sel]) => sel.trim()),
+    [],
+    'no other rule sizes the display or the graphic'
+  );
+});
