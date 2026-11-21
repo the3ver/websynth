@@ -2,8 +2,10 @@
  * SYNTH BLOCKS • STEREO EFFECTS
  * Bitcrusher, chorus (Juno-style BBD), ping-pong tape delay and convolution reverb. Each effect has
  * an input and an output node and mixes dry and wet internally. Settings are live objects
- * ({ bits, rate, mix }, { mode, mix }, { time, feedback, mix }, { decay, mix }); apply*() pushes
- * changes to the nodes.
+ * ({ bits, rate, mix }, { mode, mix }, { time, sync, division, bpm, feedback, mix }, { decay, mix });
+ * apply*() pushes changes to the nodes.
+ * The delay runs on free time (seconds) or, with sync, on a note value (Delay.DIVISIONS) at the
+ * clock tempo bpm; Delay.noteSeconds() converts.
  * Classic script: attaches to the window.SynthBlocks namespace.
  */
 (function (blocks) {
@@ -143,7 +145,9 @@
   }
 
   /**
-   * STEREO TAPE DELAY: L/R delay lines at a 4:3 time ratio, each with a high-cut feedback loop
+   * STEREO TAPE DELAY: L/R delay lines at a 4:3 time ratio, each with a high-cut feedback loop.
+   * Free mode uses settings.time, sync mode settings.division at settings.bpm; longer times clamp
+   * so the right line stops at MAX_TIME and the 4:3 spread stays.
    */
   class Delay {
     constructor(ctx, settings) {
@@ -202,8 +206,18 @@
      * [left, right] delay line times in seconds for the current settings
      */
     lineTimes() {
-      const time = this.settings.time;
-      return [time, time * Delay.STEREO_RATIO];
+      const { time, sync, division, bpm } = this.settings;
+      const base = Math.min(sync ? Delay.noteSeconds(division, bpm) : time, Delay.MAX_TIME / Delay.STEREO_RATIO);
+      return [base, base * Delay.STEREO_RATIO];
+    }
+
+    /**
+     * Seconds of a note value ('1/8', dotted '1/8d', triplet '1/8t') at bpm quarter notes per minute
+     */
+    static noteSeconds(division, bpm) {
+      const [, denominator, kind] = /^1\/(\d+)([dt]?)$/.exec(division) || [null, '8', ''];
+      const factor = kind === 'd' ? 1.5 : kind === 't' ? 2 / 3 : 1;
+      return ((4 / Number(denominator)) * factor * 60) / bpm;
     }
 
     applyTime() {
@@ -280,8 +294,24 @@
   // [LFO rate Hz, delay modulation depth s] per chorus mode; 'off' and unknown modes use the default
   Chorus.MODES = { I: [0.45, 0.003], II: [0.85, 0.0045], 'I+II': [1.35, 0.0065] };
   Delay.STEREO_RATIO = 1.333;
-  // Longest time a delay line holds (seconds)
-  Delay.MAX_TIME = 2.0;
+  // Longest time a delay line holds (seconds); the left line stops at MAX_TIME / STEREO_RATIO (3 s)
+  Delay.MAX_TIME = 4.0;
+  // Note values of the synced delay, shortest first (the order of the NOTE knob)
+  Delay.DIVISIONS = [
+    '1/16t',
+    '1/16',
+    '1/16d',
+    '1/8t',
+    '1/8',
+    '1/8d',
+    '1/4t',
+    '1/4',
+    '1/4d',
+    '1/2t',
+    '1/2',
+    '1/2d',
+    '1/1'
+  ];
 
   Object.assign(blocks, { Crusher, Chorus, Delay, Reverb });
 })(/** @type {any} */ (window.SynthBlocks = window.SynthBlocks || {}));

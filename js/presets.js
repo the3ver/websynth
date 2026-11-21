@@ -28,7 +28,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.7 },
-        delay: { time: 0.38, feedback: 0.5, mix: 0.4 },
+        delay: { time: 0.38, sync: false, division: '1/8', feedback: 0.5, mix: 0.4 },
         reverb: { decay: 4.8, mix: 0.55 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -53,7 +53,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
-        delay: { time: 0.2, feedback: 0.0, mix: 0.0 },
+        delay: { time: 0.2, sync: false, division: '1/8', feedback: 0.0, mix: 0.0 },
         reverb: { decay: 1.0, mix: 0.05 }
       },
       performance: { glide: false, octaveShift: -1 }
@@ -78,7 +78,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'II', mix: 0.8 },
-        delay: { time: 0.26, feedback: 0.4, mix: 0.35 },
+        delay: { time: 0.26, sync: false, division: '1/8', feedback: 0.4, mix: 0.35 },
         reverb: { decay: 2.2, mix: 0.3 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -103,7 +103,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
-        delay: { time: 0.28, feedback: 0.45, mix: 0.3 },
+        delay: { time: 0.28, sync: false, division: '1/8', feedback: 0.45, mix: 0.3 },
         reverb: { decay: 1.8, mix: 0.2 }
       },
       performance: { glide: true, octaveShift: -1 }
@@ -128,7 +128,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.6 },
-        delay: { time: 0.32, feedback: 0.2, mix: 0.15 },
+        delay: { time: 0.32, sync: false, division: '1/8', feedback: 0.2, mix: 0.15 },
         reverb: { decay: 2.8, mix: 0.35 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -153,7 +153,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'off', mix: 0.0 },
-        delay: { time: 0.34, feedback: 0.55, mix: 0.45 },
+        delay: { time: 0.34, sync: false, division: '1/8', feedback: 0.55, mix: 0.45 },
         reverb: { decay: 3.5, mix: 0.4 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -178,7 +178,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I+II', mix: 0.75 },
-        delay: { time: 0.48, feedback: 0.55, mix: 0.45 },
+        delay: { time: 0.48, sync: false, division: '1/8', feedback: 0.55, mix: 0.45 },
         reverb: { decay: 6.5, mix: 0.65 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -203,7 +203,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.35 },
-        delay: { time: 0.18, feedback: 0.2, mix: 0.15 },
+        delay: { time: 0.18, sync: false, division: '1/8', feedback: 0.2, mix: 0.15 },
         reverb: { decay: 1.2, mix: 0.15 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -228,7 +228,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.85 },
-        delay: { time: 0.36, feedback: 0.3, mix: 0.25 },
+        delay: { time: 0.36, sync: false, division: '1/8', feedback: 0.3, mix: 0.25 },
         reverb: { decay: 3.8, mix: 0.45 }
       },
       performance: { glide: false, octaveShift: 0 }
@@ -253,7 +253,7 @@ const FACTORY_PRESETS = [
       fx: {
         crusher: { bits: 8, rate: 11000, mix: 0.0 },
         chorus: { mode: 'I', mix: 0.4 },
-        delay: { time: 0.42, feedback: 0.5, mix: 0.4 },
+        delay: { time: 0.42, sync: false, division: '1/8', feedback: 0.5, mix: 0.4 },
         reverb: { decay: 4.2, mix: 0.5 }
       },
       performance: { glide: true, octaveShift: 1 }
@@ -281,7 +281,7 @@ const INIT_PRESET = {
     fx: {
       crusher: { bits: 8, rate: 11000, mix: 0.0 },
       chorus: { mode: 'off', mix: 0.65 },
-      delay: { time: 0.32, feedback: 0.45, mix: 0.0 },
+      delay: { time: 0.32, sync: false, division: '1/8', feedback: 0.45, mix: 0.0 },
       reverb: { decay: 3.2, mix: 0.0 }
     },
     performance: { glide: false, octaveShift: 0 }

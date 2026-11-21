@@ -16,7 +16,20 @@
  */
 
 // Button rows of the shared FX rack (markup without data-synth), part of every synth definition
-const FX_BUTTON_GROUPS = [{ path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' }];
+const FX_BUTTON_GROUPS = [
+  { path: 'fx.chorus.mode', selector: '#chorusModeRow .chorus-mode-btn', key: 'mode' },
+  {
+    path: 'fx.delay.sync',
+    selector: '#delaySyncRow .chorus-mode-btn',
+    key: 'sync',
+    parse: (v) => v === 'true',
+    // The delay page shows the TIME knob when free, the NOTE knob when synced
+    onRender: (sync) => {
+      const page = document.querySelector('[data-fx-page="delay"]');
+      if (page) page.classList.toggle('delay-synced', sync);
+    }
+  }
+];
 
 const SYNTH_DEFINITIONS = {
   sub1: {

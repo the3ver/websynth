@@ -64,7 +64,10 @@ class PolySynthEngine {
         mix: 0.65 // 0.0 to 1.0
       },
       delay: {
-        time: 0.32, // 0.02 to 1.0s
+        time: 0.32, // 0.02 to 1.0s (free mode)
+        sync: false, // true: note value at the clock tempo instead of time
+        division: '1/8', // SynthBlocks.Delay.DIVISIONS
+        bpm: 120, // clock tempo of the arpeggiator (internal or drum sync), not part of a patch
         feedback: 0.45, // 0.0 to 0.9
         mix: 0.0 // 0.0 to 1.0
       },
@@ -342,6 +345,26 @@ class PolySynthEngine {
   setDelayTime(val) {
     this.fx.delay.time = Math.max(0.02, Math.min(1.0, parseFloat(val)));
     if (this.fxChain) this.fxChain.delay.applyTime();
+  }
+
+  setDelaySync(val) {
+    this.fx.delay.sync = val === true || val === 'true';
+    if (this.fxChain) this.fxChain.delay.applyTime();
+  }
+
+  setDelayDivision(val) {
+    this.fx.delay.division = SynthBlocks.Delay.DIVISIONS.includes(val) ? val : '1/8';
+    if (this.fxChain) this.fxChain.delay.applyTime();
+  }
+
+  /**
+   * Tempo of the clock the arpeggiator runs on (ArpEngine.clockBpm); a synced delay follows it
+   */
+  setClockTempo(bpm) {
+    const value = Math.max(20, Math.min(400, parseFloat(bpm) || 120));
+    if (value === this.fx.delay.bpm) return;
+    this.fx.delay.bpm = value;
+    if (this.fxChain && this.fx.delay.sync) this.fxChain.delay.applyTime();
   }
 
   setDelayFeedback(val) {

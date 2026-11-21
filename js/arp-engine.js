@@ -37,6 +37,9 @@ class ArpEngine {
     this.syncMode = 'internal'; // 'internal' or 'external' (Drum Master Sync)
     this.drumEngine = null;
     this.syncModeListeners = []; // (mode) => void, e.g. synth panel and drum rack sync buttons
+    /** @type {number | null} drum machine tempo (setExternalTempo, clock ticks), used in external mode */
+    this.externalBpm = null;
+    this.reportedBpm = 0; // clock tempo last passed to audio.setClockTempo (synced delay)
 
     // Web Audio Lookahead Clock Timer (Web Worker + Main Thread Fallback)
     this.worker = null;
@@ -53,6 +56,32 @@ class ArpEngine {
     this.updownDirection = 1; // 1 = up, -1 = down
 
     this.initClockWorker();
+    this.reportTempo();
+  }
+
+  /**
+   * Tempo of the clock the arpeggiator runs on: its own BPM, or the drum machine's in external mode
+   */
+  clockBpm() {
+    return this.syncMode === 'external' && this.externalBpm ? this.externalBpm : this.bpm;
+  }
+
+  /**
+   * Passes a changed clock tempo to the synth engine (tempo-synced delay)
+   */
+  reportTempo() {
+    const bpm = this.clockBpm();
+    if (Math.abs(bpm - this.reportedBpm) < 1e-6) return;
+    this.reportedBpm = bpm;
+    if (this.audio && this.audio.setClockTempo) this.audio.setClockTempo(bpm);
+  }
+
+  /**
+   * Drum machine tempo, also known while its transport stands still
+   */
+  setExternalTempo(bpm) {
+    this.externalBpm = parseFloat(bpm) || null;
+    this.reportTempo();
   }
 
   /**
@@ -152,6 +181,7 @@ class ArpEngine {
   setSyncMode(mode) {
     this.syncMode = mode === 'external' ? 'external' : 'internal';
     this.syncModeListeners.forEach((listener) => listener(this.syncMode));
+    this.reportTempo();
     if (this.syncMode === 'external') {
       if (this.isRunning) this.stopClock();
     } else {
@@ -174,6 +204,7 @@ class ArpEngine {
   }
 
   handleExternalClockTick(stepIndex, time, beatSec) {
+    if (beatSec > 0) this.setExternalTempo(60 / beatSec);
     if (this.syncMode !== 'external' || !this.enabled) return;
     if (this.heldKeys.length === 0 && (!this.latch || this.latchedKeys.length === 0)) return;
 
@@ -201,6 +232,7 @@ class ArpEngine {
 
   setBpm(bpm) {
     this.bpm = Math.max(40, Math.min(280, parseFloat(bpm)));
+    this.reportTempo();
   }
 
   setDivision(div) {

@@ -87,3 +87,25 @@ test('preset storage keys are distinct per synth', () => {
   const keys = definitions.map((s) => s.presetStorageKey);
   assert.equal(new Set(keys).size, keys.length);
 });
+
+test('both synths switch the shared delay between FREE and SYNC', () => {
+  for (const synth of definitions) {
+    const group = synth.buttonGroups.find((g) => g.path === 'fx.delay.sync');
+    assert.ok(group, synth.id);
+    assert.equal(group.parse('true'), true);
+    assert.equal(group.parse('false'), false);
+  }
+});
+
+test('the FREE/SYNC row swaps TIME and NOTE knobs on the delay page', () => {
+  const calls = [];
+  const page = { classList: { toggle: (name, on) => calls.push([name, on]) } };
+  context.document = { querySelector: (sel) => (sel === '[data-fx-page="delay"]' ? page : null) };
+  const group = SynthRegistry.get('fm').buttonGroups.find((g) => g.path === 'fx.delay.sync');
+  group.onRender(true);
+  group.onRender(false);
+  assert.deepEqual(calls, [
+    ['delay-synced', true],
+    ['delay-synced', false]
+  ]);
+});

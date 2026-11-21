@@ -2655,6 +2655,12 @@ polyline.fm-alg-out {
   height: 24px;
 }
 
+/* Delay page: TIME knob in free mode, NOTE knob in sync mode */
+.fx-page:not(.delay-synced) .delay-sync-only,
+.fx-page.delay-synced .delay-free-only {
+  display: none;
+}
+
 .fx-knobs-row {
   display: flex;
   justify-content: space-around;

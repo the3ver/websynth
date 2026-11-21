@@ -154,6 +154,7 @@ class DrumUI {
   setTempo(bpm) {
     this.drum.setBpm(bpm);
     if (this.bpmInput) this.bpmInput.value = this.drum.bpm;
+    if (this.arp) this.arp.setExternalTempo(this.drum.bpm);
     if (this.arp && this.arp.syncMode === 'external') this.arp.setBpm(this.drum.bpm);
   }
 
@@ -411,6 +412,7 @@ class DrumUI {
     if (this.arp && this.drum) {
       // Register Synth Arp as sync slave on the Drum Engine
       this.drum.registerSyncSlave(this.arp);
+      this.arp.setExternalTempo(this.drum.bpm);
     }
 
     // Drum Machine Sync Master Status Button

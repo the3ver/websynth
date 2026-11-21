@@ -25,7 +25,13 @@ const PatchRandomizer = (() => {
       // Crusher rarely: a random patch should stay playable, not turn every sound lo-fi
       crusher: { bits: t.range(3, 10, 0), rate: t.logRange(2000, 16000, 0), mix: t.chance(0.15) ? t.range(0.3, 1) : 0 },
       chorus: { mode: t.pick(['off', 'off', 'I', 'II', 'I+II']), mix: t.range(0.3, 0.8) },
-      delay: { time: t.range(0.12, 0.6), feedback: t.range(0.2, 0.6), mix: t.chance(0.4) ? t.low(0.05, 0.35) : 0 },
+      delay: {
+        time: t.range(0.12, 0.6),
+        sync: false,
+        division: '1/8',
+        feedback: t.range(0.2, 0.6),
+        mix: t.chance(0.4) ? t.low(0.05, 0.35) : 0
+      },
       reverb: { decay: t.range(1.2, 5), mix: t.chance(0.6) ? t.low(0.05, 0.4) : 0 }
     };
   }

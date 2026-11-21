@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.39-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.40-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -9,6 +9,11 @@
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+### ⚡ NEU in v1.8.40: Delay im Takt des Arpeggiators
+- **⏱️ SYNC:** Die Delay-Seite im FX-Rack hat die Tasten FREE und SYNC. Bei SYNC ersetzt der Regler NOTE den TIME-Regler: 1/16 bis 1/1, dazu punktiert (z. B. 1/8.) und triolisch (z. B. 1/8T). Gilt für SUB-1 und FM-4.
+- **🥁 Tempo:** Die Delay-Zeit folgt dem Tempo, das der Arpeggiator gerade nutzt: dem BPM-Regler (INT CLK) oder dem Drum-Takt (DRUM SYNC). Tempowechsel gleiten ohne Knacken. Die Delay-Zeit reicht jetzt bis 3 s (rechter Kanal 4 s), z. B. eine ganze Note bei 80 BPM.
+- **💾 Presets:** SYNC und Notenwert werden im Preset gespeichert, das Tempo nicht. Ältere Presets laden mit FREE und klingen wie bisher. Die Mod-Matrix moduliert DELAY TIME auch im SYNC-Modus, um die synchrone Zeit herum.
 
 ### ⚡ NEU in v1.8.39: FM-4 Algorithmus-Display nur mit Grafik, schmaleres Modul
 - **🔀 Display:** Das Algorithmus-Display des FM-4 zeigt nur noch das Routing-Bild, ohne Textzeile. Die Grafik füllt das Display bis auf einen schmalen Rand, jeder Algorithmus sitzt mittig. Das Display hat auf allen Geräten dieselbe feste Größe (105 × 156 px). Auf Desktop und iPad ist das ganze Modul 02 nur so breit wie das Display, die acht Algorithmus-Tasten sitzen kompakt darüber; die gewonnene Breite bekommen die anderen Module. Das Routing als Text steht im Tooltip der Algorithmus-Tasten.

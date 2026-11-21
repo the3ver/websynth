@@ -111,6 +111,8 @@
         { path: 'fx.chorus.mode', set: (e, v) => e.setChorusMode(v) },
         { path: 'fx.chorus.mix', knob: 'fx-chorus-mix', set: (e, v) => e.setChorusMix(v) },
         { path: 'fx.delay.time', knob: 'fx-delay-time', set: (e, v) => e.setDelayTime(v) },
+        { path: 'fx.delay.sync', set: (e, v) => e.setDelaySync(v) },
+        { path: 'fx.delay.division', knob: 'fx-delay-division', set: (e, v) => e.setDelayDivision(v) },
         { path: 'fx.delay.feedback', knob: 'fx-delay-feedback', set: (e, v) => e.setDelayFeedback(v) },
         { path: 'fx.delay.mix', knob: 'fx-delay-mix', set: (e, v) => e.setDelayMix(v) },
         { path: 'fx.reverb.decay', knob: 'fx-reverb-decay', set: (e, v) => e.setReverbDecay(v) },

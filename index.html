@@ -109,7 +109,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.39</span>
+          <span class="version-tag">v1.8.40</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1047,13 +1047,25 @@
                       <span>TAPE DELAY</span>
                       <span class="fx-tag">PING-PONG</span>
                     </div>
+                    <div class="chorus-mode-row" id="delaySyncRow">
+                      <button class="chorus-mode-btn active" data-sync="false" title="Freie Delay-Zeit (TIME in ms)">FREE</button>
+                      <button class="chorus-mode-btn" data-sync="true" title="Delay-Zeit als Notenwert im Tempo des ARP (intern oder Drum-Sync)">SYNC</button>
+                    </div>
                     <div class="fx-knobs-row">
-                      <div class="synth-knob-wrapper">
+                      <div class="synth-knob-wrapper delay-free-only">
                         <div class="synth-knob-housing" data-param="fx-delay-time" data-min="0.02" data-max="1.0" data-step="0.01" data-default="0.32" data-type="time">
                           <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
                         </div>
                         <span class="knob-label-text">TIME</span>
                         <span class="knob-readout-badge" id="fx-delay-time-readout">320 ms</span>
+                      </div>
+
+                      <div class="synth-knob-wrapper delay-sync-only">
+                        <div class="synth-knob-housing" data-param="fx-delay-division" data-values="1/16t,1/16,1/16d,1/8t,1/8,1/8d,1/4t,1/4,1/4d,1/2t,1/2,1/2d,1/1" data-default="1/8" data-type="note">
+                          <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                        </div>
+                        <span class="knob-label-text">NOTE</span>
+                        <span class="knob-readout-badge" id="fx-delay-division-readout">1/8</span>
                       </div>
 
                       <div class="synth-knob-wrapper">
@@ -1689,7 +1701,7 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.39</span>
+            <span class="release-version-number">v1.8.40</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
@@ -1699,6 +1711,21 @@
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">⏱️</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>Delay im Takt des Arpeggiators</h3>
+              <p>Auf der Delay-Seite im FX-Rack schaltest du zwischen FREE (Zeit in ms) und SYNC (Notenwert) um, bei SUB-1 und FM-4.</p>
+              <ul>
+                <li><strong>NOTE-Regler:</strong> 1/16 bis 1/1, dazu punktiert (1/8.) und triolisch (1/8T).</li>
+                <li><strong>Tempo:</strong> folgt dem BPM-Regler des Arpeggiators oder, mit DRUM SYNC, dem Drum-Takt; Tempowechsel gleiten ohne Knacken.</li>
+                <li><strong>Presets:</strong> SYNC und Notenwert werden gespeichert; ältere Presets laden mit FREE und klingen wie bisher.</li>
+                <li><strong>Mod-Matrix:</strong> DELAY TIME moduliert auch im SYNC-Modus, um die synchrone Zeit herum.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">🔀</div>

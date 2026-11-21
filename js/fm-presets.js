@@ -10,7 +10,7 @@ const fmOp = (ratio, level, env, detune = 0) => ({ ratio, detune, level, env });
 const fmFx = (chorusMode, chorusMix, delayMix, reverbMix) => ({
   crusher: { bits: 8, rate: 11000, mix: 0.0 },
   chorus: { mode: chorusMode, mix: chorusMix },
-  delay: { time: 0.32, feedback: 0.35, mix: delayMix },
+  delay: { time: 0.32, sync: false, division: '1/8', feedback: 0.35, mix: delayMix },
   reverb: { decay: 2.6, mix: reverbMix }
 });
 const fmPerf = { glide: false, octaveShift: 0 };

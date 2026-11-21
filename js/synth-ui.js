@@ -180,6 +180,8 @@ class SynthUI {
           this.params.set(this.engine, this.groupPath(group), parse(btn.dataset[group.key]));
           this.renderButtonGroup(group);
           this.renderFxLeds();
+          // A focused button would toggle again on Space / Enter while playing
+          btn.blur();
         });
       });
     }

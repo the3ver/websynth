@@ -25,7 +25,7 @@ websynth/
 ├── js/                    # Classic scripts, loaded in this order by index.html
 │   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
 │   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
-│   │   ├── effects.js      # Crusher (dry/wet around the bitcrusher worklet), Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
+│   │   ├── effects.js      # Crusher (dry/wet around the bitcrusher worklet), Chorus (BBD), Delay (ping-pong, high-cut feedback, free time or note value at a clock tempo, `Delay.noteSeconds`, `DIVISIONS`, `MAX_TIME` 4 s), Reverb (noise IR): input/output, apply*()
 │   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
 │   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
 │   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
@@ -90,6 +90,7 @@ websynth/
 ### 2. Master Clock & Slave Synchronization
 - Drum Engine hosts the master Web Worker clock ticking every 20ms.
 - Registered slave engines (like `ArpEngine`) receive `handleExternalClockTick(stepIndex, time, beatSec)` and `handleExternalTransport(isPlaying)` for 100% phase-locked tempo sync with zero drift.
+- **Clock tempo for the synced delay**: `ArpEngine.clockBpm()` is the arp BPM, or in external mode the drum tempo (`setExternalTempo()` from `DrumUI.setTempo()`, and every clock tick's `beatSec`). On change `reportTempo()` calls `engine.setClockTempo(bpm)`, which sets `fx.delay.bpm` (not a patch parameter) and ramps the delay lines when `fx.delay.sync` is on.
 
 ## Synth Building Blocks (`js/lib/`)
 
