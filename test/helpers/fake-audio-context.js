@@ -82,7 +82,9 @@ class FakeAudioNode {
 class FakeAudioContext {
   constructor() {
     this.currentTime = 0;
-    this.sampleRate = 48000;
+    // Low on purpose: every engine builds noise and reverb buffers of seconds at this rate (48 kHz cost 220 ms
+    // per engine); tests derive lengths from ctx.sampleRate, none needs audio resolution
+    this.sampleRate = 3000;
     this.state = 'running';
     this.destination = new FakeAudioNode('destination');
     this.onstatechange = null;

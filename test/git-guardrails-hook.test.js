@@ -1,7 +1,8 @@
 /**
  * Claude Code PreToolUse hook (.claude/hooks/git-guardrails.js): blocks destructive git commands with exit 2,
  * lets the release workflow (push of branches and main, deleting merged branches) through.
- * Runs the hook as Claude Code does: tool input as JSON on stdin.
+ * The command lists run in-process through the hook's exported parser and rules; a few cases run the hook as
+ * Claude Code does (tool input as JSON on stdin, exit code, stderr), since one node process costs ~0.1 s.
  */
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -10,6 +11,13 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const HOOK = path.resolve(__dirname, '..', '.claude', 'hooks', 'git-guardrails.js');
+const { gitCalls, blocked } = require(HOOK);
+
+/** Reason the hook blocks the command with, or null */
+const verdict = (command) =>
+  gitCalls(command)
+    .map(blocked)
+    .find((reason) => reason) || null;
 
 const run = (command) =>
   spawnSync('node', [HOOK], { input: JSON.stringify({ tool_input: { command } }), encoding: 'utf8' });
@@ -119,19 +127,27 @@ const ALLOWED = [
 
 for (const command of BLOCKED) {
   test(`blocks: ${command.replace(/\n/g, '\\n')}`, () => {
-    const res = run(command);
-    assert.equal(res.status, 2, res.stderr);
-    assert.match(res.stderr, /^BLOCKED by \.claude\/hooks\/git-guardrails\.js: /);
+    assert.ok(verdict(command), 'not blocked');
   });
 }
 
 for (const command of ALLOWED) {
   test(`allows: ${command}`, () => {
-    const res = run(command);
-    assert.equal(res.status, 0, res.stderr);
-    assert.equal(res.stderr, '');
+    assert.equal(verdict(command), null);
   });
 }
+
+test('the hook process blocks with exit 2 and the reason on stderr', () => {
+  const res = run('cd x && git push --force origin main');
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /^BLOCKED by \.claude\/hooks\/git-guardrails\.js: force push in "cd x && git push --force/);
+});
+
+test('the hook process lets an allowed command through silently', () => {
+  const res = run('git push origin main');
+  assert.equal(res.status, 0, res.stderr);
+  assert.equal(res.stderr, '');
+});
 
 test('input without a command (other tools, broken JSON) passes', () => {
   assert.equal(spawnSync('node', [HOOK], { input: '{}', encoding: 'utf8' }).status, 0);

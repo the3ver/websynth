@@ -6,8 +6,11 @@ const assert = require('node:assert/strict');
 const lint = require('@commitlint/lint').default;
 const load = require('@commitlint/load').default;
 
+// Loaded once: load() resolves the shareable config on every call (~0.1 s)
+const configured = load({}, { cwd: require('path').resolve(__dirname, '..') });
+
 const check = async (message) => {
-  const config = await load({}, { cwd: require('path').resolve(__dirname, '..') });
+  const config = await configured;
   const result = await lint(message, config.rules, { parserOpts: config.parserPreset?.parserOpts });
   return result.errors.map((e) => e.name);
 };
