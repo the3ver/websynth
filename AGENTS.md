@@ -8,6 +8,7 @@ Browser synth studio: two polyphonic synths (subtractive SUB-1, 4-operator FM-4,
 - **Zero GC audio:** audio nodes are built once per voice or page; notes, knobs and timers only schedule AudioParams.
 - **Click-free sound:** parameter changes ramp; the master bus limits and soft-clips.
 - **Hardware feel:** 1980s analog hardware look; playing the keys and turning knobs never interrupt each other.
+- **English for developers:** identifiers, comments (JS, CSS, HTML), test names, commit messages and developer docs (`AGENTS.md`, `docs/`, `.claude/`) are English, so anyone can work on the code. The exception is text the user sees or hears: UI strings in `index.html`, `privacy.html` and `js/` (labels, tooltips, `aria-label`s, the meta description, dialogs, alerts, modals, banners, key caps such as Ö and Ä), and `README.md` with its release notes. That text keeps its language: German prose, English panel labels (SAVE, RANDOM, MATRIX).
 
 ## Before you change something, read
 
