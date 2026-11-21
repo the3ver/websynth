@@ -14,6 +14,9 @@ const CACHE_VERSION = 'v1.8.37';
 const SHELL_CACHE = `retrovox-shell-${CACHE_VERSION}`;
 const FONT_CACHE = 'retrovox-fonts-v1';
 
+/** The service worker scope; the cast gives the type check (tsconfig.sw.json) its event types. */
+const worker = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
+
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -78,7 +81,7 @@ const PRECACHE_ASSETS = [
 ];
 
 // Install: Pre-cache App Shell & Icons
-self.addEventListener('install', (event) => {
+worker.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE).then(async (cache) => {
       try {
@@ -87,13 +90,13 @@ self.addEventListener('install', (event) => {
       } catch (err) {
         console.warn('[SW] Pre-caching partial failure, continuing:', err);
       }
-      return self.skipWaiting();
+      return worker.skipWaiting();
     })
   );
 });
 
 // Activate: Purge obsolete caches and claim clients immediately
-self.addEventListener('activate', (event) => {
+worker.addEventListener('activate', (event) => {
   const currentCaches = [SHELL_CACHE, FONT_CACHE];
   event.waitUntil(
     caches
@@ -108,12 +111,12 @@ self.addEventListener('activate', (event) => {
           })
         );
       })
-      .then(() => self.clients.claim())
+      .then(() => worker.clients.claim())
   );
 });
 
 // Fetch: Smart caching for local App Shell & Google WebFonts
-self.addEventListener('fetch', (event) => {
+worker.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
@@ -153,7 +156,7 @@ self.addEventListener('fetch', (event) => {
 
   // 2. Local Same-Origin App Shell: cache of the running release first, network only for misses.
   //    Nothing from the network is written into this release's cache (that would mix releases).
-  if (url.origin === self.location.origin) {
+  if (url.origin === worker.location.origin) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(SHELL_CACHE);
@@ -175,8 +178,8 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Communication: Listen for client instructions (e.g. skip waiting on update)
-self.addEventListener('message', (event) => {
+worker.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+    worker.skipWaiting();
   }
 });
