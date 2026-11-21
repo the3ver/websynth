@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
+    "check": "bash scripts/check.sh",
     "dev": "npx serve .",
     "start": "npx serve .",
     "serve": "npx serve .",
@@ -37,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/the3ver/websynth/issues"
   },
-  "homepage": "https://the3ver.github.io/websynth"
+  "homepage": "https://the3ver.github.io/websynth",
+  "devDependencies": {
+    "html-validate": "9.7.1"
+  }
 }
