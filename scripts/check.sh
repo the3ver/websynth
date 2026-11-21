@@ -13,7 +13,7 @@ fail() { echo "CHECK FAILED: $1"; cat "$tmp/out"; exit 1; }
 
 # 1. Syntax (node --check takes one file per call)
 : > "$tmp/out"
-files=(js/*.js js/lib/*.js js/worklets/*.js sw.js scripts/*.js test/*.js test/helpers/*.js)
+files=(js/*.js js/lib/*.js js/worklets/*.js sw.js scripts/*.js test/*.js test/helpers/*.js .claude/hooks/*.js)
 for f in "${files[@]}"; do
   node --check "$f" 2>> "$tmp/out" || echo "  in $f" >> "$tmp/out"
 done
