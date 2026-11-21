@@ -40,6 +40,9 @@
   },
   "homepage": "https://the3ver.github.io/websynth",
   "devDependencies": {
+    "@eslint/js": "9.15.0",
+    "eslint": "9.15.0",
+    "globals": "15.12.0",
     "html-validate": "9.7.1"
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Quiet check: syntax of every script, HTML structure, unit tests.
+# Quiet check: syntax of every script, ESLint, HTML structure, unit tests.
 # Green: one line "CHECK OK: ...". Red: only the failing step's findings, exit 1.
 # Used by `npm run check`, the Claude Code Stop hook (.claude/hooks/stop-check.sh) and later CI.
 set -uo pipefail
@@ -18,12 +18,18 @@ for f in "${files[@]}"; do
 done
 [ -s "$tmp/out" ] && fail "syntax"
 
-# 2. HTML structure (.htmlvalidate.json)
+for tool in html-validate eslint; do
+  [ -x node_modules/.bin/$tool ] || { echo "CHECK FAILED: node_modules/.bin/$tool missing, run npm install"; exit 1; }
+done
+
+# 2. Lint (eslint.config.js), errors only
+node_modules/.bin/eslint --max-warnings 0 . > "$tmp/out" 2>&1 || fail "eslint"
+
+# 3. HTML structure (.htmlvalidate.json)
 validator=node_modules/.bin/html-validate
-[ -x "$validator" ] || { echo "CHECK FAILED: $validator missing, run npm install"; exit 1; }
 "$validator" --formatter text index.html privacy.html > "$tmp/out" 2>&1 || fail "html-validate"
 
-# 3. Unit tests: dot reporter on screen (failures only), TAP to a file for the count
+# 4. Unit tests: dot reporter on screen (failures only), TAP to a file for the count
 node --test --test-reporter=dot --test-reporter-destination="$tmp/dots" \
   --test-reporter=tap --test-reporter-destination="$tmp/tap" "test/**/*.test.js" > /dev/null 2>&1
 status=$?
@@ -33,4 +39,4 @@ if [ $status -ne 0 ]; then
 fi
 
 tests=$(grep -m1 '^# pass' "$tmp/tap" | cut -d' ' -f3)
-echo "CHECK OK: ${#files[@]} files syntax, 2 pages html, $tests tests, $((SECONDS - start))s"
+echo "CHECK OK: ${#files[@]} files syntax+lint, 2 pages html, $tests tests, $((SECONDS - start))s"
