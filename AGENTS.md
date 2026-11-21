@@ -1,249 +1,26 @@
-# 🤖 AGENTS.MD • RETROVOX SUB-1 & RETROBEAT D-909 Developer Guide
+# RETROVOX SUB-1 / FM-4 & RETROBEAT D-909
 
-Welcome to the **RETROVOX SUB-1** and **RETROBEAT D-909** codebase. This document serves as the primary technical specification, architecture reference, and maintenance guide for AI agents and human contributors working on this project.
+Browser synth studio: two polyphonic synths (subtractive SUB-1, 4-operator FM-4, one per page load via `?synth=sub1|fm`), a drum and 303 bass machine, arpeggiator, Web MIDI, installable PWA. Deployed to GitHub Pages from `main`.
 
----
+## Principles
 
-## 🏛️ Project Principles
+- **Native web, no build:** classic scripts in `js/` loaded by `index.html` in dependency order, sharing one global scope; hand-written CSS with custom properties; no frameworks, libraries, bundlers or audio samples.
+- **Zero GC audio:** audio nodes are built once per voice or page; notes, knobs and timers only schedule AudioParams.
+- **Click-free sound:** parameter changes ramp; the master bus limits and soft-clips.
+- **Hardware feel:** 1980s analog hardware look; playing the keys and turning knobs never interrupt each other.
 
-1. **Pure Native Web Standards**:
-   - Zero external frontend frameworks (No React, Vue, Angular).
-   - Zero external styling libraries (No Tailwind, Bootstrap). Everything is hand-crafted Vanilla CSS with CSS custom properties.
-   - Zero bundlers/build steps (No Vite, Webpack, Babel). Pure ES6+ JavaScript running directly in any modern browser.
-2. **Deterministic High-Performance Web Audio DSP**:
-   - **Zero GC Churn in Audio Loop**: Audio nodes are never allocated or garbage-collected during active synthesizer voice playback.
-   - **Worker-Isolated Precision Master Clock**: Scheduling timers for Drum Machine and Arpeggiator operate on background Web Workers.
-   - **Click & Clip Elimination**: All parameter updates use exponential or linear ramping with zero-crossing protection. Peak limiter protects the master output bus.
-3. **Hardware Analog Aesthetic & Ergonomics**:
-   - Visual styling mimics legendary 1980s analog synthesizers (Roland Juno-106, Moog Minimoog, Sequential Prophet-5, Roland TR-909, TB-303).
-   - Non-blocking mouse/touch and keyboard event separation to allow seamless live playing while tweaking rotary dials and sliders.
+## Before you change something, read
 
----
+- **Audio, voices, building blocks (`js/lib/`), synth engines, mod matrix, FX rack, drums, file map:** [docs/architecture.md](docs/architecture.md)
+- **Layout, CSS media modes, mobile carousel, keybed, pointer and keyboard input:** [docs/ui.md](docs/ui.md)
 
-## 📂 Codebase Architecture & File Mapping
+## Workflow
 
-```
-websynth/
-├── index.html              # HTML5 Studio Desk Layout, Modals & Control Housings
-├── manifest.webmanifest    # W3C Web App Manifest (PWA Standalone Configuration)
-├── sw.js                   # Service Worker (App Shell & Google WebFonts Offline Cache)
-├── package.json            # Versioning (v1.8.36), scripts & metadata
-├── README.md               # User & feature documentation
-├── AGENTS.md               # Developer & agent architectural guide
-├── icons/                  # Retina & Maskable App Icons (SVG + PNG)
-│   ├── icon.svg
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   ├── icon-maskable-192.png
-│   ├── icon-maskable-512.png
-│   └── apple-touch-icon.png
-├── css/
-│   └── style.css           # Analog-hardware styling, CRT shaders, monitors, PWA & drum rack
-├── js/                    # Classic scripts, loaded in this order by index.html
-│   ├── lib/                # Synth building blocks, namespace window.SynthBlocks, no engine references
-│   │   ├── curves.js       # Pure curves & buffers: driveCurve, tanhCurve, pwmComparatorCurve, safetyClipCurve, whiteNoiseBuffer
-│   │   ├── effects.js      # Crusher (dry/wet around the bitcrusher worklet), Chorus (BBD), Delay (ping-pong, high-cut feedback), Reverb (noise IR): input/output, apply*()
-│   │   ├── envelope.js     # Envelope: ADSR scheduled on any AudioParams (owns no nodes), holdParam
-│   │   ├── filter.js       # Filter: two cascaded biquads, modes lowpass24/lowpass12/bandpass/highpass
-│   │   ├── gain-stages.js  # Mixer (named level channels), Drive (tanh shaper), Vca (envelope gain + tremolo, choke)
-│   │   ├── lfo.js          # Lfo: oscillator + Sample & Hold constant source, own S&H clock
-│   │   ├── master-bus.js   # MasterBus: analyser -> volume -> limiter -> safety clipper -> destination
-│   │   ├── mod-matrix.js   # ModMatrix: named sources -> named targets, one gain per slot, empty slots unplugged; SLOTS
-│   │   ├── note-mod-sources.js # NoteModSources: filterEnv/ampEnv/velocity/key/random of a note as unstarted ConstantSources
-│   │   ├── param-table.js  # ParamTable: per-synth patch parameter table (preset path, setter, knob), envParams, fxParams (shared FX rack rows)
-│   │   ├── vco.js          # Vco: direct path + PWM comparator path, unplugs the shaper while unused
-│   │   └── voice-pool.js   # VoicePool: retrigger -> free -> oldest releasing -> steal oldest (choke)
-│   ├── dom-utils.js        # blurTarget / onRangeInput helpers
-│   ├── presets.js          # Factory preset library (SYNTH_FACTORY_PRESETS, SYNTH_INIT_PRESET)
-│   ├── arp-engine.js       # 16-Step Arpeggiator & Master-Sync Slave
-│   ├── note-router.js      # NoteRouter: keybed and MIDI notes -> arpeggiator or voices, arp/latch switches (DOM-free)
-│   ├── synth-params.js     # SUB-1 parameter table (SynthParams = SynthBlocks.ParamTable): preset path, setter, knob id
-│   ├── voice.js            # One persistent synth voice: graph, envelopes, LFO routing (LFO_DEPTH), mod matrix (SUB1_MOD_SOURCES/TARGETS)
-│   ├── fx-chain.js         # Rack: SynthBlocks Crusher -> Chorus -> Delay -> Reverb in series, loads the crusher worklet
-│   ├── poly-synth-engine.js # PolySynthEngine base: AudioContext, master bus, FX rack, voice pool, notes, MIDI (initMidi() at page load from app.js, byte-stream parser), presets
-│   ├── audio-engine.js     # SUB-1 engine (extends PolySynthEngine): VCO/mixer/VCF/LFO patch, setters, noise, PW offsets
-│   ├── fm-algorithms.js    # FM-4 operators C/A/B1/B2, 8 algorithms (mods, feedback op, outputs X/Y), ratio steps, watch-hand B knob
-│   ├── fm-params.js        # FM-4 parameter table (FmParams)
-│   ├── fm-presets.js       # FM-4 factory presets (FM_FACTORY_PRESETS, FM_INIT_PRESET)
-│   ├── fm-voice.js         # FM-4 voice: drives one 'fm4-voice' worklet node (operator freqs, ADSR gains, vibrato, alg/feedback/mix)
-│   ├── fm-engine.js        # FM-4 engine (extends PolySynthEngine): loads the worklet, algorithm, feedback, X/Y mix, ratios, vibrato
-│   ├── worklets/
-│   │   ├── fm-voice-processor.js # AudioWorklet: 4-op phase modulation per sample with feedback (FmVoiceCore, tested in Node)
-│   │   └── crusher-processor.js  # AudioWorklet: bitcrusher, sample-and-hold rate + bit quantization (CrusherCore, tested in Node)
-│   ├── fm-algorithm-display.js # FM-4 routing display: layout + SVG from FmAlgorithms (DOM-free, fixed canvas)
-│   ├── patch-randomizer.js # RANDOM button: playable random patch per synth (DOM-free, seeded rng in tests)
-│   ├── drum-kits.js        # Drum factory kits (patterns + sound params)
-│   ├── drum-engine.js      # DSP drum & 303 bass synthesis, Web Worker master clock
-│   ├── drum-ui.js          # Drum rack drawer: transport, step matrix, mutes, kits, sync
-│   ├── knob-scale.js       # Pure knob math: value <-> ratio, rounding, readout formatting
-│   ├── controls.js         # DragController + Knob, Fader, PerformanceWheel
-│   ├── envelope-display.js # EnvelopeDisplay: SVG shape of the envelope the ADSR faders edit (path() pure, log time axis like the faders)
-│   ├── virtual-keyboard.js # Keybed rendering, mouse glissando, multi-touch, PC keyboard
-│   ├── visualizer.js       # CRT oscilloscope, VU meters, woofers
-│   ├── preset-store.js     # User presets in localStorage (DOM-free)
-│   ├── preset-panel.js     # Preset LCD, prev/next, save / overwrite / delete dialog
-│   ├── mod-matrix-panel.js # MOD MATRIX overlay: source/target selects per slot (amount knobs bound by SynthUI), slot LEDs
-│   ├── synth-ui.js         # Panel composer: knobs/faders/buttons via the synth definition, arp strip, perf bay
-│   ├── synth-registry.js   # Synth definitions (engine, param table, button rows, env tabs, presets) + selection
-│   ├── pwa-manager.js      # PWA lifecycle, install prompts, wake lock & offline state
-│   └── app.js              # Application entry, master power, volume & version manager
-└── test/
-    ├── helpers/
-    │   ├── load-browser-script.js  # vm sandbox loader for js/ files (stubbed timers)
-    │   ├── fake-audio-context.js   # Web Audio stand-in: nodes record connections, params record events
-    │   └── synth-engine.js         # createLiveEngine(): AudioEngine with the full graph on the fake context
-    └── *.test.js           # node:test unit tests (npm test)
-```
+1. **Check** (needs `npm install` once): `npm run check`. Green is one line `CHECK OK: ...` (~36 s); red prints only the failing step. It runs `node --check`, ESLint, Prettier (JS only), html-validate, the unit tests and the layout check (`npm run layout`: both synths at five screen sizes in headless Chromium). In Claude Code the Stop hook runs it at the end of every turn that changed files and the PostToolUse hook formats every edited JS file. CI runs the same plus Firefox layout and gitleaks; Pages deploys only after it passes.
+2. **Tests** (`test/*.test.js`, `node:test`, `npm test` for full TAP output): `test/helpers/load-browser-script.js` loads `js/` files into a `vm` sandbox that doubles as `window`; `createLiveEngine()` (`test/helpers/synth-engine.js`) builds the full audio graph on `FakeAudioContext`, so envelopes, LFO routing and FX are asserted on recorded AudioParam events. Features and behaviour changes need a test; a bugfix starts with a red test.
+3. **Look at visual changes:** `npm run capture-screenshots` (add `-- --synth fm` for the FM-4) writes PNGs to `scratch/screenshots/`. `-- --release` overwrites the store screenshots in `screenshots/`, only for a release that changes the look. Manual browser checks: `PORT=3917 node scripts/serve.js` (HTTP; headless Chromium on `file://` skips a script).
+4. **Release:** a commit with logic, a feature or a bugfix bumps the patch version with `npm run bump` (all places in `VERSION_LOCATIONS`, `scripts/bump.js`). User-visible changes also get a "NEU in vX" section in `README.md` and a card in the "Was gibt's Neues" modal in `index.html` (German).
 
----
+## Guards that fail the check
 
-## 🥁 Drum & Bass Machine Architecture (`js/drum-engine.js`)
-
-### 1. Pure DSP Synthesized Voices (Zero External Samples)
-- **Kick (BD)**: Sub-sine drop ($160\,\text{Hz} \to 38\,\text{Hz}$) + transient pop click + level-normalized $\tanh$ overdrive.
-- **Snare (SD)**: Dual body resonators ($185\,\text{Hz}$ and $330\,\text{Hz}$) + high-pass filtered white noise burst.
-- **Hi-Hats (CH / OH)**: 6 inharmonic square waves through high-pass filter. Closed Hat chokes active Open Hat voice instantly.
-- **Clap (CP)**: 3 successive noise impulse bursts ($11\,\text{ms}$ spacing) + decaying reverb tail.
-- **303 Acid Bassline**: Monophonic VCO (Sawtooth/Square) through 24dB resonant lowpass filter with exponential decay, accent boost, and slide portamento (`setTargetAtTime`).
-
-### 2. Master Clock & Slave Synchronization
-- Drum Engine hosts the master Web Worker clock ticking every 20ms.
-- Registered slave engines (like `ArpEngine`) receive `handleExternalClockTick(stepIndex, time, beatSec)` and `handleExternalTransport(isPlaying)` for 100% phase-locked tempo sync with zero drift.
-
----
-
-## 🧱 Synth Building Blocks (`js/lib/`)
-
-Instrument-neutral parts every synth on the page composes: a synth engine wires blocks into a voice and a patch, the blocks themselves know no engine. Contract for every block:
-
-- **Shape**: classic script, attaches to `window.SynthBlocks`; constructor takes the `AudioContext` first, then values or a live settings object (`Envelope` reads `engine.ampEnv`, effects read `engine.fx.*`). Engines mutate settings objects in place, so a block holding one sees knob changes.
-- **Wiring**: `input` / `output` nodes; modulation targets as AudioParam fields (`vco.detune`, `vca.tremoloGain`) or arrays (`filter.frequencyParams`). `Vco` has two output paths and offers `connect(dest)` instead of `output`.
-- **Zero GC**: blocks are built once per voice or page; trigger, `set*` and `apply*` methods only schedule AudioParams or swap curves.
-- **Tests**: `test/<file>.test.js` per block, loading only the lib files it needs (`loadScripts('lib/curves.js', 'lib/vco.js')`). Arrays created inside the vm sandbox fail `deepEqual` against Node arrays: compare `Array.from(...)`.
-
----
-
-## 🎛️ Synth Selection (`js/synth-registry.js`)
-
-One synth plays per page load; switching reloads with `?synth=<id>` (stored in `localStorage` as `retrovox_synth`).
-
-- **Engine**: a `PolySynthEngine` subclass (`js/poly-synth-engine.js` lists the hooks: `initInstrument`, `createVoice`, `onOctaveChange`, `onModWheelChange`). Arpeggiator, drums, UI and PWA manager use only the base interface.
-- **Definition**: one entry in `SYNTH_DEFINITIONS` (engine factory, `ParamTable`, button rows, toggles, envelope tabs, presets, preset storage key, LFO LED rate).
-- **Markup**: synth-specific slides, tabs and labels carry `data-synth="<id>"` in `index.html`; `app.js` removes the other synths' elements before `SynthUI` binds controls. Elements without `data-synth` (ADSR faders, FX rack, keyboard, arp) are shared, so shared knob ids (`fx-*`) need a row in every table. `test/synth-registry.test.js` checks knobs and envelope tabs per synth.
-
----
-
-## 🔀 Modulation Matrix (`js/lib/mod-matrix.js`)
-
-- **Data**: `engine.modMatrix.slot1..slot8 = { source, dest, amount }` (base class), set via `engine.setModSlot(slot, field, value)`, preset rows from `ParamTable.matrixParams(ModMatrix.SLOTS)`. `'off'` or unknown names leave a slot unplugged.
-- **Voice side**: a voice builds `SynthBlocks.ModMatrix` over its sources and `voice.modTargets` and exposes it as `voice.modMatrix`. SUB-1 names and depths: `SUB1_MOD_SOURCES` / `SUB1_MOD_TARGETS` in `voice.js`; the synth definition passes them as `modMatrix` to the panel. Per-voice ConstantSources are created unstarted and passed as `idle`: the matrix starts each on its first route (never twice), so an empty matrix runs no extra nodes.
-- **New source or target**: add the node/param in `Voice.buildModMatrix()` / `buildModTargets()` and the entry in `SUB1_MOD_*`; `test/sub1-mod-matrix.test.js` fails if definition and voice drift apart.
-- **Envelopes as sources**: `engine.modEnvelopes()` lists the envelopes a matrix offers (`filterEnv`, `ampEnv`, `modEnv`); `modEnv` (tab MOD ENV) has no fixed routing, it only exists as matrix source. `modEnv.loop` (button `#modEnvLoopBtn`) makes `NoteModSources` call `Envelope.loop()`: attack/decay cycles scheduled 2 s ahead, refilled by a 500 ms timeout per held note, stopped on release.
-- **FX targets**: the rack exists once, so `AudioEngine.initRackModulation()` builds one more matrix, `engine.fxModMatrix`, over `fxChain.modTargets` (crusherBits/crusherRate appear after `fxChain.ready`) with names and depths from `SUB1_FX_MOD_TARGETS`. Its note sources (`engine.fxNoteModSources`, `SynthBlocks.NoteModSources`) follow the last note and release when the last key is up. Every slot goes to all matrices; each one routes only the targets it knows. The definition's `modMatrix.targets` merges both lists.
-- **UI**: `#openModMatrixBtn` sits in the preset bar next to RANDOM; it and `#modMatrixPanel` carry `data-synth="sub1"`. The FM-4 has no matrix yet.
-
----
-
-## 🎧 Synthesizer Audio Engine Architecture (`js/audio-engine.js`)
-
-### 1. 12-Voice Persistent Polyphonic Pool
-- **Structure**: `this.pool` (`SynthBlocks.VoicePool`) holds 12 pre-allocated `Voice` instances (`js/voice.js`) initialized on `AudioContext` startup; `voicePool` and `activeVoices` are the pool's array and note map. A voice reads the current patch from its engine; `AudioEngine.forEachVoice()` pushes live parameter changes.
-- **Voice Nodes**:
-  - `vco[1]` & `vco[2]` (`SynthBlocks.Vco`: native Sine/Triangle/Sawtooth direct path and 4x-oversampled WaveShaper audio-rate PWM)
-  - `subOsc` (Sub-octave triangle wave)
-  - `mixer` (`SynthBlocks.Mixer`: vco1Level, vco2Level, subLevel, noiseLevel channels; noise comes from the engine's shared white noise source)
-  - `drive` (`SynthBlocks.Drive`: 2x-oversampled WaveShaper with level-normalized $\tanh$ curve)
-  - `filter` (`SynthBlocks.Filter`: stage1 & stage2, 24dB/12dB cascaded ladder filter with Q-staging)
-  - `vca` (`SynthBlocks.Vca`: ADSR amplitude gain `vca.gain` -> tremolo gain `vca.tremoloGain` for LFO amp)
-  - `lfo[1]` / `lfo[2]` (`{ pitch, vcf, pwm: [vco1, vco2], amp }` routing gains fed by `engine.lfos[n].output` (`SynthBlocks.Lfo`, oscillator + S&H source); depth at amount 1.0 = `LFO_DEPTH` in `voice.js`, shared by continuous LFOs and Sample & Hold)
-- **Lifecycle & LRU Voice Stealing**:
-  - `noteOn(midiNote, velocity)` asks `pool.allocate()`: same note (retrigger), then a free voice, then the oldest releasing voice.
-  - If all 12 voices are active, the voice with the oldest `startTime` is stolen via `voice.choke()` (2ms fade, `Vca.choke`).
-  - `noteOff(midiNote)` initiates the asymptotic ADSR release curve and resets the active voice flag when the release completes.
-
-### 2. Patch Parameter Table (`js/synth-params.js`)
-- `SYNTH_PARAMS` lists every patch parameter once: preset `path`, `set(engine, value)`, optional engine `field` and the knob id (`data-param`).
-- `getPresetState()` / `loadPresetState()`, knob dispatch and `SynthUI.syncControls()` all run off this table. A new parameter needs one table row, a default in `SYNTH_INIT_PRESET` and (for a knob) the HTML; `test/synth-params.test.js` fails if table, init preset and knobs drift apart.
-
-### 3. Normalized Saturation Curve ($\tanh$, `js/lib/curves.js`)
-- `SynthBlocks.driveCurve(amount)`: identity at amount 0, otherwise `tanhCurve(1 + 4 * amount, 512)`.
-- `SynthBlocks.tanhCurve(gain, n)`: $\tanh(g x) / \tanh(g)$, edges stay at $\pm 1$. The drum kick and 303 bass use it with 256 samples.
-
-### 4. FX Rack (`js/fx-chain.js`) & Master Bus (`js/lib/master-bus.js`)
-- **Signal Flow**:
-  $$\text{VoiceBus} \longrightarrow \text{Bitcrusher} \longrightarrow \text{Juno BBD Chorus} \longrightarrow \text{Tape Delay (Ping-Pong)} \longrightarrow \text{Studio Reverb} \longrightarrow \text{MasterBus: Analyser} \longrightarrow \text{Volume} \longrightarrow \text{Peak Limiter} \longrightarrow \text{Safety Clipper} \longrightarrow \text{Destination}$$
-- **Brickwall Peak Limiter**: `DynamicsCompressorNode` configured with threshold `-0.5 dB`, ratio `20:1`, attack `0.001s`, release `0.05s`; the 4x-oversampled safety clipper catches its overshoot below 0.98.
-- `engine.master` (`SynthBlocks.MasterBus`) is the shared output: the drum bus connects to `master.input`, the visualizer reads `master.analyser`.
-
----
-
-## 🎨 UI, Mobile Ergonomics & Responsive Architecture (`js/synth-ui.js` & `css/style.css`)
-
-### 1. Mobile Portrait Carousel Architecture (`@media (max-width: 900px) and (orientation: portrait)`)
-- **100% Viewport-Locked (`100dvh`, `overflow: hidden`)**: Prevents vertical pull-to-refresh, page reload bounces, and window-level scroll displacement during performance.
-- **Fixed Top Panel**: Master-Toolbar (Power, Volume, Drum Rack toggle, Hard-Reload), Hardware Preset LCD Manager (`◀ / ▶`), and 3 Module Selector Tabs (`[ 🎛️ OSC & MIX ]`, `[ 🔊 VCF & LFO ]`, `[ ⚡ ENV & FX ]`).
-- **Middle Horizontal Carousel (`.modular-control-surface`)**:
-  - Contains 3 `.module-slide` containers:
-    - **Slide 1**: `01 // DUAL-VCO OSCILLATORS` + `02 // MIXER & NOISE`
-    - **Slide 2**: `03 // 24dB LADDER FILTER (VCF)` + `04 // DUAL LFO & MOD`
-    - **Slide 3**: `05 // DUAL ADSR ENVELOPES` + `06 // VINTAGE STEREO FX`
-  - Utilizes native `scroll-snap-type: x mandatory` and `scroll-behavior: smooth` with 60/120fps GPU hardware acceleration.
-- **Fixed Bottom Panel**: 16-Step Arpeggiator & Sequencer Strip + Performance Bay (Pitch/Mod Wheels, Octave `[-1, 0, +1]`, Glide Switch) + Playable 3D Piano Keyboard.
-- **Bi-directional Tab & Carousel Sync**:
-  - Tab button click calls `modularSurface.scrollTo({ left: targetSlide.offsetLeft, behavior: 'smooth' })`.
-  - Carousel swipe listener evaluates `Math.round(modularSurface.scrollLeft / slideWidth)` in a `requestAnimationFrame` loop and toggles `.mobile-tab-btn.active`.
-
-### 2. Desktop Seamless Grid Inheritance (`display: contents;`)
-- On Desktop (`min-width: 900px`), `.module-slide` applies `display: contents;`.
-- All 6 module bays seamlessly inherit the parent 6-column desktop grid (`1.55fr 0.95fr 1.3fr 1.15fr 0.95fr 0.95fr`; a column never gets narrower than its content, e.g. the FX tab labels, so keep labels short) with zero layout shift, zero DOM restructuring, and zero CSS wrapper overhead.
-
-### 3. Mobile Landscape Split-Studio Mode (`@media (orientation: landscape) and (max-height: 600px)`)
-- Splits the chassis into a 2-column layout (`grid-template-columns: 46% 54%`):
-  - **Left 46%**: Top panel, Preset LCD, and horizontal module carousel.
-  - **Right 54%**: 16-Step Arpeggiator Sequencer + Full playable 3D keybed.
-- Studio speakers and wooden side cheeks are hidden (`display: none !important;`) to maximize touch area.
-
-### 4. Keyboard vs Mouse vs Touch Note Separation & Glissando (`js/virtual-keyboard.js`)
-- `keyboardHeldKeys`: Tracks physical computer keyboard notes.
-- `pointerHeldKeys`: Tracks on-screen keybed mouse clicks and touchpoints (resolved with `document.elementFromPoint(x, y)`).
-- A note sounds once even when both sources hold it; it stops only when neither does.
-- `window.addEventListener('mouseup')` **ONLY** releases pointer notes, preventing UI parameter tweaking from muting physical keyboard keys.
-- Glissando drag handlers release previous keys instantly on pointer boundary crossings.
-- `NoteRouter` (`js/note-router.js`, used by `SynthUI.playNote()` / `stopNote()` and, via `engine.midiNotes`, by MIDI input) routes notes to the arpeggiator when it is on, otherwise to the voices. `ArpEngine` tracks held and latched keys in both cases, so HOLD also works with the arp off: the router sounds held + latched notes and releases what leaves that set; `VirtualKeyboard.setLatched()` lights the latched keys (`.latched`).
-
-### 4b. Drag Controls (`js/controls.js`)
-- Knobs, faders and wheels register with `DragController.bind(el, control)`; only the controller owns window-level move/release listeners (4 in total, not 4 per control).
-
-### 5. Envelope Fader Full-Height Utilization
-- `.env-fader-track` and `.fader-track-housing` use dynamic flex-grow (`flex: 1 1 auto; min-height: 120px; max-height: 240px;`) so ADSR sliders match the full height of neighboring LFO / FX racks while respecting max-height constraints on mobile screens.
-
-### 6. Keyboard Filter (`isTextInput`)
-- Must only block musical hotkeys when `target.tagName === 'TEXTAREA'` or `target.tagName === 'INPUT'` with text types.
-- `<select>`, range sliders, and buttons must never suppress musical keys.
-- Dropdown selections and button clicks must call `.blur()` immediately after interaction.
-
-### 7. CRT Visualizer Optimization (`js/visualizer.js`)
-- Monitors audio output level via `AnalyserNode`.
-- After 15 silent frames ($< 0.001$ RMS), heavy path computations pause to preserve CPU/GPU battery.
-
----
-
-## 🚀 Quality & Verification Checklist for Agents
-
-Before committing any modifications:
-1. Run the check (once `npm install` for html-validate). All must pass before every push:
-   ```bash
-   npm run check
-   ```
-   `scripts/check.sh` runs `node --check` on every script, ESLint (`eslint.config.js`; globals of the classic scripts are collected from their top-level declarations), Prettier on JS (`.prettierrc.json`; in Claude Code the PostToolUse hook `.claude/hooks/format-on-edit.sh` formats every edited JS file), html-validate on `index.html` and `privacy.html` (structure rules in `.htmlvalidate.json`) the unit tests and the layout check (`scripts/layout-check.js`, `npm run layout`: Playwright headless Chromium, both synths at the five screenshot sizes; fails on page errors, header controls outside the viewport, a hidden `#synthSelect`/power/reload button, labels that wrap or overflow with every tab page clicked through, FX pages wider than the rack; CI also runs it in Firefox). Green prints one line `CHECK OK: ...`; red prints only the failing step. In Claude Code the Stop hook runs it at the end of every turn that changed files (`.claude/hooks/stop-check.sh`). CI (`.github/workflows/deploy.yml`) runs the same command plus a gitleaks scan on every push and pull request; GitHub Pages deploys only after it passes.
-2. Unit tests (Node built-in test runner, `npm test` for the full TAP output). Tests live in `test/*.test.js`. `test/helpers/load-browser-script.js` loads the `js/` files into a `vm` sandbox that doubles as `window`, so classes like `AudioEngine` and `ArpEngine` are testable without a browser. `createLiveEngine()` (`test/helpers/synth-engine.js`) builds the full audio graph on `FakeAudioContext`, so voice envelopes, LFO routing and FX can be asserted on recorded AudioParam events. DOM-heavy UI (keybed, knobs, panel wiring) is not unit tested: check it in the browser. New features and bug fixes need a test here.
-3. For visual changes, look at screenshots (Playwright headless Chromium over HTTP, ~11 s):
-   ```bash
-   npm run capture-screenshots              # SUB-1, add -- --synth fm for the FM-4
-   ```
-   They land in `scratch/screenshots/` (ignored): `screenshot-desktop` (1440x920), `-ipad` (1024x768), `-mobile` (750x1334, drum drawer), `-phone-portrait` (360x780), `-phone-full` (360x1200), `-phone-landscape` (844x390). `-- --release` overwrites the tracked store screenshots in `screenshots/` (manifest); only for a release that changes the look.
-4. Page errors per synth are covered by the layout check. For anything it does not see, serve over HTTP (`PORT=3917 node scripts/serve.js`): headless Chromium on `file://` silently skips one of the 40+ scripts.
-5. Ensure no memory leaks or unmanaged event listeners on `window`.
-6. Ensure new parameters have a row in `synth-params.js` and proper defaults in `presets.js` (`SYNTH_INIT_PRESET`).
-7. A new script in `js/` or `js/lib/` needs a `<script>` tag in `index.html` (dependency order) and an entry in `PRECACHE_ASSETS` in `sw.js`; `test/release-consistency.test.js` fails otherwise.
-8. Version bump: `npm run bump` (patch; or `node scripts/bump.js minor|major|X.Y.Z`) updates all places listed in `VERSION_LOCATIONS` (`scripts/bump.js`). Changelog texts in README and the release modal stay manual.
+`test/synth-params.test.js` and `test/synth-registry.test.js` (parameter table, init preset, knobs and envelope tabs per synth), `test/sub1-mod-matrix.test.js` (matrix definition vs voice), `test/release-consistency.test.js` (version places, script tags vs `PRECACHE_ASSETS`), `test/inline-scripts.test.js` (only the service worker registration inline), `test/header-css.test.js` and `test/tab-labels.test.js` (header and tab rules), `.htmlvalidate.json` (HTML structure, unique ids), `scripts/layout-check.js` (layout per synth and screen size).

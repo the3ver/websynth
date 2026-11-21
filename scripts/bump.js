@@ -18,8 +18,7 @@ const VERSION_LOCATIONS = [
   { file: 'sw.js', pattern: /(CACHE_VERSION = 'v)(\d+\.\d+\.\d+)(')/ },
   { file: 'index.html', pattern: /(<span class="version-tag">v)(\d+\.\d+\.\d+)(<)/ },
   { file: 'index.html', pattern: /(<span class="release-version-number">v)(\d+\.\d+\.\d+)(<)/ },
-  { file: 'README.md', pattern: /(Version-)(\d+\.\d+\.\d+)(-)/ },
-  { file: 'AGENTS.md', pattern: /(Versioning \(v)(\d+\.\d+\.\d+)(\))/ }
+  { file: 'README.md', pattern: /(Version-)(\d+\.\d+\.\d+)(-)/ }
 ];
 
 /** Version found at every location, in table order; null where the pattern does not match. */
