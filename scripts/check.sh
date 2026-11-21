@@ -25,8 +25,8 @@ done
 # 2. Lint (eslint.config.js), errors only
 node_modules/.bin/eslint --max-warnings 0 . > "$tmp/out" 2>&1 || fail "eslint"
 
-# 2a. Types (tsconfig.json: checkJs over js/ and js/lib/, globals in types/globals.d.ts)
-node_modules/.bin/tsc -p . > "$tmp/out" 2>&1 || fail "types (tsc)"
+# 2a. Types: tsconfig.json (js/, js/lib/, globals in types/globals.d.ts), tsconfig.sw.json (sw.js, webworker lib)
+{ node_modules/.bin/tsc -p . && node_modules/.bin/tsc -p tsconfig.sw.json; } > "$tmp/out" 2>&1 || fail "types (tsc)"
 
 # 2b. Formatting (.prettierrc.json; the PostToolUse hook formats on edit, npx prettier --write . fixes the rest)
 node_modules/.bin/prettier --list-different . > "$tmp/out" 2>&1 || { sed -i '1i not formatted (npx prettier --write <file>):' "$tmp/out"; fail "prettier"; }
