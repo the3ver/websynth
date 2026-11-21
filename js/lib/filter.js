@@ -55,7 +55,6 @@
     }
   }
 
-  Filter.MODES = Object.keys(FILTER_MODES);
   Filter.MIN_CUTOFF = MIN_CUTOFF;
   Filter.MAX_CUTOFF = MAX_CUTOFF;
 
