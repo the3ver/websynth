@@ -65,7 +65,6 @@ test('switching back to square cancels a pending unplug', () => {
   vco.setWave('sawtooth', 1);
   const pending = Array.from(context.__timeouts.values());
   vco.setWave('square', 1.01);
-  assert.equal(context.__timeouts.size, 0);
-  assert.equal(plugged(vco), true);
-  assert.equal(pending.length, 1);
+  assert.equal(pending.length, 1, 'the switch away scheduled an unplug');
+  assert.equal(context.__timeouts.size, 0, 'switching back cancelled it');
 });

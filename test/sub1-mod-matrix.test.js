@@ -31,6 +31,16 @@ test('a slot routes its source into every voice at amount * depth', () => {
   }
 });
 
+test('a pitch slot detunes both oscillators of every voice', () => {
+  const { engine } = createLiveEngine();
+  engine.setModSlot('slot1', 'source', 'lfo1');
+  engine.setModSlot('slot1', 'dest', 'pitch');
+  engine.setModSlot('slot1', 'amount', 1);
+  for (const voice of engine.voicePool) {
+    sameNodes(voice.modMatrix.gains[0].connections, [voice.vco[1].osc.detune, voice.vco[2].osc.detune]);
+  }
+});
+
 test('LFOs and the mod wheel are shared sources, the wheel signal follows setModWheel', () => {
   const { engine } = createLiveEngine();
   engine.setModSlot('slot1', 'source', 'modWheel');
