@@ -109,7 +109,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.46</span>
+          <span class="version-tag">v1.8.47</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -1707,16 +1707,29 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.46</span>
+            <span class="release-version-number">v1.8.47</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">iPad ohne Zoomen • JITTER für den Loop • Tabs bei gehaltener Taste • Krell-Patch • Regler drehen bei gehaltener Taste • Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">JITTER neben der Kurve • iPad ohne Zoomen • JITTER für den Loop • Tabs bei gehaltener Taste • Krell-Patch • Regler drehen bei gehaltener Taste • Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🎲</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">FIX</div>
+              <h3>JITTER-Regler neben der Kurve</h3>
+              <p>Im Tab MOD ENV verdecken JITTER und LOOP die Hüllkurve nicht mehr.</p>
+              <ul>
+                <li><strong>Platz:</strong> beide sitzen unter der Kurve, im flachen Querformat daneben.</li>
+                <li><strong>Ruhig:</strong> der JITTER-Regler springt nicht mehr, wenn die Prozentzahl breiter wird.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">🖐️</div>

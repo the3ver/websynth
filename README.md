@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.46-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.47-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,9 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.47: JITTER knob beside the curve
+- **🎲 MOD ENV:** JITTER and LOOP sit below the envelope curve (in flat landscape: beside it) instead of covering it, and the JITTER knob no longer shifts sideways when its value changes.
 
 #### ⚡ NEW in v1.8.46: Playing on the iPad without zooming
 - **🖐️ iPad Safari:** Chords and glissandi with several fingers no longer zoom or pan the page, and holding a key no longer opens the magnifier or selects text. Knobs, faders and wheels hold the page still while you turn them.
@@ -353,6 +356,9 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.47: JITTER-Regler neben der Kurve
+- **🎲 MOD ENV:** JITTER und LOOP sitzen unter der Hüllkurve (im flachen Querformat daneben) statt auf ihr, und der JITTER-Regler springt nicht mehr seitlich, wenn sich sein Wert ändert.
 
 #### ⚡ NEU in v1.8.46: Spielen auf dem iPad ohne Zoomen
 - **🖐️ iPad Safari:** Akkorde und Glissandi mit mehreren Fingern zoomen oder verschieben die Seite nicht mehr, und eine gehaltene Taste öffnet keine Lupe und markiert keinen Text mehr. Regler, Fader und Räder halten die Seite still, während man sie dreht.

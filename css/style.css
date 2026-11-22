@@ -2394,19 +2394,50 @@ polyline.fm-alg-out {
   display: block;
 }
 
-/* JITTER knob of the mod envelope loop: top right next to LOOP, where the curve has already fallen;
-   only on the MOD ENV tab. Its 20 px size comes from the .arp-micro-knob rules */
+/* JITTER knob of the mod envelope loop: below LOOP, only on the MOD ENV tab.
+   Its 20 px size comes from the .arp-micro-knob rules */
 .env-jitter {
   display: none;
   position: absolute;
-  top: 2px;
-  right: 40px;
   align-items: center;
   gap: 3px;
 }
 
 .env-mod-mode .env-jitter {
   display: flex;
+}
+
+/* Fixed width for 0% .. 100%, so the knob does not move with the value */
+#mod-env-jitter-readout {
+  display: inline-block;
+  min-width: 4ch;
+}
+
+/* MOD ENV tab: JITTER and LOOP get their own row below the curve instead of covering it */
+.env-mod-mode .env-shape-wrap {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  align-items: center;
+  row-gap: 2px;
+}
+
+.env-mod-mode .env-shape-display {
+  grid-column: 1 / -1;
+}
+
+.env-mod-mode .env-loop-btn,
+.env-mod-mode .env-jitter {
+  position: static;
+  grid-row: 2;
+}
+
+.env-mod-mode .env-jitter {
+  grid-column: 1;
+}
+
+.env-mod-mode .env-loop-btn {
+  grid-column: 2;
 }
 
 .env-jitter-label {
@@ -5788,6 +5819,29 @@ body.is-pwa-standalone .studio-desk {
 
   .env-shape-display {
     height: 24px;
+  }
+
+  /* Too little height for an extra row: JITTER and LOOP sit right of the curve */
+  .env-mod-mode .env-shape-wrap {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: 4px;
+  }
+
+  .env-mod-mode .env-shape-display {
+    grid-column: 1;
+  }
+
+  .env-mod-mode .env-loop-btn,
+  .env-mod-mode .env-jitter {
+    grid-row: 1;
+  }
+
+  .env-mod-mode .env-jitter {
+    grid-column: 2;
+  }
+
+  .env-mod-mode .env-loop-btn {
+    grid-column: 3;
   }
 
   .synth-fader-thumb {

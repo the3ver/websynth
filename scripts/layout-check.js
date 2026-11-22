@@ -97,12 +97,35 @@ function probe({ mustShow, oneLine, tabGroups }) {
     }
   }
 
+  // Controls on the envelope display (LOOP, JITTER) sit beside the curve, not on it, and the JITTER knob
+  // keeps its place whatever width its readout has
+  const checkEnvOverlays = (state) => {
+    const svg = document.querySelector('.env-shape-display');
+    if (!shown(svg)) return;
+    const s = svg.getBoundingClientRect();
+    for (const el of svg.parentElement.children) {
+      if (el === svg || !shown(el)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.left < s.right - 1 && r.right > s.left + 1 && r.top < s.bottom - 1 && r.bottom > s.top + 1)
+        add(`envelope control "${label(el)}" covers the curve`, state);
+    }
+    const knob = document.querySelector('.env-jitter .synth-knob-housing');
+    const readout = document.getElementById('mod-env-jitter-readout');
+    if (!shown(knob) || !readout) return;
+    const text = readout.textContent;
+    const xs = ['0%', '100%'].map((t) => ((readout.textContent = t), knob.getBoundingClientRect().left));
+    readout.textContent = text;
+    if (Math.abs(xs[0] - xs[1]) > 0.5)
+      add(`JITTER knob moves ${Math.round(Math.abs(xs[0] - xs[1]))}px with its readout`, state);
+  };
+
   checkLabels('');
   for (const group of tabGroups) {
     for (const tab of document.querySelectorAll(`#${group} .env-tab-btn`)) {
       if (!shown(tab)) continue;
       tab.click();
       checkLabels(` [tab ${tab.textContent.trim()}]`);
+      checkEnvOverlays(` [tab ${tab.textContent.trim()}]`);
       const page = group === 'fxTabGroup' && document.querySelector('.fx-page.active');
       if (page && page.scrollWidth > page.clientWidth + 1)
         add(`FX page ${tab.textContent.trim()} wider than the rack (${page.clientWidth}/${page.scrollWidth})`);
