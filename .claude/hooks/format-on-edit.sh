@@ -5,6 +5,9 @@ input=$(cat)
 root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}
 [ -n "$root" ] || exit 0
 file=$(printf '%s' "$input" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(JSON.parse(d).tool_input.file_path||"")}catch{}})')
+# Windows passes both paths with backslashes; compare with forward slashes
+root=${root//\\//}
+file=${file//\\//}
 case "$file" in
   "$root"/*.js) ;;
   *) exit 0 ;;

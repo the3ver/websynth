@@ -16,7 +16,8 @@ const UGLY = 'const a = {x:"y"}\n';
 function tempProject(t) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'format-hook-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  fs.symlinkSync(path.join(REPO, 'node_modules'), path.join(dir, 'node_modules'));
+  // 'junction' needs no admin rights on Windows; other platforms ignore the type
+  fs.symlinkSync(path.join(REPO, 'node_modules'), path.join(dir, 'node_modules'), 'junction');
   for (const f of ['.prettierrc.json', '.prettierignore']) fs.copyFileSync(path.join(REPO, f), path.join(dir, f));
   const run = (file) =>
     spawnSync('bash', [HOOK], {
