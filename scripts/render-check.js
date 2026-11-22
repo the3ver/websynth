@@ -167,7 +167,9 @@ async function renderPreset({ synth, index, render, latency }) {
   window.reseed(1234);
   clock.reset();
   const length = Math.round(sampleRate * seconds);
-  const ctx = new OfflineAudioContext({ numberOfChannels: 2, length, sampleRate });
+  // Channels 0/1: the output; 2/3: the master bus input (before volume, limiter and clipper), see busPeak
+  const ctx = new OfflineAudioContext({ numberOfChannels: 4, length, sampleRate });
+  ctx.destination.channelInterpretation = 'discrete';
   // The engine schedules at ctx.currentTime, which reads the virtual clock. Between note events the clock runs up
   // to LOOKAHEAD frames ahead of the render, so timers schedule their AudioParam events at their exact time while
   // the render suspends only every STEP frames. It never passes the next note event: note on and off run at a
@@ -189,6 +191,12 @@ async function renderPreset({ synth, index, render, latency }) {
   engine.initAudio();
   await Promise.all([engine.ready, engine.fxChain.ready]);
   engine.loadPresetState(preset.state, def.presets.init);
+  const tap = ctx.createChannelSplitter(2);
+  const tapOut = ctx.createChannelMerger(4);
+  engine.master.input.connect(tap);
+  tap.connect(tapOut, 0, 2);
+  tap.connect(tapOut, 1, 3);
+  tapOut.connect(ctx.destination);
 
   const frameOf = (t) => Math.round((t * sampleRate) / 128) * 128; // on a render quantum
   const onAt = frameOf(noteOn);
@@ -215,7 +223,10 @@ async function renderPreset({ synth, index, render, latency }) {
   }
   const buffer = await ctx.startRendering();
   const channels = [buffer.getChannelData(0), buffer.getChannelData(1)];
-  return { name: preset.name, ...window.measure(channels, onAt, offAt, latency, sampleRate) };
+  let busPeak = 0;
+  for (const data of [buffer.getChannelData(2), buffer.getChannelData(3)])
+    for (let i = 0; i < data.length; i++) busPeak = Math.max(busPeak, Math.abs(data[i]));
+  return { name: preset.name, busPeak, ...window.measure(channels, onAt, offAt, latency, sampleRate) };
 }
 
 async function main() {
@@ -262,7 +273,7 @@ async function main() {
         if (verbose) {
           const v = (x) => x.toFixed(4);
           console.log(
-            `${synth.padEnd(4)} ${m.name.padEnd(34)} peak ${v(m.peak)} onset ${m.onset} on ${v(m.onJump)} held ${v(m.heldJump)} off ${v(m.offJump)}`
+            `${synth.padEnd(4)} ${m.name.padEnd(34)} bus ${v(m.busPeak)} peak ${v(m.peak)} onset ${m.onset} on ${v(m.onJump)} held ${v(m.heldJump)} off ${v(m.offJump)}`
           );
         }
         all.push(...findings(`${synth} "${m.name}"`, m));
