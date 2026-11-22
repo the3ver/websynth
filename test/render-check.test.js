@@ -60,6 +60,12 @@ test('peak at the limit, NaN samples and silence are findings', () => {
   assert.match(findings('t', measure([quiet], ON, OFF, LATENCY, RATE)).join(), /silent, peak 8\.\d+e-5 < 0\.001/);
 });
 
+test('a master bus input above its limit is a finding: the chord drives the limiter too hard (#42)', () => {
+  const m = measure([render(smooth)], ON, OFF, LATENCY, RATE);
+  assert.deepEqual(findings('t', { ...m, busPeak: LIMITS.busPeak }), []);
+  assert.match(findings('t', { ...m, busPeak: 2.9216 }).join(), /master bus input 2\.9216 > 1\.6, the limiter pumps/);
+});
+
 test('a slow onset does not move the windows: a hard cut after a slow attack is still a click', () => {
   const slowCut = (n) => (n < releaseAt ? Math.min(1, (n / 18000) ** 6) : 0); // silent for ~2000 frames
   const m = measure([render(slowCut)], ON, OFF, LATENCY, RATE);

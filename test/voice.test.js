@@ -125,8 +125,9 @@ test('amp and filter envelopes schedule exactly this event sequence over note on
   near(amp, [
     { type: 'cancelAndHoldAtTime', time: 10 },
     { type: 'setValueAtTime', value: 0.00001, time: 10 },
-    { type: 'exponentialRampToValueAtTime', value: 0.2, time: 10.02 },
-    { type: 'exponentialRampToValueAtTime', value: 0.1, time: 10.07 },
+    // VOICE_PEAK_GAIN 0.2 x velocity 0.5, then sustain 0.5
+    { type: 'exponentialRampToValueAtTime', value: 0.1, time: 10.02 },
+    { type: 'exponentialRampToValueAtTime', value: 0.05, time: 10.07 },
     { type: 'cancelAndHoldAtTime', time: 11 },
     { type: 'setTargetAtTime', value: 0, time: 11, timeConstant: 0.1 }
   ]);

@@ -42,7 +42,9 @@ const SUB1_FX_MOD_TARGETS = {
   delayMix: { label: 'DELAY MIX', depth: 0.5 },
   reverbMix: { label: 'REVERB MIX', depth: 0.5 }
 };
-const VOICE_PEAK_GAIN = 0.4;
+// Three mixer sources plus drive and resonance: 0.2 keeps a 4-note chord at the master bus input <= 1.6
+// (LIMITS.busPeak in scripts/render-check.js, ~2 dB limiting at volume 0.8), level with the FM-4 (#42)
+const VOICE_PEAK_GAIN = 0.2;
 
 class Voice {
   constructor(engine, id) {

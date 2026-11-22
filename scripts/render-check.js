@@ -2,7 +2,8 @@
 /**
  * Audio render check in headless Chromium: every factory preset of both synths (and their INIT patch) plays a
  * chord into an OfflineAudioContext, through the real engine, FX rack and master bus (limiter + safety clipper).
- * Fails on a peak at or above LIMITS.peak, NaN samples, a silent output, or a click (see measure()).
+ * Fails on a peak at or above LIMITS.peak, NaN samples, a silent output, a click (see measure()), or a master bus
+ * input above LIMITS.busPeak (channels 2/3 tap engine.master.input: the chord drives the limiter too hard).
  * Reproducible: Math.random is a seeded PRNG (noise buffer, reverb IR, S&H, matrix random), and setTimeout /
  * setInterval run on a virtual clock that also stands in for ctx.currentTime (see renderPreset). Runs agree to
  * about 1e-6 (Chromium's threaded float work); a 4-decimal value in --verbose may flip in its last digit.
@@ -33,7 +34,11 @@ const LIMITS = {
   onJump: 0.01, // largest sample step around the start of a note; clean max 0.0006
   offRatio: 1.5, // largest step after note off / before it; clean max 1.32 (SUB-1 INIT, saw steps vary by window)
   offFloor: 0.0005, // added to the off limit, for near-silent held sounds (SUB-1 07 pad holds 0.0002)
-  latency: [128, 2048] // plausible master bus delay in frames; outside it the bus changed and the windows are wrong
+  latency: [128, 2048], // plausible master bus delay in frames; outside it the bus changed and the windows are wrong
+  // Master bus input for the 4-note chord (#42): at master volume 0.8 the limiter (-0.5 dBFS) reduces by at most
+  // ~2.7 dB. FM-4 max 1.46 (FM BRASS), SUB-1 max 1.47 (MOOG BASS); SUB-1 ran 1.70..2.92 with VOICE_PEAK_GAIN 0.4,
+  // i.e. 3..8 dB pumping
+  busPeak: 1.6
 };
 
 /**
@@ -80,6 +85,8 @@ function findings(label, m, limits = LIMITS) {
   const v = (x) => x.toFixed(4);
   if (m.nan) f.push(`${label}: ${m.nan} NaN samples`);
   if (m.peak >= limits.peak) f.push(`${label}: peak ${v(m.peak)} >= ${limits.peak}`);
+  if (m.busPeak !== undefined && m.busPeak > limits.busPeak)
+    f.push(`${label}: master bus input ${v(m.busPeak)} > ${limits.busPeak}, the limiter pumps`);
   if (m.peak < limits.silent) f.push(`${label}: silent, peak ${m.peak.toExponential(2)} < ${limits.silent}`);
   if (m.onJump > limits.onJump) f.push(`${label}: click at note on, step ${v(m.onJump)} > ${limits.onJump}`);
   const offMax = m.heldJump * limits.offRatio + limits.offFloor;
