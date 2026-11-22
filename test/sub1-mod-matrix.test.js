@@ -237,3 +237,15 @@ test('the MOD ENV loop switch is a preset parameter with a toggle button', () =>
   const html = require('fs').readFileSync(require('path').resolve(__dirname, '..', 'index.html'), 'utf8');
   assert.match(html, /<button class="env-loop-btn" id="modEnvLoopBtn" data-synth="sub1"/);
 });
+
+test('MOD ENV JITTER is a preset parameter on its knob, clamped to 0..1', () => {
+  const { engine } = createLiveEngine();
+  assert.equal(engine.modEnv.jitter, 0);
+  engine.params.set(engine, 'modEnv.jitter', 0.4);
+  assert.equal(engine.getPresetState().modEnv.jitter, 0.4);
+  engine.setEnvJitter('modEnv', 3);
+  assert.equal(engine.modEnv.jitter, 1);
+  engine.setEnvJitter('ampEnv', 0.5);
+  assert.equal(engine.ampEnv.jitter, undefined, 'only envelopes with a jitter field');
+  assert.equal(engine.params.byKnob('mod-env-jitter', 1).path, 'modEnv.jitter');
+});

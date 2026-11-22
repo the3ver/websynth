@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.44-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.45-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,10 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.45: JITTER for the MOD ENV loop, Krell patch with a stumbling rhythm
+- **🎲 JITTER:** A small knob next to LOOP on the MOD ENV tab (SUB-1). With LOOP on, each cycle lasts a random time: at 100 % anywhere from half to double the set attack + decay. Saved in presets; at 0 % the loop runs as before.
+- **🎹 11 // KRELL PATCH:** uses JITTER 70 %, so the plucks no longer come like a metronome but at irregular gaps, as in the original, where random voltages also set the envelope times.
 
 #### ⚡ NEW in v1.8.44: Tabs and buttons while holding a key
 - **🖐️ Multi-touch:** On touch screens tabs and buttons now react to a tap while another finger holds a key. Before, the browser treated it as a multi-finger gesture and sent no click, so OSC, LFO, ENV and FX tabs and buttons like HOLD did nothing.
@@ -345,6 +349,10 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.45: JITTER für den MOD-ENV-Loop, Krell-Patch mit stolperndem Rhythmus
+- **🎲 JITTER:** Ein kleiner Regler neben LOOP im Tab MOD ENV (SUB-1). Mit LOOP dauert jeder Zyklus zufällig lang: bei 100 % zwischen der halben und der doppelten eingestellten Zeit aus Attack + Decay. Wird im Preset gespeichert; bei 0 % läuft der Loop wie bisher.
+- **🎹 11 // KRELL PATCH:** nutzt JITTER 70 %, die Zupfer kommen nicht mehr wie ein Metronom, sondern in unregelmäßigen Abständen, wie im Original, wo Zufallsspannungen auch die Hüllkurvenzeiten setzen.
 
 #### ⚡ NEU in v1.8.44: Tabs und Tasten bei gehaltener Taste
 - **🖐️ Multitouch:** Auf Touch-Displays reagieren Tabs und Tasten jetzt auf einen Tipp, während ein anderer Finger eine Taste hält. Bisher wertete der Browser das als Mehrfinger-Geste und schickte keinen Klick; die Tabs OSC, LFO, ENV und FX und Tasten wie HOLD taten dann nichts.

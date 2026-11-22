@@ -6,9 +6,9 @@ const { FakeAudioContext } = require('./helpers/fake-audio-context');
 const context = loadScripts('lib/envelope.js', 'lib/note-mod-sources.js');
 const { SynthBlocks } = context;
 
-function setup(loop) {
+function setup(loop, jitter = 0) {
   const ctx = new FakeAudioContext();
-  const modEnv = { attack: 0.1, decay: 0.15, sustain: 0.2, release: 0.3, loop };
+  const modEnv = { attack: 0.1, decay: 0.15, sustain: 0.2, release: 0.3, loop, jitter };
   const sources = new SynthBlocks.NoteModSources(ctx, { modEnv });
   return { ctx, modEnv, sources, offset: sources.nodes.modEnv.offset };
 }
@@ -52,3 +52,51 @@ test('release stops the loop and falls to 0', () => {
   assert.equal(context.__timeouts.size, 0, 'refill timer cleared');
   assert.equal(offset.lastValue('setTargetAtTime'), 0);
 });
+
+// Lengths of the scheduled loop cycles: a cycle ends on its ramp down to the sustain level (0.2)
+const cycleLengths = (offset) => {
+  const ends = [
+    0,
+    ...ramps(offset)
+      .filter((e) => e.value !== 1)
+      .map((e) => e.time)
+  ];
+  return ends.slice(1).map((t, i) => t - ends[i]);
+};
+
+// Fixed random sequence; note on takes the first value (RANDOM source), every loop cycle the next one
+const SEQUENCE = [0, 1, 0.5, 0.25, 0.9];
+function withSequence(fn) {
+  const vm = require('node:vm');
+  vm.runInContext(
+    `Math.__real = Math.random; { let i = 0; const r = ${JSON.stringify(SEQUENCE)}; Math.random = () => r[i++ % r.length]; }`,
+    context
+  );
+  try {
+    fn();
+  } finally {
+    vm.runInContext('Math.random = Math.__real;', context);
+  }
+}
+
+for (const jitter of [1, 0.5]) {
+  test(`jitter ${jitter}: each cycle lasts 0.25 s * 2^(${jitter} * (2r - 1)), refilled cycles too`, () => {
+    withSequence(() => {
+      const { ctx, sources, offset } = setup(true, jitter);
+      context.__timeouts.clear();
+      sources.trigger(60, 1, 0);
+      const first = cycleLengths(offset).length;
+      ctx.currentTime = 1.2;
+      const [id, refill] = Array.from(context.__timeouts).pop();
+      context.__timeouts.delete(id);
+      refill();
+      const lengths = cycleLengths(offset);
+      assert.ok(lengths.length > first, 'the refill appended cycles');
+      lengths.forEach((len, i) => {
+        const r = SEQUENCE[(i + 1) % SEQUENCE.length];
+        const expected = 0.25 * Math.pow(2, jitter * (2 * r - 1));
+        assert.ok(Math.abs(len - expected) < 1e-9, `cycle ${i}: ${len} vs ${expected}`);
+      });
+    });
+  });
+}

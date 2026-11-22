@@ -84,9 +84,10 @@
       }
       let t = from;
       do {
+        // Clamped after scaling: a shortened cycle keeps the click-free minimum stage time
         const scale = cycleScale();
-        const cycleAttack = attackTime * scale;
-        const cycleDecay = decayTime * scale;
+        const cycleAttack = Math.max(this.minStageTime, attackTime * scale);
+        const cycleDecay = Math.max(this.minStageTime, decayTime * scale);
         for (const param of params) {
           param.exponentialRampToValueAtTime(peak, t + cycleAttack);
           param.exponentialRampToValueAtTime(sustainLevel, t + cycleAttack + cycleDecay);

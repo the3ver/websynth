@@ -74,6 +74,7 @@ class AudioEngine extends PolySynthEngine {
       decay: 0.6,
       sustain: 0.0,
       release: 0.4,
+      jitter: 0.0, // 0..1: each LOOP cycle lasts 2^(+-jitter) times as long, at random
       loop: false // true: attack/decay repeat while a key is held (LFO-like)
     };
 

@@ -109,7 +109,7 @@
         <button class="btn btn-outline changelog-trigger-btn" id="openChangelogBtn">
           <span class="changelog-sparkle">✨</span>
           <span>Was gibt's Neues?</span>
-          <span class="version-tag">v1.8.44</span>
+          <span class="version-tag">v1.8.45</span>
         </button>
         <button class="btn btn-outline header-reload-btn" id="hardRefreshBtn" title="Studio neu laden & Cache aktualisieren">
           <span class="btn-icon">🔄</span>
@@ -946,6 +946,12 @@
                       <path class="env-shape" d=""></path>
                     </svg>
                     <button class="env-loop-btn" id="modEnvLoopBtn" data-synth="sub1" title="MOD ENV wiederholt Attack und Decay, solange die Taste gehalten wird (wie ein LFO)">LOOP</button>
+                    <div class="env-jitter" data-synth="sub1" title="JITTER: Jede LOOP-Wiederholung wird zufällig kürzer oder länger, bei 100 % zwischen halber und doppelter Zeit">
+                      <div class="synth-knob-housing" data-param="mod-env-jitter" data-min="0" data-max="1" data-step="0.01" data-default="0" data-type="percent">
+                        <div class="synth-knob-dial"><div class="knob-pointer"></div><div class="knob-dial-center"></div></div>
+                      </div>
+                      <span class="env-jitter-label">JIT <span id="mod-env-jitter-readout">0%</span></span>
+                    </div>
                   </div>
 
                   <!-- 4-Fader Bank: Attack, Decay, Sustain, Release -->
@@ -1701,16 +1707,30 @@
         <div class="modal-title-group">
           <div class="version-release-header">
             <span class="badge-tag-release">NEUE VERSION</span>
-            <span class="release-version-number">v1.8.44</span>
+            <span class="release-version-number">v1.8.45</span>
             <span class="release-date-tag">November 2026</span>
           </div>
           <h2>Was gibt's Neues bei RETROVOX</h2>
-          <p class="modal-subtitle">Tabs bei gehaltener Taste • Krell-Patch • Regler drehen bei gehaltener Taste • Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
+          <p class="modal-subtitle">JITTER für den Loop • Tabs bei gehaltener Taste • Krell-Patch • Regler drehen bei gehaltener Taste • Oktave tiefer mit Y • Delay im Takt • FM-4 Algorithmus-Display • MIDI auf dem iPad • MIDI mit Arp &amp; HOLD • Mod-Hüllkurve • Oszillator-Tabs • Mod-Matrix • Bitcrusher • HOLD ohne Arpeggiator • RANDOM-Patch • Effekte mit Tasten • Neuer FM-4 Synthesizer • Synth-Auswahl • Keine hängenden Noten • Weniger CPU-Last • Kein Übersteuern am Ausgang • S&H ohne Knacken • Arpeggiator Latch • Sync-Anzeigen</p>
         </div>
         <button class="modal-close-btn" id="closeChangelogBtn" aria-label="Schließen">&times;</button>
       </div>
       <div class="modal-body">
         <div class="changelog-grid">
+
+          <div class="changelog-card highlight-card">
+            <div class="card-icon">🎲</div>
+            <div class="card-content">
+              <div class="card-badge perf-badge">NEU</div>
+              <h3>JITTER für den MOD-ENV-Loop</h3>
+              <p>Neben LOOP im Tab MOD ENV sitzt ein kleiner Regler JITTER: Jeder Loop-Zyklus dauert zufällig lang.</p>
+              <ul>
+                <li><strong>Bereich:</strong> bei 100 % zwischen der halben und der doppelten Zeit aus Attack + Decay; bei 0 % wie bisher.</li>
+                <li><strong>Krell-Patch:</strong> nutzt 70 %, die Zupfer kommen in unregelmäßigen Abständen statt wie ein Metronom.</li>
+                <li><strong>Presets:</strong> JITTER wird gespeichert, ältere Presets laden mit 0 %.</li>
+              </ul>
+            </div>
+          </div>
 
           <div class="changelog-card highlight-card">
             <div class="card-icon">🖐️</div>

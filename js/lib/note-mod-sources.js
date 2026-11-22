@@ -15,6 +15,8 @@
   const LOOP_HORIZON = 2;
   const LOOP_REFILL_MS = 500;
   const SHAPE = { start: 0.0001, peak: 1 };
+  // Loop jitter: each cycle lasts 2^(jitter * r) times as long, r random in -1..1 (jitter 1: half to double)
+  const jitterScale = (stages) => () => (stages.jitter ? Math.pow(2, stages.jitter * (Math.random() * 2 - 1)) : 1);
 
   class NoteModSources {
     /**
@@ -30,13 +32,14 @@
         return source;
       };
       this.nodes = {};
-      // { node, envelope, stages, loopEnd } per envelope name; loopEnd: end of the scheduled loop cycles
+      // { node, envelope, stages, cycleScale, loopEnd } per envelope name; loopEnd: end of the scheduled loop cycles
       this.envelopes = Object.entries(envelopes).map(([name, stages]) => {
         this.nodes[name] = constant(0);
         return {
           node: this.nodes[name],
           envelope: new blocks.Envelope(stages, { range: [0.0001, 1] }),
           stages,
+          cycleScale: jitterScale(stages),
           loopEnd: 0
         };
       });
@@ -51,7 +54,11 @@
       this.stopLoop();
       for (const env of this.envelopes) {
         if (env.stages.loop) {
-          env.loopEnd = env.envelope.loop([env.node.offset], now, now + LOOP_HORIZON, { ...SHAPE, first: true });
+          env.loopEnd = env.envelope.loop([env.node.offset], now, now + LOOP_HORIZON, {
+            ...SHAPE,
+            first: true,
+            cycleScale: env.cycleScale
+          });
         } else {
           env.envelope.trigger([env.node.offset], now, SHAPE);
         }
@@ -70,7 +77,10 @@
         const until = this.ctx.currentTime + LOOP_HORIZON;
         for (const env of this.envelopes) {
           if (env.stages.loop && env.loopEnd < until) {
-            env.loopEnd = env.envelope.loop([env.node.offset], env.loopEnd, until, SHAPE);
+            env.loopEnd = env.envelope.loop([env.node.offset], env.loopEnd, until, {
+              ...SHAPE,
+              cycleScale: env.cycleScale
+            });
           }
         }
         this.scheduleRefill();

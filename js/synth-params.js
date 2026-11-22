@@ -49,6 +49,7 @@ const SYNTH_PARAMS = [
   ...envParams('ampEnv'),
   ...envParams('modEnv'),
   { path: 'modEnv.loop', set: (e, v) => e.setEnvLoop('modEnv', v) },
+  { path: 'modEnv.jitter', knob: 'mod-env-jitter', set: (e, v) => e.setEnvJitter('modEnv', v) },
   ...lfoParams(1),
   ...lfoParams(2),
 

@@ -310,6 +310,14 @@ class PolySynthEngine {
     if (env && 'loop' in env) env.loop = !!on;
   }
 
+  /**
+   * Loop jitter of an envelope settings object (envelopes with a jitter field, e.g. modEnv), 0..1
+   */
+  setEnvJitter(envName, val) {
+    const env = this.params.getPath(this, envName);
+    if (env && 'jitter' in env) env.jitter = Math.max(0, Math.min(1, parseFloat(val) || 0));
+  }
+
   setEnvStage(envName, stage, val) {
     const env = this.params.getPath(this, envName);
     if (!env || !(stage in env)) return;

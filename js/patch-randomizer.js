@@ -127,7 +127,8 @@ const PatchRandomizer = (() => {
         decay: t.logRange(0.05, 3),
         sustain: t.range(0, 1),
         release: t.logRange(0.05, 3),
-        loop: t.chance(0.25)
+        loop: t.chance(0.25),
+        jitter: t.chance(0.5) ? 0 : t.range(0, 1)
       },
       lfo1: lfo(),
       lfo2: lfo(),

@@ -2382,6 +2382,29 @@ polyline.fm-alg-out {
   display: block;
 }
 
+/* JITTER knob of the mod envelope loop: top right next to LOOP, where the curve has already fallen;
+   only on the MOD ENV tab. Its 20 px size comes from the .arp-micro-knob rules */
+.env-jitter {
+  display: none;
+  position: absolute;
+  top: 2px;
+  right: 40px;
+  align-items: center;
+  gap: 3px;
+}
+
+.env-mod-mode .env-jitter {
+  display: flex;
+}
+
+.env-jitter-label {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #6a7488;
+  white-space: nowrap;
+}
+
 .env-loop-btn.active {
   border-color: var(--led-green);
   color: #ffffff;
@@ -3131,7 +3154,8 @@ polyline.fm-alg-out {
   box-sizing: border-box;
 }
 
-.arp-micro-knob .synth-knob-housing {
+.arp-micro-knob .synth-knob-housing,
+.env-jitter .synth-knob-housing {
   width: 20px !important;
   height: 20px !important;
   min-width: 20px !important;
@@ -3145,7 +3169,8 @@ polyline.fm-alg-out {
   padding: 0 !important;
 }
 
-.arp-micro-knob .synth-knob-dial {
+.arp-micro-knob .synth-knob-dial,
+.env-jitter .synth-knob-dial {
   width: 14px !important;
   height: 14px !important;
   min-width: 14px !important;
@@ -3157,13 +3182,15 @@ polyline.fm-alg-out {
   box-sizing: border-box !important;
 }
 
-.arp-micro-knob .knob-pointer {
+.arp-micro-knob .knob-pointer,
+.env-jitter .knob-pointer {
   height: 4px !important;
   width: 1.5px !important;
   top: 1px !important;
 }
 
-.arp-micro-knob .knob-dial-center {
+.arp-micro-knob .knob-dial-center,
+.env-jitter .knob-dial-center {
   inset: 2.5px !important;
   border-radius: 50% !important;
 }
