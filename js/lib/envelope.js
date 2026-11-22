@@ -66,9 +66,10 @@
      * Looping attack/decay (LFO-like): peak, down to the sustain level, back to peak ... from
      * `from` until at least `until`. first: jump to start before the first attack (note on);
      * later calls continue from the level the last cycle ended on. Returns the end of the last
-     * scheduled cycle, where the next call continues.
+     * scheduled cycle, where the next call continues. cycleScale() is called once per cycle and
+     * stretches that cycle's attack and decay (default 1: every cycle alike).
      */
-    loop(params, from, until, { start, peak, base = start, first = false }) {
+    loop(params, from, until, { start, peak, base = start, first = false, cycleScale = () => 1 }) {
       const { attack, decay, sustain } = this.stages;
       const attackTime = Math.max(this.minStageTime, attack);
       const decayTime = Math.max(this.minStageTime, decay);
@@ -83,11 +84,14 @@
       }
       let t = from;
       do {
+        const scale = cycleScale();
+        const cycleAttack = attackTime * scale;
+        const cycleDecay = decayTime * scale;
         for (const param of params) {
-          param.exponentialRampToValueAtTime(peak, t + attackTime);
-          param.exponentialRampToValueAtTime(sustainLevel, t + attackTime + decayTime);
+          param.exponentialRampToValueAtTime(peak, t + cycleAttack);
+          param.exponentialRampToValueAtTime(sustainLevel, t + cycleAttack + cycleDecay);
         }
-        t += attackTime + decayTime;
+        t += cycleAttack + cycleDecay;
       } while (t < until);
       return t;
     }
