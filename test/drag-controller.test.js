@@ -104,3 +104,49 @@ test('a mouse drag after a touch drag follows the mouse', () => {
   windowListeners.mouseup({});
   assert.deepEqual(calls, ['knob start 100', 'knob end', 'knob start 40', 'knob move 30', 'knob end']);
 });
+
+test('dragging a knob prevents default page scroll on touchmove for its own finger', () => {
+  const windowListeners = {};
+  const windowOpts = {};
+  const { DragController } = loadScriptsWith(
+    {
+      document: { getElementById: () => null, body: { style: {} } },
+      addEventListener: (type, fn, opts) => {
+        windowListeners[type] = fn;
+        windowOpts[type] = opts;
+      }
+    },
+    'knob-scale.js',
+    'controls.js'
+  );
+  const elListeners = {};
+  const el = { addEventListener: (type, fn) => (elListeners[type] = fn), contains: (t) => t === el };
+  DragController.bind(el, { dragStart() {}, dragMove() {}, dragEnd() {} });
+
+  const finger = { identifier: 2, clientY: 100, target: el };
+  elListeners.touchstart({ touches: [finger], changedTouches: [finger], cancelable: true, preventDefault() {} });
+  assert.equal(windowOpts.touchmove.passive, false);
+
+  let prevented = false;
+  windowListeners.touchmove({
+    touches: [finger],
+    changedTouches: [{ identifier: 2, clientY: 80, target: el }],
+    cancelable: true,
+    preventDefault: () => {
+      prevented = true;
+    }
+  });
+  assert.equal(prevented, true);
+
+  // A finger the drag does not own (e.g. swiping the drum drawer) keeps its default scrolling
+  let otherPrevented = false;
+  windowListeners.touchmove({
+    touches: [finger],
+    changedTouches: [{ identifier: 3, clientY: 50, target: {} }],
+    cancelable: true,
+    preventDefault: () => {
+      otherPrevented = true;
+    }
+  });
+  assert.equal(otherPrevented, false);
+});

@@ -55,11 +55,19 @@
   margin: 0;
   padding: 0;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
+  touch-action: manipulation;
 }
 
 body {
@@ -1158,6 +1166,7 @@ polyline.fm-alg-out {
   justify-content: center;
   overflow: hidden;
   position: relative;
+  touch-action: none;
 }
 
 .wheel {
@@ -1168,6 +1177,7 @@ polyline.fm-alg-out {
   cursor: ns-resize;
   position: relative;
   box-shadow: 0 0 6px rgba(0,0,0,0.8);
+  touch-action: none;
 }
 
 .wheel-center-notch, .wheel-notch {
@@ -1321,6 +1331,7 @@ polyline.fm-alg-out {
   padding: 0 2px 2px 2px;
   border-radius: 0 0 4px 4px;
   box-sizing: border-box;
+  touch-action: none;
 }
 
 /* White Key */
@@ -2056,6 +2067,7 @@ polyline.fm-alg-out {
   justify-content: center;
   position: relative;
   cursor: ns-resize;
+  touch-action: none;
 }
 
 .synth-knob-housing:hover {
@@ -2458,6 +2470,7 @@ polyline.fm-alg-out {
   display: flex;
   justify-content: center;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+  touch-action: none;
 }
 
 .synth-fader-groove {
@@ -3477,6 +3490,12 @@ polyline.fm-alg-out {
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 157, 0, 0.15);
   transition: all 0.25s ease;
   user-select: none;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  color: inherit;
 }
 
 .drum-drawer-tab:hover {

@@ -103,3 +103,15 @@ test('a toggle in a <label> (GLIDE) also switches while a key is held', () => {
   fire('touchend', [key], [finger(2, onLabel)]);
   assert.deepEqual(clicks, ['glide']);
 });
+
+test('Safari pinch gesture events are cancelled globally so two-hand playing does not zoom', () => {
+  const { fire, prevented } = setup();
+  fire('gesturestart', [], []);
+  fire('gesturechange', [], []);
+  assert.equal(prevented(), 2);
+});
+
+test('the Drum Rack drawer tab is a <button>, so it opens while a key is held (#39)', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /<button[^>]*\bid="drumDrawerTab"/);
+});

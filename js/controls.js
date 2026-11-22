@@ -51,10 +51,16 @@ const DragController = {
     window.addEventListener('mouseup', () => {
       if (this.touchId === null) this.end();
     });
-    window.addEventListener('touchmove', (e) => {
-      const touch = this.ownTouch(e.changedTouches);
-      if (touch) this.move(touch.clientY, false);
-    });
+    window.addEventListener(
+      'touchmove',
+      (e) => {
+        const touch = this.ownTouch(e.changedTouches);
+        if (!touch) return;
+        if (e.cancelable) e.preventDefault();
+        this.move(touch.clientY, false);
+      },
+      { passive: false }
+    );
     const release = (e) => {
       if (this.ownTouch(e.changedTouches)) this.end();
     };

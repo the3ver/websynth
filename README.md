@@ -1,6 +1,6 @@
 # 🎹 RETROVOX SUB-1 & RETROBEAT D-909 • Analog Synthesizer & Drum Studio
 
-[![Version](https://img.shields.io/badge/Version-1.8.45-00E5FF?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-1.8.46-00E5FF?style=flat-square)](#)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio-DSP_Core-00FF88?style=flat-square)](#)
 [![Web MIDI API](https://img.shields.io/badge/Web_MIDI-Plug_%26_Play-FF9D00?style=flat-square)](#)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25_Offline-9900FF?style=flat-square)](#)
@@ -17,6 +17,10 @@
 An analog-style synthesizer (**RETROVOX SUB-1**), a 4-operator FM synthesizer (**RETROVOX FM-4**) and a DSP drum & acid bass machine (**RETROBEAT D-909**) right in the web browser, built on web standards only (HTML5, vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEW in v1.8.46: Playing on the iPad without zooming
+- **🖐️ iPad Safari:** Chords and glissandi with several fingers no longer zoom or pan the page, and holding a key no longer opens the magnifier or selects text. Knobs, faders and wheels hold the page still while you turn them.
+- **🥁 D-909 tab:** The RETROBEAT tab on the right edge now also opens while another finger holds a key.
 
 #### ⚡ NEW in v1.8.45: JITTER for the MOD ENV loop, Krell patch with a stumbling rhythm
 - **🎲 JITTER:** A small knob next to LOOP on the MOD ENV tab (SUB-1). With LOOP on, each cycle lasts a random time: at 100 % anywhere from half to double the set attack + decay. Saved in presets; at 0 % the loop runs as before.
@@ -349,6 +353,10 @@ This project is licensed under the **[MIT license](LICENSE)**: free to use for p
 Ein authentischer analoger Synthesizer (**RETROVOX SUB-1**), ein FM-Synthesizer mit 4 Operatoren (**RETROVOX FM-4**) und eine DSP Drum & Acid Bass Machine (**RETROBEAT D-909**) direkt im Webbrowser – gebaut mit modernsten Web-Standards (HTML5, Vanilla CSS, Web Audio API, Web MIDI API, Web Workers).
 
 ---
+
+#### ⚡ NEU in v1.8.46: Spielen auf dem iPad ohne Zoomen
+- **🖐️ iPad Safari:** Akkorde und Glissandi mit mehreren Fingern zoomen oder verschieben die Seite nicht mehr, und eine gehaltene Taste öffnet keine Lupe und markiert keinen Text mehr. Regler, Fader und Räder halten die Seite still, während man sie dreht.
+- **🥁 D-909-Reiter:** Der RETROBEAT-Reiter am rechten Rand öffnet jetzt auch, während ein anderer Finger eine Taste hält.
 
 #### ⚡ NEU in v1.8.45: JITTER für den MOD-ENV-Loop, Krell-Patch mit stolperndem Rhythmus
 - **🎲 JITTER:** Ein kleiner Regler neben LOOP im Tab MOD ENV (SUB-1). Mit LOOP dauert jeder Zyklus zufällig lang: bei 100 % zwischen der halben und der doppelten eingestellten Zeit aus Attack + Decay. Wird im Preset gespeichert; bei 0 % läuft der Loop wie bisher.

@@ -68,8 +68,13 @@ class DrumUI {
       }
     };
 
-    if (this.drawerTab) this.drawerTab.addEventListener('click', toggleDrawer);
-    if (this.openDrawerBtn) this.openDrawerBtn.addEventListener('click', toggleDrawer);
+    // Both are buttons: drop focus so Space/Enter go to the keybed instead of toggling the drawer again
+    const onToggleClick = (e) => {
+      toggleDrawer();
+      DomUtils.blurTarget(e);
+    };
+    if (this.drawerTab) this.drawerTab.addEventListener('click', onToggleClick);
+    if (this.openDrawerBtn) this.openDrawerBtn.addEventListener('click', onToggleClick);
     if (this.closeDrawerBtn)
       this.closeDrawerBtn.addEventListener('click', () => {
         this.isOpen = false;

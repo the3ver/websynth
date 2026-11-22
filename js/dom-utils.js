@@ -72,6 +72,10 @@ const DomUtils = {
     window.addEventListener('touchcancel', (e) => {
       for (const touch of Array.from(e.changedTouches)) taps.delete(touch.identifier);
     });
+    // Safari fires proprietary gesture events for two-finger pinch-zoom while playing chords or tweaking controls
+    const preventPinch = (e) => e.preventDefault();
+    window.addEventListener('gesturestart', preventPinch, { passive: false });
+    window.addEventListener('gesturechange', preventPinch, { passive: false });
   }
 };
 

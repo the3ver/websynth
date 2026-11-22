@@ -304,7 +304,8 @@ class VirtualKeyboard {
     const activeTouchNotes = new Map(); // touch identifier -> midi
 
     const handleTouches = (e) => {
-      this.callbacks.ensureAudio();
+      if (e.cancelable) e.preventDefault();
+      if (e.type !== 'touchmove') this.callbacks.ensureAudio();
       const currentTouches = new Set();
       for (const touch of Array.from(e.touches)) {
         // e.touches holds every finger on the screen; one that started on a knob or fader is not a key finger
